@@ -1,4 +1,4 @@
-channel_cd authentication_cd communication_cd empty_communication_flag
+id channel_cd authentication_cd communication_cd empty_communication_flag
 1        CH07              AU02            COM01                        0
 2        CH07              AU04            COM01                        0
 3        CH06              AU02            COM02                        0

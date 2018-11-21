@@ -1,4 +1,4 @@
-fraud_flag transfer_id timestamp account_name benef_account_id benef_country
+id fraud_flag transfer_id timestamp account_name benef_account_id benef_country
 1           0   xtr146954   3823030          Bob        X58233569         ISO03
 2           0   xtr582322   4963503          Bob        X22723109         ISO03
 3           0   xtr227226   5554880          Bob        X63848056         ISO03
