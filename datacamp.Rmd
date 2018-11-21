@@ -25,11 +25,13 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 
 ```{r echo=FALSE}
 library(readr)
-library(here)
 library(tidyverse)
 library(data.table)
-load(here('data','expenses.rdata'))
-load(here('data','amountNA.rdata'))
+library(here)
+# here is both in pkg here and lubridate
+
+load(here::here('data','expenses.rdata'))
+load(here::here('data','amountNA.rdata'))
 expenses %>% head
 amountNA %>% head
 ```
@@ -39,10 +41,14 @@ read `.Rdata`
 
 ```{r}
 transfers <- 
-    bind_cols(
-        fread(here('data','transfer01.csv'))
-        ,fread(here('data','transfer02.csv'))
-        ,fread(here('data','transfer03.csv'))
+    plyr::join_all(
+        list(
+            fread(here::here('data','transfer01.csv'))
+            ,fread(here::here('data','transfer02.csv'))
+            ,fread(here::here('data','transfer03.csv'))
+        )
+        ,by ='id'
+        ,type = 'left'
     )
 ```
 
@@ -67,7 +73,7 @@ function (base_size = 12, legend = FALSE)
 }
 ```
 
-# imbalance
+# Imbalance
 
 ```{r}
 # Print the first 6 rows of the dataset
@@ -121,7 +127,7 @@ print(cost)
 
 `amount`是借款本金，在不考虑逾期后回款的情况(这是欺诈用户的特征)，那么都算损失。
 
-# time feature
+# Time feature
 
 >
 Do not use arithmetic mean to compute an average timestamp!
@@ -205,15 +211,198 @@ print(cbind.data.frame(ts, time_feature))
 
 $\Box$ 这个人可以follow
 
-书签
-https://campus.datacamp.com/courses/fraud-detection-in-r/introduction-motivation?ex=7
+von Mises probability distribution
 
-# frequency feature
+
+# Frequency feature
+
+查询一个用户不同渠道重复的频率。
+
+```{r}
+trans_Bob <- 
+    plyr::join_all(
+        list(
+            fread(here::here('data','trans_Bob01.csv'))
+            ,fread(here::here('data','trans_Bob02.csv'))
+            ,fread(here::here('data','trans_Bob03.csv'))
+        )
+        ,by ='id'
+        ,type = 'left'
+    )
+```
+
+```{r}
+# Frequency feature based on channel_cd
+frequency_fun <- function(steps, channel) {
+  n <- length(steps)
+  frequency <- sum(channel[1:n] == channel[n + 1])
+  # The value of the current rows is equal to the previous rows.
+  # Count 1.
+  return(frequency)
+}
+
+# Create freq_channel feature
+freq_channel <- 
+    zoo::rollapply(
+        trans_Bob$transfer_id
+        ,width = list(-1:-length(trans_Bob$transfer_id))
+        ,partial = TRUE
+        ,FUN = frequency_fun
+        ,trans_Bob$channel_cd
+        )
+
+length(freq_channel)
+
+# Print the features channel_cd, freq_channel and fraud_flag next to each other
+freq_channel <- c(0, freq_channel)
+freq_channel_tbl01 <- 
+    cbind.data.frame(trans_Bob$channel_cd, freq_channel, trans_Bob$fraud_flag) %>% 
+    set_names('channel_cd','freq_channel','fraud_flag')
+```
+
+Another way.
+
+```{r}
+freq_channel_tbl02 <- 
+    trans_Bob %>% 
+    mutate(channel_cd = factor(channel_cd)) %>% 
+    group_by(account_name,channel_cd) %>% 
+    arrange(timestamp) %>% 
+    mutate(freq_channel = row_number()-1) %>% 
+    ungroup() %>% 
+    select(-account_name) %>% 
+    select('channel_cd','freq_channel','fraud_flag')
+```
+
+```{r}
+setequal(freq_channel_tbl01,freq_channel_tbl02)
+```
+
+```{r}
+freq_channel_tbl02 %>% 
+    tail
+```
+
+注意欺诈发生于`freq_channel=0`的时候，这是freq feature的作用。
+
+
+
+
+# Recency features
+
+$\Box$ how to add bracket in ggplot
+
+```{r}
+knitr::include_graphics(here::here('pic','recencyfeature.png'))
+```
+
+$$\text{recency} = e^{-\gamma t}$$
+
+1. $e^n|n<0 \in (0,1)$
+1. $t$ is time interval between two consecutive events of the same type
+1. $\gamma$ close to 0 (e.g. 0.01, 0.02, 0.05), control $t$ effect
+
+```{r}
+expand.grid(
+    time_interval = 0:350
+    ,gamma = c(0.01,0.02,0.05,0.10,0.20)
+) %>% 
+    mutate(recency = exp(-time_interval*gamma)
+           ,text = glue::glue('gamma is {gamma}')
+           ) %>% 
+    ggplot(aes(x = time_interval,y = recency, col = text)) +
+    geom_line()
+```
+
+1. recency descreases by time interval.
+1. recency desceases more by gamma increasing.
+
+```{r}
+recency_fun <- function(t, gamma, auth_cd, freq_auth) {
+    n_t <- length(t)
+    if (freq_auth[n_t] == 0) {
+        recency <- 0 # recency = 0 when frequency = 0
+    } else {
+        time_diff <- t[1] - max(t[2:n_t][auth_cd[(n_t-1):1] == auth_cd[n_t]]) # time-interval = current timestamp
+        # - timestamp of previous transfer with same auth_cd
+        recency <- exp(-gamma * time_diff) 
+    }
+    return(recency) 
+    }
+```
+
+```{r}
+trans <- 
+    plyr::join_all(
+        list(
+            fread(here::here('data','trans01.csv'))
+            ,fread(here::here('data','trans02.csv'))
+            ,fread(here::here('data','trans03.csv'))
+        )
+        ,by ='id'
+        ,type = 'left'
+    )
+```
+
+```{r}
+freq_channel_data <- 
+    trans %>% 
+    arrange(timestamp) %>% 
+    group_by(account_name,channel_cd) %>% 
+    mutate(
+        time_diff = timestamp-lag(timestamp)
+        ,gamma = 0.05116856
+        ,rec_channel = 
+            ifelse(freq_channel == 0,0,exp(-time_diff*gamma))
+            # if (freq_channel == 0) {
+            #   print(0)
+            # } else {
+            #   print(exp(-time_diff*gamma))
+            # }
+    ) %>% 
+    select(account_name, channel_cd, timestamp,freq_channel, rec_channel, fraud_flag)
+```
+
+注意`rec_channel=0`产生了欺诈行为。
 
 ```{r}
 transfers %>% 
-    filter(account_name == 'Bob')
+    
+    mutate(channel_cd = factor(channel_cd)) %>% 
+    
+    # Freq feature
+    group_by(orig_account_id,channel_cd) %>% 
+    arrange(timestamp) %>% 
+    mutate(freq_channel = row_number()-1) %>% 
+    ungroup() %>% 
+    
+    # Rec feature
+
+    group_by(orig_account_id,channel_cd) %>% 
+    mutate(
+        time_diff = timestamp-lag(timestamp)
+        ,gamma = 0.05116856
+        ,rec_channel = 
+            ifelse(freq_channel == 0,0,exp(-time_diff*gamma))
+    ) %>% 
+    ungroup() %>% 
+    
+    # summary
+    group_by(fraud_flag) %>% 
+    select(freq_channel, rec_channel) %>% 
+    nest() %>% 
+    transmute(desc = map(data,psych::describe)) %>% 
+    unnest()
 ```
 
+目前欺诈用户的统计指标在这两种变量中差异很大。
+
+# Social network
+
+chai: 小样本进行分析
+wj: 数据含有时间吗？
+
+书签
+https://campus.datacamp.com/courses/fraud-detection-in-r/social-network-analytics?ex=2
 
 # 参考 {-}
