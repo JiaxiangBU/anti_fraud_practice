@@ -1,0 +1,18 @@
+channel_cd authentication_cd communication_cd empty_communication_flag
+1        CH07              AU02            COM01                        0
+2        CH07              AU04            COM01                        0
+3        CH06              AU02            COM02                        0
+4        CH06              AU02            COM03                        1
+5        CH07              AU02            COM02                        0
+6        CH02              AU04            COM02                        0
+7        CH06              AU02            COM01                        0
+8        CH07              AU02            COM02                        0
+9        CH07              AU04            COM01                        0
+10       CH07              AU02            COM02                        0
+11       CH02              AU04            COM02                        0
+12       CH07              AU04            COM01                        0
+13       CH06              AU04            COM02                        0
+14       CH02              AU01            COM02                        0
+15       CH07              AU04            COM02                        0
+16       CH06              AU02            COM02                        0
+17       CH05              AU03            COM03                        1

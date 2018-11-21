@@ -1,0 +1,219 @@
+---
+output: 
+    github_document:
+        df_print: tibble
+bibliography: add.bib
+---
+
+
+主要参考
+@BaesensFraud
+的讲解。
+
+主要内容
+
+1. periodic time features 
+1. use networks to fight fraud
+<!-- 老柴 -->
+1. the imbalance or skewness of the data and 
+1. the various costs for different types of misclassification
+1. digit analysis
+
+```{r setup}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+```{r echo=FALSE}
+library(readr)
+library(here)
+library(tidyverse)
+library(data.table)
+load(here('data','expenses.rdata'))
+load(here('data','amountNA.rdata'))
+expenses %>% head
+amountNA %>% head
+```
+
+read `.Rdata`
+: https://stackoverflow.com/questions/7270544/how-to-see-data-from-rdata-file
+
+```{r}
+transfers <- 
+    bind_cols(
+        fread(here('data','transfer01.csv'))
+        ,fread(here('data','transfer02.csv'))
+        ,fread(here('data','transfer03.csv'))
+    )
+```
+
+```{r}
+theme_nothing <- 
+function (base_size = 12, legend = FALSE) 
+{
+    if (legend) {
+        return(theme(axis.text = element_blank(), axis.title = element_blank(), 
+            panel.background = element_blank(), panel.grid.major = element_blank(), 
+            panel.grid.minor = element_blank(), axis.ticks.length = unit(0, 
+                "cm"), panel.margin = unit(0, "lines"), plot.margin = unit(c(0, 
+                0, 0, 0), "lines"), complete = TRUE))
+    }
+    else {
+        return(theme(line = element_blank(), rect = element_blank(), 
+            text = element_blank(), axis.ticks.length = unit(0, 
+                "cm"), legend.position = "none", panel.margin = unit(0, 
+                "lines"), plot.margin = unit(c(0, 0, 0, 0), "lines"), 
+            complete = TRUE))
+    }
+}
+```
+
+# imbalance
+
+```{r}
+# Print the first 6 rows of the dataset
+head(transfers)
+
+# Display the structure of the dataset
+str(transfers)
+
+# Determine fraction of legitimate and fraudulent cases
+class_distribution <- prop.table(table(transfers$fraud_flag))
+print(class_distribution)
+
+# Make pie chart of column fraud_flag
+df <- data.frame(class = c("no fraud", "fraud"), 
+                 pct = as.numeric(class_distribution)) %>%
+  mutate(class = factor(class, levels = c("no fraud", "fraud")),
+         cumulative = cumsum(pct), midpoint = cumulative - pct / 2,
+         label = paste0(class, " ", round(pct*100, 2), "%"))
+# df
+# with
+# name pct cum_pct and label
+ggplot(df, aes(x = 1, weight = pct, fill = class)) +
+    # for polar 
+    scale_fill_manual(values = c("dodgerblue", "red")) +
+    # change default col
+    geom_bar(width = 1, position = "stack") +
+    coord_polar(theta = "y") +
+    geom_text(aes(x = 1.3, y = midpoint, label = label)) +
+    # the label pos is set by x.
+    theme_nothing()
+```
+
+Here is the imnbalance of data.
+
+Set confusion matrix with loss cost.
+
+```{r}
+# Create vector predictions containing 0 for every transfer
+predictions <- factor(rep.int(0, nrow(transfers)), levels = c(0, 1))
+
+# Compute confusion matrix
+library(caret)
+levels(predictions)
+levels(as.factor(transfers$fraud_flag))
+# 错误: package e1071 is required
+confusionMatrix(data = predictions, reference = as.factor(transfers$fraud_flag))
+# Compute cost of not detecting fraud
+cost <- sum(transfers$amount[transfers$fraud_flag == 1])
+print(cost)
+```
+
+`amount`是借款本金，在不考虑逾期后回款的情况(这是欺诈用户的特征)，那么都算损失。
+
+# time feature
+
+>
+Do not use arithmetic mean to compute an average timestamp!
+
+Use periodic mean.
+
+$\Box$ 参考PPT 把特例举例出来。
+
+因为24小时制，0点是跟11点和1点都非常近似。
+以下展示图。
+这个特征好。
+
+$\Box$ xyjl 注册时间的分布，执行区间，短信消息的区间，这些可以做起来！
+
+>
+The circular histogram is a visual representation of the timestamps of events. 
+
+解决方案是使用循环直方图。
+
+$\Box$ 下载PPT。
+
+```{r}
+timestamps <- 
+c(
+    "08:43:48","09:17:52","12:56:22","12:27:32","10:59:23","07:22:45"
+    ,"11:13:59","10:13:26","10:07:01","06:09:56","12:43:17","07:07:35"
+    ,"09:36:44","10:45:00","08:27:36","07:55:35","11:32:56","13:18:35"
+    ,"11:09:51","09:46:33","06:59:12","10:19:36","09:39:47","09:39:46"
+    ,"18:23:54"
+)
+```
+
+$\Box$ 也可以出考题。
+
+Use Von Mises distribution.
+
+```{r}
+# Convert the plain text to hours
+library(lubridate)
+ts <- as.numeric(hms(timestamps)) / 3600
+
+# Convert the data to class circular
+library(circular)
+ts <- circular(ts, units = 'hours', template = "clock24")
+# input is decimal timestamp
+
+# Create the von Mises distribution estimates
+estimates <- mle.vonmises(ts)
+p_mean <- estimates$mu %% 24
+p_mean
+# In the plot, 10 AM is the peroidic mean.
+
+# Plot a circular histogram
+clock <- ggplot(data.frame(ts), aes(x = ts)) +
+  geom_histogram(breaks = seq(0, 24), colour = "blue", fill = "lightblue") +
+  coord_polar() + scale_x_continuous("", limits = c(0, 24), breaks = seq(0, 24)) +
+  geom_vline(xintercept = as.numeric(p_mean), color = "red", linetype = 2, size = 1.5)
+plot(clock)
+```
+
+因此发现有一个出现在晚上6点半左右，那么就算异常。
+
+预测置信区间。
+
+```{r}
+# Estimate the periodic mean and concentration on the first 24 timestamps
+p_mean <- estimates$mu %% 24
+concentration <- estimates$kappa
+
+# Estimate densities of all 25 timestamps
+densities <- dvonmises(ts, mu = p_mean, kappa = concentration)
+
+# Check if the densities are larger than the cutoff of 95%-CI
+cutoff <- dvonmises(qvonmises((1 - .95)/2, mu = p_mean, kappa = concentration), mu = p_mean, kappa = concentration)
+
+# Define the variable time_feature
+time_feature <- densities >= cutoff
+print(cbind.data.frame(ts, time_feature))
+# time_feature == FALSE => outlier.
+```
+
+$\Box$ 这个人可以follow
+
+书签
+https://campus.datacamp.com/courses/fraud-detection-in-r/introduction-motivation?ex=7
+
+# frequency feature
+
+```{r}
+transfers %>% 
+    filter(account_name == 'Bob')
+```
+
+
+# 参考 {-}
