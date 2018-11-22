@@ -6,8 +6,8 @@ output: github_document
 library(tidyverse)
 library(xfun)
 read_utf8('datacamp.Rmd') %>% 
-    str_subset('\\\\Box')
-    # str_remove_all('^.+\\s')
+    str_subset('<input type="checkbox" id="checkbox1" class="styled"> ') %>% 
+    str_remove_all('<input type="checkbox" id="checkbox1" class="styled"> ')
     # 没有完成
     # 加入checkox
 ```

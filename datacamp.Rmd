@@ -2,6 +2,7 @@
 output: 
     github_document:
         df_print: tibble
+        toc: TRUE
 bibliography: add.bib
 ---
 
@@ -12,15 +13,15 @@ bibliography: add.bib
 
 主要内容
 
-1. periodic time features 
-1. use networks to fight fraud
+1. Periodic time features 
+1. Network features 
 <!-- 老柴 -->
 1. the imbalance or skewness of the data and 
 1. the various costs for different types of misclassification
 1. digit analysis
 
-```{r setup}
-knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```{r setup,echo = FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
 ```
 
 ```{r echo=FALSE}
@@ -30,14 +31,16 @@ library(data.table)
 library(here)
 # here is both in pkg here and lubridate
 
-load(here::here('data','expenses.rdata'))
-load(here::here('data','amountNA.rdata'))
-expenses %>% head
-amountNA %>% head
+# load(here::here('data','expenses.rdata'))
+# load(here::here('data','amountNA.rdata'))
+# expenses %>% head
+# amountNA %>% head
+# 这两个数据根本没用到
+# read `.Rdata`
+# : https://stackoverflow.com/questions/7270544/how-to-see-data-from-rdata-file
 ```
 
-read `.Rdata`
-: https://stackoverflow.com/questions/7270544/how-to-see-data-from-rdata-file
+# Imbalance phenomena
 
 ```{r}
 transfers <- 
@@ -73,8 +76,6 @@ function (base_size = 12, legend = FALSE)
 }
 ```
 
-# Imbalance
-
 ```{r}
 # Print the first 6 rows of the dataset
 head(transfers)
@@ -106,7 +107,7 @@ ggplot(df, aes(x = 1, weight = pct, fill = class)) +
     theme_nothing()
 ```
 
-Here is the imnbalance of data.
+Here is the imbalance of data.
 
 Set confusion matrix with loss cost.
 
@@ -125,7 +126,8 @@ cost <- sum(transfers$amount[transfers$fraud_flag == 1])
 print(cost)
 ```
 
-`amount`是借款本金，在不考虑逾期后回款的情况(这是欺诈用户的特征)，那么都算损失。
+1. `amount`是借款本金，在不考虑逾期后回款的情况(这是欺诈用户的特征)，那么都算损失。
+1. 因此imbalance data 的主要问题不是准确率，而是降低损失。
 
 # Time feature
 
@@ -134,20 +136,16 @@ Do not use arithmetic mean to compute an average timestamp!
 
 Use periodic mean.
 
-$\Box$ 参考PPT 把特例举例出来。
+<input type="checkbox" id="checkbox1" class="styled"> 参考PPT 把特例举例出来。
 
 因为24小时制，0点是跟11点和1点都非常近似。
 以下展示图。
 这个特征好。
 
-$\Box$ xyjl 注册时间的分布，执行区间，短信消息的区间，这些可以做起来！
-
 >
 The circular histogram is a visual representation of the timestamps of events. 
 
 解决方案是使用循环直方图。
-
-$\Box$ 下载PPT。
 
 ```{r}
 timestamps <- 
@@ -160,7 +158,7 @@ c(
 )
 ```
 
-$\Box$ 也可以出考题。
+<input type="checkbox" id="checkbox1" class="styled"> 也可以出考题。
 
 Use Von Mises distribution.
 
@@ -190,7 +188,7 @@ plot(clock)
 
 因此发现有一个出现在晚上6点半左右，那么就算异常。
 
-预测置信区间。
+<input type="checkbox" id="checkbox1" class="styled">预测置信区间。
 
 ```{r}
 # Estimate the periodic mean and concentration on the first 24 timestamps
@@ -209,8 +207,9 @@ print(cbind.data.frame(ts, time_feature))
 # time_feature == FALSE => outlier.
 ```
 
-$\Box$ 这个人可以follow
-$\Box$ segment的代码增加
+<input type="checkbox" id="checkbox1" class="styled"> 这个人可以follow
+
+<input type="checkbox" id="checkbox1" class="styled"> segment的代码增加
 
 von Mises probability distribution
 
@@ -291,7 +290,7 @@ freq_channel_tbl02 %>%
 
 # Recency features
 
-$\Box$ how to add bracket in ggplot
+<input type="checkbox" id="checkbox1" class="styled"> how to add bracket in ggplot
 
 ```{r}
 knitr::include_graphics(here::here('pic','recencyfeature.png'))
@@ -400,10 +399,9 @@ transfers %>%
 
 # Network features
 
-Social network
+<input type="checkbox" id="checkbox1" class="styled">chai: 小样本进行分析
 
-chai: 小样本进行分析
-wj: 数据含有时间吗？
+## Intro
 
 ```{r}
 # Load the igraph library
@@ -451,15 +449,17 @@ Fraudsters tend to cluster together:
 
 Homophily in social networks (from sociology)
 : People have a strong tendency to associate with other whom they perceive as being similar to themselves in some way.
+
 Homophily in fraud networks
 : Fraudsters are more likely to be connected to other fraudsters, and legitimate people are more likely to be connected to other legitimate people.
 
-因此对于VIP识别的数据，VIP用户也存在 Homophily。
+<mark>因此对于VIP识别的数据，VIP用户也存在 Homophily。</mark>
 
 Non-relational model
 : sample independent
 : Behavior of one node might influence behavior of other nodes 
 : Correlated behavior between nodes
+
 Relational model
 : Relational neighbor classifier
 : The relational neighbor classifier, in particular, predicts a node's class based on its neighboring nodes and adjacent edges. (这是算法逻辑)
@@ -529,6 +529,10 @@ strength(subnet, v = "I41") / strength(net, v = "I41")
 1. `as_data_frame(x, what = c("edges", "vertices", "both"))` 可以将`igraph`的对象变成`data.frame`。
 1. `vertex_*` n. 顶点；头顶；天顶，也就是Nodes的意思。
 
+## Feature Engineering
+
+There are three kinds of variable we can build.
+
 1. Degree
 : Number of edges.
 : If Network has N nodes, then normalizing means dividing by N − 1
@@ -547,6 +551,8 @@ kite <- graph_from_data_frame(kite,directed = F)
 plot(kite)
 ```
 
+### degree
+
 ```{r}
 # Find the degree of each node
 degree(kite)
@@ -558,6 +564,8 @@ which.max(degree(kite))
 plot(kite, vertex.size = 6 * degree(kite))
 ```
 
+### Closeness
+
 ```{r}
 # Find the closeness of each node
 closeness(kite)
@@ -568,6 +576,8 @@ which.max(closeness(kite))
 # Plot kite with vertex.size proportional to the closeness of each node
 plot(kite, vertex.size = 500 * closeness(kite))
 ```
+
+### betweenness
 
 ```{r}
 # Find the betweenness of each node
@@ -587,6 +597,8 @@ net <- graph_from_data_frame(net,directed = F)
 account_info <- fread(here::here('data','account_info_chp2.csv')) %>% 
     select(-index)
 ```
+
+### Combination of the new features
 
 ```{r}
 # Plot network and print account info
@@ -611,18 +623,18 @@ account_info %>% distinct(type)
 1. 接下来可以使用 non relational model 进行分析了，例如决策树。
 1. 但是数据还是存在imbalance的问题，因此需要处理。
 
-$\Box$ 如何用SQL 翻译?
-$\Box$ 先整理 PPT
+<input type="checkbox" id="checkbox1" class="styled"> 如何用SQL 翻译?
+<input type="checkbox" id="checkbox1" class="styled"> 先整理 PPT
 
 # Imbalanced class distributions
 
-$\Box$ xs 的数据也存在不平衡的问题，因此变量需要进行以上特征工程。
+<input type="checkbox" id="checkbox1" class="styled"> xs 的数据也存在不平衡的问题，因此变量需要进行以上特征工程。
 
 1. 准备每个x的inserttime
 
 sampling 只对 train 进行而不对 test 进行
 
-$\Box$ Kaggle 上有直接处理反欺诈的数据库。
-$\Box$ 复现PPT Chp3
+<input type="checkbox" id="checkbox1" class="styled"> Kaggle 上有直接处理反欺诈的数据库。
+<input type="checkbox" id="checkbox1" class="styled"> 复现PPT Chp3
 
-# 参考 {-}
+# Reference {-}

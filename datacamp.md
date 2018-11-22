@@ -1,37 +1,15 @@
 
-主要参考 Baesens and Höppner (2018) 的讲解。
+主要参考 Baesens, Höppner, and Verdonck (2018) 的讲解。
 
 主要内容
 
-1.  periodic time features
-2.  use networks to fight fraud <!-- 老柴 -->
+1.  Periodic time features
+2.  Network features <!-- 老柴 -->
 3.  the imbalance or skewness of the data and
 4.  the various costs for different types of misclassification
 5.  digit analysis
 
-<!-- end list -->
-
-``` r
-knitr::opts_chunk$set(warning = FALSE, message = FALSE)
-```
-
-    ## [1] 7309.576 3048.104 4479.268 7170.568 2318.984 7674.572
-
-    ## # A tibble: 6 x 2
-    ##   ORIG_BALANCE_BEFORE AMOUNT
-    ## *               <dbl>  <dbl>
-    ## 1                1902     25
-    ## 2                1766     35
-    ## 3                1252     25
-    ## 4                2112     39
-    ## 5                1247    277
-    ## 6                 945     NA
-
-  - read
-    `.Rdata`  
-    <https://stackoverflow.com/questions/7270544/how-to-see-data-from-rdata-file>
-
-<!-- end list -->
+# Imbalance phenomena
 
 ``` r
 transfers <- 
@@ -66,8 +44,6 @@ function (base_size = 12, legend = FALSE)
     }
 }
 ```
-
-# Imbalance
 
 ``` r
 # Print the first 6 rows of the dataset
@@ -142,7 +118,7 @@ ggplot(df, aes(x = 1, weight = pct, fill = class)) +
 
 ![](datacamp_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
-Here is the imnbalance of data.
+Here is the imbalance of data.
 
 Set confusion matrix with loss cost.
 
@@ -203,7 +179,8 @@ print(cost)
 
     ## [1] 64410
 
-`amount`是借款本金，在不考虑逾期后回款的情况(这是欺诈用户的特征)，那么都算损失。
+1.  `amount`是借款本金，在不考虑逾期后回款的情况(这是欺诈用户的特征)，那么都算损失。
+2.  因此imbalance data 的主要问题不是准确率，而是降低损失。
 
 # Time feature
 
@@ -211,18 +188,14 @@ print(cost)
 
 Use periodic mean.
 
-\(\Box\) 参考PPT 把特例举例出来。
+<input type="checkbox" id="checkbox1" class="styled"> 参考PPT 把特例举例出来。
 
 因为24小时制，0点是跟11点和1点都非常近似。 以下展示图。 这个特征好。
-
-\(\Box\) xyjl 注册时间的分布，执行区间，短信消息的区间，这些可以做起来！
 
 > The circular histogram is a visual representation of the timestamps of
 > events.
 
 解决方案是使用循环直方图。
-
-\(\Box\) 下载PPT。
 
 ``` r
 timestamps <- 
@@ -235,7 +208,7 @@ c(
 )
 ```
 
-\(\Box\) 也可以出考题。
+<input type="checkbox" id="checkbox1" class="styled"> 也可以出考题。
 
 Use Von Mises distribution.
 
@@ -279,7 +252,7 @@ plot(clock)
 
 因此发现有一个出现在晚上6点半左右，那么就算异常。
 
-预测置信区间。
+<input type="checkbox" id="checkbox1" class="styled">预测置信区间。
 
 ``` r
 # Estimate the periodic mean and concentration on the first 24 timestamps
@@ -328,7 +301,9 @@ print(cbind.data.frame(ts, time_feature))
 # time_feature == FALSE => outlier.
 ```
 
-\(\Box\) 这个人可以follow
+<input type="checkbox" id="checkbox1" class="styled"> 这个人可以follow
+
+<input type="checkbox" id="checkbox1" class="styled"> segment的代码增加
 
 von Mises probability distribution
 
@@ -400,7 +375,7 @@ freq_channel_tbl02 <-
 setequal(freq_channel_tbl01,freq_channel_tbl02)
 ```
 
-    ## TRUE
+    ## [1] TRUE
 
 ``` r
 freq_channel_tbl02 %>% 
@@ -421,14 +396,14 @@ freq_channel_tbl02 %>%
 
 # Recency features
 
-\(\Box\) how to add bracket in
-ggplot
+<input type="checkbox" id="checkbox1" class="styled"> how to add bracket
+in ggplot
 
 ``` r
 knitr::include_graphics(here::here('pic','recencyfeature.png'))
 ```
 
-![](/Users/vija/Downloads/180805_folder_01/tmp_jli/trans/projIN/anti_fraud_practice/pic/recencyfeature.png)<!-- -->
+![](D:/weDo/anti_fraud_practice/pic/recencyfeature.png)<!-- -->
 
 \[\text{recency} = e^{-\gamma t}\]
 
@@ -547,21 +522,462 @@ transfers %>%
 
 目前欺诈用户的统计指标在这两种变量中差异很大。
 
-# Social network
+# Network features
 
-chai: 小样本进行分析 wj: 数据含有时间吗？
+<input type="checkbox" id="checkbox1" class="styled">chai: 小样本进行分析
 
-书签
-<https://campus.datacamp.com/courses/fraud-detection-in-r/social-network-analytics?ex=2>
+## Intro
 
-# 参考
+``` r
+# Load the igraph library
+library(igraph)
+transfers <- fread(here::here('data','transfer_chp2.csv'))
+
+# Have a look at the data
+head(transfers)
+```
+
+    ## # A tibble: 6 x 7
+    ##      V1 originator beneficiary amount time  benef_country payment_channel
+    ##   <int> <chr>      <chr>        <dbl> <chr> <chr>         <chr>          
+    ## 1     1 I47        I87         1464.  15:12 CAN           CHAN_01        
+    ## 2     2 I40        I61          143.  15:40 GBR           CHAN_01        
+    ## 3     3 I89        I61           53.3 11:44 GBR           CHAN_05        
+    ## 4     4 I24        I52          226.  14:55 GBR           CHAN_03        
+    ## 5     5 I40        I87         1151.  21:20 CAN           CHAN_03        
+    ## 6     6 I63        I54          110.  20:21 GBR           CHAN_03
+
+``` r
+nrow(transfers)
+```
+
+    ## [1] 60
+
+``` r
+# Create an undirected network from the dataset
+net <- graph_from_data_frame(transfers, directed = F)
+net
+```
+
+    ## IGRAPH f590202 UN-- 82 60 -- 
+    ## + attr: name (v/c), beneficiary (e/c), amount (e/n), time (e/c),
+    ## | benef_country (e/c), payment_channel (e/c)
+    ## + edges from f590202 (vertex names):
+    ##  [1] 1 --I47 2 --I40 3 --I89 4 --I24 5 --I40 6 --I63 7 --I40 8 --I28
+    ##  [9] 9 --I40 10--I44 11--I23 12--I41 13--I93 14--I28 15--I23 16--I28
+    ## [17] 17--I40 18--I28 19--I63 20--I52 21--I25 22--I23 23--I28 24--I28
+    ## [25] 25--I69 26--I15 27--I23 28--I44 29--I21 30--I77 31--I24 32--I76
+    ## [33] 33--I44 34--I23 35--I17 36--I28 37--I81 38--I23 39--I24 40--I44
+    ## [41] 41--I37 42--I24 43--I41 44--I69 45--I23 46--I81 47--I11 48--I47
+    ## [49] 49--I44 50--I44 51--I47 52--I28 53--I77 54--I24 55--I87 56--I23
+    ## + ... omitted several edges
+
+``` r
+# Plot the network with the vertex labels in bold and black
+plot(net,
+     vertex.label.color = 'black',
+     vertex.label.font = 2)
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+
+``` r
+edges <- fread(here::here('data','edges.csv')) %>% 
+    select(-id)
+# Load igraph and create a network from the data frame
+net <- graph_from_data_frame(edges, directed = FALSE)
+
+# Plot the network with the multiple edges
+plot(net, layout = layout.circle)
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+
+``` r
+# Specify new edge attributes width and curved
+E(net)$width <- count.multiple(net)
+E(net)$curved <- FALSE
+
+# Check the new edge attributes and plot the network with overlapping edges
+edge_attr(net)
+```
+
+    ## $width
+    ##  [1] 7 7 7 7 7 7 7 1 1 1 4 4 4 4 1 1
+    ## 
+    ## $curved
+    ##  [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+    ## [12] FALSE FALSE FALSE FALSE FALSE
+
+``` r
+plot(net, layout = layout.circle)
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-21-2.png)<!-- -->
+
+> Fraudsters tend to cluster together:
+> 
+> 1.  are attending the same events/activities
+> 2.  are involved in the same crimes
+> 3.  use the same resources
+> 4.  are sometimes one and the same person (identity theft)
+
+  - Homophily in social networks (from sociology)  
+    People have a strong tendency to associate with other whom they
+    perceive as being similar to themselves in some way.
+  - Homophily in fraud networks  
+    Fraudsters are more likely to be connected to other fraudsters, and
+    legitimate people are more likely to be connected to other
+    legitimate people.
+
+<mark>因此对于VIP识别的数据，VIP用户也存在 Homophily。</mark>
+
+  - Non-relational model  
+    sample independent
+    Behavior of one node might influence behavior of other nodes
+    Correlated behavior between nodes
+  - Relational model  
+    Relational neighbor classifier
+    The relational neighbor classifier, in particular, predicts a node’s
+    class based on its neighboring nodes and adjacent edges. (这是算法逻辑)
+
+因此传统的非关系模型可能不work，也是有原因的。
+
+1.  `account_type` is a nominal variable -\> use
+    `assortativity_nominal`.
+
+<!-- end list -->
+
+``` r
+# Add account_type as an attribute to the nodes of the network
+V(net)$account_type <- account_info$type
+
+# Have a look at the vertex attributes
+print(vertex_attr(net))
+
+# Check for homophily based on account_type
+assortativity_nominal(net, types = V(net)$account_type, directed = FALSE)
+# 0.1810621
+```
+
+> The assortativity coefficient is positive which means that accounts of
+> the same type tend to connect to each other.
+
+这个地方的例子没理解。
+
+``` r
+# Each account type is assigned a color
+vertex_colors <- c("grey", "lightblue", "darkorange")
+
+# Add attribute color to V(net) which holds the color of each node depending on its account_type
+V(net)$color <- vertex_colors[V(net)$account_type]
+
+# Plot the network
+plot(net)
+```
+
+同类型的用户聚集。
+
+  - money mule  
+    A money mule or sometimes referred to as a “smurfer” is a person who
+    transfers money acquired illegally.
+
+<!-- end list -->
+
+``` r
+transfers <- fread(here::here('data','transfers_chp2_02.csv'))
+account_info <- fread(here::here('data','account_info.csv'))
+
+# From data frame to graph
+net <- graph_from_data_frame(transfers, directed = FALSE)
+
+# Plot the network; color nodes according to isMoneyMule-variable
+V(net)$color <- ifelse(account_info$isMoneyMule, "darkorange", "slateblue1")
+plot(net, vertex.label.color = "black", vertex.label.font = 2, vertex.size = 18)
+
+# Find the id of the money mule accounts
+print(account_info$id[account_info$isMoneyMule == TRUE])
+
+# Create subgraph containing node "I41" and all money mules nodes
+subnet <- subgraph(net, v = c("I41", "I47", "I87", "I20"))
+# Error in as.igraph.vs(graph, v) : Invalid vertex names
+
+# Compute the money mule probability of node "I41" based on the neighbors
+strength(subnet, v = "I41") / strength(net, v = "I41")
+# Error in "igraph" %in% class(graph) : 找不到对象'subnet'
+```
+
+为什么箭头没有显示出来。
+
+1.  `as_data_frame(x, what = c("edges", "vertices", "both"))`
+    可以将`igraph`的对象变成`data.frame`。
+2.  `vertex_*` n. 顶点；头顶；天顶，也就是Nodes的意思。
+
+## Feature Engineering
+
+There are three kinds of variable we can build.
+
+1.    - Degree  
+        Number of edges.
+        If Network has N nodes, then normalizing means dividing by N − 1
+
+2.    - Closeness  
+        Inverse distance of a node to all other nodes in the network
+        \((1+1+2)^{-1}\)
+        normalized - \((\frac{(1+1+2)}{3})^{-1}\)
+
+3.    - Betweenness  
+        Number of times that a node or edge occurs in the geodesics of
+        the network
+        normalized - \(\frac{...}{N}\)
+
+<!-- end list -->
+
+``` r
+kite <- fread(here::here('data','kite.csv')) %>% 
+    select(-id)
+kite <- graph_from_data_frame(kite,directed = F)
+plot(kite)
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+
+### degree
+
+``` r
+# Find the degree of each node
+degree(kite)
+```
+
+    ##  1  2  3  4  5  6  7  8  9 10 
+    ##  4  4  3  6  3  5  5  3  2  1
+
+``` r
+# Which node has the largest degree?
+which.max(degree(kite))
+```
+
+    ## 4 
+    ## 4
+
+``` r
+# Plot kite with vertex.size proportional to the degree of each node
+plot(kite, vertex.size = 6 * degree(kite))
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+
+### Closeness
+
+``` r
+# Find the closeness of each node
+closeness(kite)
+```
+
+    ##          1          2          3          4          5          6 
+    ## 0.05882353 0.05882353 0.05555556 0.06666667 0.05555556 0.07142857 
+    ##          7          8          9         10 
+    ## 0.07142857 0.06666667 0.04761905 0.03448276
+
+``` r
+# Which node has the largest closeness?
+which.max(closeness(kite))
+```
+
+    ## 6 
+    ## 6
+
+``` r
+# Plot kite with vertex.size proportional to the closeness of each node
+plot(kite, vertex.size = 500 * closeness(kite))
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+
+### betweenness
+
+``` r
+# Find the betweenness of each node
+betweenness(kite)
+```
+
+    ##          1          2          3          4          5          6 
+    ##  0.8333333  0.8333333  0.0000000  3.6666667  0.0000000  8.3333333 
+    ##          7          8          9         10 
+    ##  8.3333333 14.0000000  8.0000000  0.0000000
+
+``` r
+# Which node has the largest betweenness?
+which.max(betweenness(kite))
+```
+
+    ## 8 
+    ## 8
+
+``` r
+# Plot kite with vertex.size proportional to the betweenness of each node
+plot(kite, vertex.size = 5 * betweenness(kite))
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+
+``` r
+net <- fread(here::here('data','net.csv')) %>% 
+    select(-id)
+net <- graph_from_data_frame(net,directed = F)
+account_info <- fread(here::here('data','account_info_chp2.csv')) %>% 
+    select(-index)
+```
+
+### Combination of the new features
+
+``` r
+# Plot network and print account info
+plot(net)
+legend("bottomleft", legend = c("known money mule", "legit account"), fill = c("darkorange", "lightblue"), bty = "n")
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
+
+``` r
+print(account_info)
+```
+
+    ##      id isMoneyMule type
+    ##  1: I47        TRUE    3
+    ##  2: I40       FALSE    3
+    ##  3: I89       FALSE    1
+    ##  4: I24       FALSE    2
+    ##  5: I63       FALSE    2
+    ##  6: I28       FALSE    1
+    ##  7: I44       FALSE    1
+    ##  8: I23       FALSE    1
+    ##  9: I41        TRUE    3
+    ## 10: I93       FALSE    2
+    ## 11: I52       FALSE    2
+    ## 12: I25       FALSE    1
+    ## 13: I69       FALSE    2
+    ## 14: I15       FALSE    1
+    ## 15: I21       FALSE    2
+    ## 16: I77       FALSE    1
+    ## 17: I76       FALSE    2
+    ## 18: I17       FALSE    1
+    ## 19: I81       FALSE    1
+    ## 20: I37       FALSE    3
+    ## 21: I11       FALSE    3
+    ## 22: I87        TRUE    3
+    ## 23: I61       FALSE    1
+    ## 24: I54       FALSE    1
+    ## 25: I80       FALSE    1
+    ## 26: I20        TRUE    3
+    ## 27: I64       FALSE    2
+    ## 28: I46       FALSE    2
+    ## 29: I19       FALSE    2
+    ## 30: I55       FALSE    1
+    ## 31: I14       FALSE    1
+    ## 32: I30       FALSE    2
+    ## 33: I29       FALSE    2
+    ## 34: I35       FALSE    2
+    ## 35: I27       FALSE    2
+    ## 36: I60       FALSE    1
+    ## 37: I22       FALSE    1
+    ## 38: I66       FALSE    2
+    ##      id isMoneyMule type
+
+``` r
+# Degree
+account_info$degree <- degree(net, normalized = T)
+# degree colname is I47 or something.
+
+# Closeness
+account_info$closeness <- closeness(net, normalized = T)
+
+# Betweenness
+account_info$betweenness <- betweenness(net, normalized = T)
+
+print(account_info)
+```
+
+    ##      id isMoneyMule type     degree closeness  betweenness
+    ##  1: I47        TRUE    3 0.08108108 0.3775510 0.0000000000
+    ##  2: I40       FALSE    3 0.16216216 0.3425926 0.1979479479
+    ##  3: I89       FALSE    1 0.05405405 0.2587413 0.0000000000
+    ##  4: I24       FALSE    2 0.18918919 0.3737374 0.2600100100
+    ##  5: I63       FALSE    2 0.13513514 0.2983871 0.0350350350
+    ##  6: I28       FALSE    1 0.21621622 0.3627451 0.2942942943
+    ##  7: I44       FALSE    1 0.18918919 0.3663366 0.2209709710
+    ##  8: I23       FALSE    1 0.21621622 0.3592233 0.2757757758
+    ##  9: I41        TRUE    3 0.13513514 0.4352941 0.2817817818
+    ## 10: I93       FALSE    2 0.08108108 0.3274336 0.0838338338
+    ## 11: I52       FALSE    2 0.05405405 0.2846154 0.0000000000
+    ## 12: I25       FALSE    1 0.08108108 0.2781955 0.0000000000
+    ## 13: I69       FALSE    2 0.08108108 0.2720588 0.0007507508
+    ## 14: I15       FALSE    1 0.05405405 0.2700730 0.0000000000
+    ## 15: I21       FALSE    2 0.08108108 0.2700730 0.0000000000
+    ## 16: I77       FALSE    1 0.08108108 0.2700730 0.0000000000
+    ## 17: I76       FALSE    2 0.05405405 0.3032787 0.0315315315
+    ## 18: I17       FALSE    1 0.05405405 0.3217391 0.0155155155
+    ## 19: I81       FALSE    1 0.08108108 0.2720588 0.0007507508
+    ## 20: I37       FALSE    3 0.08108108 0.3663366 0.0950950951
+    ## 21: I11       FALSE    3 0.16216216 0.4352941 0.3753753754
+    ## 22: I87        TRUE    3 0.05405405 0.2587413 0.0000000000
+    ## 23: I61       FALSE    1 0.05405405 0.2761194 0.0000000000
+    ## 24: I54       FALSE    1 0.02702703 0.2569444 0.0000000000
+    ## 25: I80       FALSE    1 0.13513514 0.4157303 0.2309809810
+    ## 26: I20        TRUE    3 0.08108108 0.3057851 0.0385385385
+    ## 27: I64       FALSE    2 0.05405405 0.2700730 0.0000000000
+    ## 28: I46       FALSE    2 0.02702703 0.2661871 0.0000000000
+    ## 29: I19       FALSE    2 0.05405405 0.2700730 0.0000000000
+    ## 30: I55       FALSE    1 0.08108108 0.2781955 0.0000000000
+    ## 31: I14       FALSE    1 0.08108108 0.3008130 0.0347847848
+    ## 32: I30       FALSE    2 0.05405405 0.2700730 0.0000000000
+    ## 33: I29       FALSE    2 0.08108108 0.2700730 0.0000000000
+    ## 34: I35       FALSE    2 0.02702703 0.2700730 0.0000000000
+    ## 35: I27       FALSE    2 0.02702703 0.2740741 0.0000000000
+    ## 36: I60       FALSE    1 0.02702703 0.2661871 0.0000000000
+    ## 37: I22       FALSE    1 0.02702703 0.2740741 0.0000000000
+    ## 38: I66       FALSE    2 0.02702703 0.2740741 0.0000000000
+    ##      id isMoneyMule type     degree closeness  betweenness
+
+``` r
+account_info %>% distinct(type)
+```
+
+    ## # A tibble: 3 x 1
+    ##    type
+    ##   <int>
+    ## 1     3
+    ## 2     1
+    ## 3     2
+
+1.  接下来可以使用 non relational model 进行分析了，例如决策树。
+2.  但是数据还是存在imbalance的问题，因此需要处理。
+
+<input type="checkbox" id="checkbox1" class="styled"> 如何用SQL 翻译?
+<input type="checkbox" id="checkbox1" class="styled"> 先整理 PPT
+
+# Imbalanced class distributions
+
+<input type="checkbox" id="checkbox1" class="styled"> xs
+的数据也存在不平衡的问题，因此变量需要进行以上特征工程。
+
+1.  准备每个x的inserttime
+
+sampling 只对 train 进行而不对 test 进行
+
+<input type="checkbox" id="checkbox1" class="styled"> Kaggle
+上有直接处理反欺诈的数据库。
+<input type="checkbox" id="checkbox1" class="styled"> 复现PPT Chp3
+
+# Reference
 
 <div id="refs" class="references">
 
 <div id="ref-BaesensFraud">
 
-Baesens, Bart, and Sebastiaan Höppner. 2018. “Fraud Detection in R.”
-2018. <https://www.datacamp.com/courses/fraud-detection-in-r>.
+Baesens, Bart, Sebastiaan Höppner, and Tim Verdonck. 2018. “Fraud
+Detection in R.” 2018.
+<https://www.datacamp.com/courses/fraud-detection-in-r>.
 
 </div>
 
