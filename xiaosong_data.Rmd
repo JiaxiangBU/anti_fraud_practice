@@ -1,0 +1,6 @@
+
+```{r}
+library(tidyverse)
+library(data.table)
+fread('LoanStats3a.csv',nrows = 5)
+```

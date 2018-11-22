@@ -1,0 +1,17 @@
+id from to
+1     a  b
+2     a  b
+3     b  a
+4     a  b
+5     b  a
+6     b  a
+7     a  b
+8     a  c
+9     b  c
+10    c  e
+11    d  f
+12    d  f
+13    f  d
+14    d  f
+15    c  d
+16    d  a

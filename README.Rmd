@@ -11,9 +11,12 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r}
-library(tidyverse)
-library(data.table)
-fread('LoanStats3a.csv',nrows = 5)
-```
+### 2018-11-22 10:48:03
 
+1. 增加 Imbalanced data 的内容
+1. 增加chp 3 PPT
+
+### 2018-11-21 20:34:32
+
+1. 增加 Time 类 特征工程
+1. 增加 Social Network，但是有报错
