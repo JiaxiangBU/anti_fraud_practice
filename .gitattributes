@@ -1,0 +1,2 @@
+file_name filter=lfs diff=lfs merge=lfs -text
+data/creditcard.csv filter=lfs diff=lfs merge=lfs -text
