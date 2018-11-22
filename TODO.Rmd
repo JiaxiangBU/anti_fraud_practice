@@ -1,0 +1,14 @@
+---
+output: github_document
+---
+
+```{r}
+library(tidyverse)
+library(xfun)
+read_utf8('datacamp.Rmd') %>% 
+    str_subset('\\\\Box')
+    # str_remove_all('^.+\\s')
+    # 没有完成
+    # 加入checkox
+```
+
