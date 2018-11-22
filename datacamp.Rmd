@@ -647,7 +647,7 @@ creditcard %>%
     group_by(str_sub(Time,-1,-1)) %>% 
     nest %>% 
     set_names('t','data') %>% 
-    mutate(data1 = map(data,map(data,~write_excel_csv(paste0(,t,'.csv')))))
+    mutate(data1 = map(data,map(data,~write_excel_csv(paste0('creditcard',t,'.csv')))))
 ```
 
 ```{r}
