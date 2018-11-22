@@ -11,6 +11,11 @@ knitr::opts_chunk$set(
 )
 ```
 
+### 2018-11-22 17:54:56
+
+1. 基本完成Sampling的内容
+1. 开始 Digit analysis 的内容
+
 ### 2018-11-22 11:20:56
 
 1. 更新 CheckBox，适配Github document

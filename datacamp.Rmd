@@ -29,6 +29,7 @@ library(readr)
 library(tidyverse)
 library(data.table)
 library(here)
+library(igraph)
 # here is both in pkg here and lubridate
 
 # load(here::here('data','expenses.rdata'))
@@ -637,7 +638,7 @@ sampling 只对 train 进行而不对 test 进行
 <input type="checkbox" id="checkbox1" class="styled"> 复现PPT Chp3
 
 
-[Kaggle 的数据](https://www.kaggle.com/mlg-ulb/creditcardfraud)
+[Kaggle](https://www.kaggle.com/mlg-ulb/creditcardfraud)的反欺诈数据。
 
 ```{r}
 creditcard <- fread(here::here('data','creditcard.csv'))
@@ -660,18 +661,27 @@ creditcard %>%
 
 Use `ovun.sample` from `ROSE` package to do over/under - sampling or combination of the two.
 
+## Oversampling
+
 ```{r}
+# We hope minority in the new sample is 40%.
+# We know majority size is 
+sum(creditcard$Class == 0)
+# sum(creditcard$Class == 0)/(1-0.4) is the desired sample size.
 library(ROSE)
 oversampling_result <- 
     ovun.sample(
         Class ~ .
         ,data = creditcard
         ,method = "over"
-        ,N = sum(creditcard$Class == 0)*2
+        ,N = sum(creditcard$Class == 0)/(1-0.4)
         ,seed = 2018)
 # N - the sampling size you want.
 oversampled_credit <- oversampling_result$data
 table(oversampled_credit$Class)
+table(creditcard$Class)
+prop.table(table(oversampled_credit$Class))
+prop.table(table(creditcard$Class))
 ```
 
 完成sampling的工作。
@@ -679,29 +689,41 @@ table(oversampled_credit$Class)
 ```{r}
 oversampled_credit %>% 
     ggplot(aes(V1,V2,col=factor(Class))) +
+    scale_color_manual(values = c('dodgerblue', 'red')) +
+    # customize the color for the points.
     geom_point(alpha=0.2)
 # imbalance is solved.
 ```
 
+## Undersampling
+
 ```{r}
+# We hope minority in the new sample is 40%.
+# We know minority size is 
+sum(creditcard$Class == 1)
+# sum(creditcard$Class == 1)/0.4 is the desired sample size.
 undersampling_result <- 
     ovun.sample(
         Class ~ .
         ,data = creditcard
         ,method = "under"
-        ,N = sum(creditcard$Class == 1)*2
+        ,N = sum(creditcard$Class == 1)/0.4
         ,seed = 2018)
 # N - the sampling size you want.
 undersampled_credit <- undersampling_result$data
 table(undersampled_credit$Class)
+prop.table(table(undersampled_credit$Class))
 ```
 
 ```{r}
 undersampled_credit %>% 
     ggplot(aes(V1,V2,col=factor(Class))) +
+    scale_color_manual(values = c('dodgerblue', 'red')) +
     geom_point(alpha=0.2)
 # imbalance is solved.
 ```
+
+## Over and Undersampling
 
 ```{r}
 bothsampling_result <- 
@@ -715,14 +737,80 @@ bothsampling_result <-
 # N - the sampling size you want.
 bothsampled_credit <- bothsampling_result$data
 table(bothsampled_credit$Class)
+prop.table(table(bothsampled_credit$Class))
+table(creditcard$Class)
+# both actions are done.
+# oversampling the majority 
+# undersampling the minority.
 ```
 
 ```{r}
 bothsampled_credit %>% 
     ggplot(aes(V1,V2,col=factor(Class))) +
+    scale_color_manual(values = c('dodgerblue', 'red')) +
     geom_point(alpha=0.2)
 # imbalance is solved.
 ```
+
+## SMOTE
+
+>
+SMOTE can only be applied based on numeric variables since it uses the euclidean distance to determine nearest neighbors.
+
+```{r}
+# Set the number of fraud and legitimate cases, and the desired percentage of legitimate cases
+n0 <- 9348; n1 <- 492; r0 <- 0.6
+
+# Calculate the value for the dup_size parameter of SMOTE
+ntimes <- ((1 - r0) / r0) * (n0 / n1) - 1
+
+# Create synthetic fraud cases with SMOTE
+smote_output <- SMOTE(X = creditcard[ , -c(1, 31, 32)], target = creditcard$Class, K = 5, dup_size = ntimes)
+
+# Make a scatter plot of the original and over-sampled dataset
+credit_smote <- smote_output$data
+colnames(credit_smote)[30] <- "Class"
+prop.table(table(credit_smote$Class))
+
+ggplot(creditcard, aes(x = V1, y = V2, color = Class)) +
+  geom_point() +
+  scale_color_manual(values = c('dodgerblue2', 'red'))
+
+ggplot(credit_smote, aes(x = V1, y = V2, color = Class)) +
+  geom_point() +
+  scale_color_manual(values = c('dodgerblue2', 'red'))
+```
+
+<input type="checkbox" id="checkbox1" class="styled">SMOTE : Synthetic Minority Oversampling TEchnique (Chawla et al., 2002)
+
+<input type="checkbox" id="checkbox1" class="styled">仿照PPT出题
+
+加入SMOTE 的结构后，模型变得更加复杂了，更好了。
+
+`cost_model` 定义。
+
+ACC 是有误导的。
+
+```{r}
+cost_model <- function(predicted.classes, true.classes, amounts, fixedcost) {
+  library(hmeasure)
+  predicted.classes <- relabel(predicted.classes)
+  true.classes <- relabel(true.classes)
+  cost <- sum(true.classes * (1 - predicted.classes) * amounts + predicted.classes * fixedcost)
+  return(cost)
+}
+```
+
+
+# Digit analysis
+
+1. If there is lower and/or upper bound or data is concentrated in narrow interval, e.g. hourly wage rate, height of people.
+1. If numbers are used as identification numbers or labels, e.g. social security number, flight numbers, car license plate numbers, phone numbers.
+1. Additive fluctuations instead of multiplicative fluctuations, e.g. heartbeats on a given day
+
+Benford's Law
+
+adjboxStats PPT 上可以了解下。
 
 
 # Reference {-}
