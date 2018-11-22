@@ -634,7 +634,95 @@ account_info %>% distinct(type)
 
 sampling 只对 train 进行而不对 test 进行
 
-<input type="checkbox" id="checkbox1" class="styled"> Kaggle 上有直接处理反欺诈的数据库。
 <input type="checkbox" id="checkbox1" class="styled"> 复现PPT Chp3
+
+
+[Kaggle 的数据](https://www.kaggle.com/mlg-ulb/creditcardfraud)
+
+```{r}
+creditcard <- fread(here::here('data','creditcard.csv'))
+```
+
+```{r}
+creditcard %>% 
+    ggplot(aes(V1,V2,col=factor(Class))) +
+    geom_point(alpha=0.2)
+# imbalance is an issue.
+```
+
+```{r}
+creditcard %>% 
+    group_by(Class) %>% 
+    count() %>% 
+    ungroup() %>% 
+    mutate(n = n/sum(n))
+```
+
+Use `ovun.sample` from `ROSE` package to do over/under - sampling or combination of the two.
+
+```{r}
+library(ROSE)
+oversampling_result <- 
+    ovun.sample(
+        Class ~ .
+        ,data = creditcard
+        ,method = "over"
+        ,N = sum(creditcard$Class == 0)*2
+        ,seed = 2018)
+# N - the sampling size you want.
+oversampled_credit <- oversampling_result$data
+table(oversampled_credit$Class)
+```
+
+完成sampling的工作。
+
+```{r}
+oversampled_credit %>% 
+    ggplot(aes(V1,V2,col=factor(Class))) +
+    geom_point(alpha=0.2)
+# imbalance is solved.
+```
+
+```{r}
+undersampling_result <- 
+    ovun.sample(
+        Class ~ .
+        ,data = creditcard
+        ,method = "under"
+        ,N = sum(creditcard$Class == 1)*2
+        ,seed = 2018)
+# N - the sampling size you want.
+undersampled_credit <- undersampling_result$data
+table(undersampled_credit$Class)
+```
+
+```{r}
+undersampled_credit %>% 
+    ggplot(aes(V1,V2,col=factor(Class))) +
+    geom_point(alpha=0.2)
+# imbalance is solved.
+```
+
+```{r}
+bothsampling_result <- 
+    ovun.sample(
+        Class ~ .
+        ,data = creditcard
+        ,method = "both"
+        ,N = nrow(creditcard)
+        ,p = 0.5
+        ,seed = 2018)
+# N - the sampling size you want.
+bothsampled_credit <- bothsampling_result$data
+table(bothsampled_credit$Class)
+```
+
+```{r}
+bothsampled_credit %>% 
+    ggplot(aes(V1,V2,col=factor(Class))) +
+    geom_point(alpha=0.2)
+# imbalance is solved.
+```
+
 
 # Reference {-}
