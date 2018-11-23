@@ -640,9 +640,18 @@ sampling 只对 train 进行而不对 test 进行
 
 [Kaggle](https://www.kaggle.com/mlg-ulb/creditcardfraud)的反欺诈数据。
 
+```{r eval=F}
+creditcard <- feather::read_feather(here::here('data','creditcard.feather'))
+```
 
 ```{r}
-creditcard <- fread(here::here('data','creditcard.csv'))
+creditcard %>% 
+    # nrow
+    pryr::object_size()
+```
+
+
+```{r}
 creditcard %>% 
     group_by(str_sub(Time,-1,-1)) %>% 
     nest %>% 
