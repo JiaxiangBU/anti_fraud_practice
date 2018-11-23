@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ---
 output: 
     github_document:
@@ -829,3 +830,646 @@ adjboxStats PPT 上可以了解下。
 
 
 # Reference {-}
+||||||| merged common ancestors
+=======
+---
+output: 
+    github_document:
+        df_print: tibble
+        toc: TRUE
+bibliography: add.bib
+---
+
+
+主要参考
+@BaesensFraud
+的讲解。
+
+主要内容
+
+1. Periodic time features 
+1. Network features 
+<!-- 老柴 -->
+1. the imbalance or skewness of the data and 
+1. the various costs for different types of misclassification
+1. digit analysis
+
+```{r setup,echo = FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+```
+
+```{r echo=FALSE}
+library(readr)
+library(tidyverse)
+library(data.table)
+library(here)
+# here is both in pkg here and lubridate
+
+# load(here::here('data','expenses.rdata'))
+# load(here::here('data','amountNA.rdata'))
+# expenses %>% head
+# amountNA %>% head
+# 这两个数据根本没用到
+# read `.Rdata`
+# : https://stackoverflow.com/questions/7270544/how-to-see-data-from-rdata-file
+```
+
+# Imbalance phenomena
+
+```{r}
+transfers <- 
+    plyr::join_all(
+        list(
+            fread(here::here('data','transfer01.csv'))
+            ,fread(here::here('data','transfer02.csv'))
+            ,fread(here::here('data','transfer03.csv'))
+        )
+        ,by ='id'
+        ,type = 'left'
+    )
+```
+
+```{r}
+theme_nothing <- 
+function (base_size = 12, legend = FALSE) 
+{
+    if (legend) {
+        return(theme(axis.text = element_blank(), axis.title = element_blank(), 
+            panel.background = element_blank(), panel.grid.major = element_blank(), 
+            panel.grid.minor = element_blank(), axis.ticks.length = unit(0, 
+                "cm"), panel.margin = unit(0, "lines"), plot.margin = unit(c(0, 
+                0, 0, 0), "lines"), complete = TRUE))
+    }
+    else {
+        return(theme(line = element_blank(), rect = element_blank(), 
+            text = element_blank(), axis.ticks.length = unit(0, 
+                "cm"), legend.position = "none", panel.margin = unit(0, 
+                "lines"), plot.margin = unit(c(0, 0, 0, 0), "lines"), 
+            complete = TRUE))
+    }
+}
+```
+
+```{r}
+# Print the first 6 rows of the dataset
+head(transfers)
+
+# Display the structure of the dataset
+str(transfers)
+
+# Determine fraction of legitimate and fraudulent cases
+class_distribution <- prop.table(table(transfers$fraud_flag))
+print(class_distribution)
+
+# Make pie chart of column fraud_flag
+df <- data.frame(class = c("no fraud", "fraud"), 
+                 pct = as.numeric(class_distribution)) %>%
+  mutate(class = factor(class, levels = c("no fraud", "fraud")),
+         cumulative = cumsum(pct), midpoint = cumulative - pct / 2,
+         label = paste0(class, " ", round(pct*100, 2), "%"))
+# df
+# with
+# name pct cum_pct and label
+ggplot(df, aes(x = 1, weight = pct, fill = class)) +
+    # for polar 
+    scale_fill_manual(values = c("dodgerblue", "red")) +
+    # change default col
+    geom_bar(width = 1, position = "stack") +
+    coord_polar(theta = "y") +
+    geom_text(aes(x = 1.3, y = midpoint, label = label)) +
+    # the label pos is set by x.
+    theme_nothing()
+```
+
+Here is the imbalance of data.
+
+Set confusion matrix with loss cost.
+
+```{r}
+# Create vector predictions containing 0 for every transfer
+predictions <- factor(rep.int(0, nrow(transfers)), levels = c(0, 1))
+
+# Compute confusion matrix
+library(caret)
+levels(predictions)
+levels(as.factor(transfers$fraud_flag))
+# 错误: package e1071 is required
+confusionMatrix(data = predictions, reference = as.factor(transfers$fraud_flag))
+# Compute cost of not detecting fraud
+cost <- sum(transfers$amount[transfers$fraud_flag == 1])
+print(cost)
+```
+
+1. `amount`是借款本金，在不考虑逾期后回款的情况(这是欺诈用户的特征)，那么都算损失。
+1. 因此imbalance data 的主要问题不是准确率，而是降低损失。
+
+# Time feature
+
+>
+Do not use arithmetic mean to compute an average timestamp!
+
+Use periodic mean.
+
+<input type="checkbox" id="checkbox1" class="styled"> 参考PPT 把特例举例出来。
+
+因为24小时制，0点是跟11点和1点都非常近似。
+以下展示图。
+这个特征好。
+
+>
+The circular histogram is a visual representation of the timestamps of events. 
+
+解决方案是使用循环直方图。
+
+```{r}
+timestamps <- 
+c(
+    "08:43:48","09:17:52","12:56:22","12:27:32","10:59:23","07:22:45"
+    ,"11:13:59","10:13:26","10:07:01","06:09:56","12:43:17","07:07:35"
+    ,"09:36:44","10:45:00","08:27:36","07:55:35","11:32:56","13:18:35"
+    ,"11:09:51","09:46:33","06:59:12","10:19:36","09:39:47","09:39:46"
+    ,"18:23:54"
+)
+```
+
+<input type="checkbox" id="checkbox1" class="styled"> 也可以出考题。
+
+Use Von Mises distribution.
+
+```{r}
+# Convert the plain text to hours
+library(lubridate)
+ts <- as.numeric(hms(timestamps)) / 3600
+
+# Convert the data to class circular
+library(circular)
+ts <- circular(ts, units = 'hours', template = "clock24")
+# input is decimal timestamp
+
+# Create the von Mises distribution estimates
+estimates <- mle.vonmises(ts)
+p_mean <- estimates$mu %% 24
+p_mean
+# In the plot, 10 AM is the peroidic mean.
+
+# Plot a circular histogram
+clock <- ggplot(data.frame(ts), aes(x = ts)) +
+  geom_histogram(breaks = seq(0, 24), colour = "blue", fill = "lightblue") +
+  coord_polar() + scale_x_continuous("", limits = c(0, 24), breaks = seq(0, 24)) +
+  geom_vline(xintercept = as.numeric(p_mean), color = "red", linetype = 2, size = 1.5)
+plot(clock)
+```
+
+因此发现有一个出现在晚上6点半左右，那么就算异常。
+
+<input type="checkbox" id="checkbox1" class="styled">预测置信区间。
+
+```{r}
+# Estimate the periodic mean and concentration on the first 24 timestamps
+p_mean <- estimates$mu %% 24
+concentration <- estimates$kappa
+
+# Estimate densities of all 25 timestamps
+densities <- dvonmises(ts, mu = p_mean, kappa = concentration)
+
+# Check if the densities are larger than the cutoff of 95%-CI
+cutoff <- dvonmises(qvonmises((1 - .95)/2, mu = p_mean, kappa = concentration), mu = p_mean, kappa = concentration)
+
+# Define the variable time_feature
+time_feature <- densities >= cutoff
+print(cbind.data.frame(ts, time_feature))
+# time_feature == FALSE => outlier.
+```
+
+<input type="checkbox" id="checkbox1" class="styled"> 这个人可以follow
+
+<input type="checkbox" id="checkbox1" class="styled"> segment的代码增加
+
+von Mises probability distribution
+
+
+# Frequency feature
+
+查询一个用户不同渠道重复的频率。
+
+```{r}
+trans_Bob <- 
+    plyr::join_all(
+        list(
+            fread(here::here('data','trans_Bob01.csv'))
+            ,fread(here::here('data','trans_Bob02.csv'))
+            ,fread(here::here('data','trans_Bob03.csv'))
+        )
+        ,by ='id'
+        ,type = 'left'
+    )
+```
+
+```{r}
+# Frequency feature based on channel_cd
+frequency_fun <- function(steps, channel) {
+  n <- length(steps)
+  frequency <- sum(channel[1:n] == channel[n + 1])
+  # The value of the current rows is equal to the previous rows.
+  # Count 1.
+  return(frequency)
+}
+
+# Create freq_channel feature
+freq_channel <- 
+    zoo::rollapply(
+        trans_Bob$transfer_id
+        ,width = list(-1:-length(trans_Bob$transfer_id))
+        ,partial = TRUE
+        ,FUN = frequency_fun
+        ,trans_Bob$channel_cd
+        )
+
+length(freq_channel)
+
+# Print the features channel_cd, freq_channel and fraud_flag next to each other
+freq_channel <- c(0, freq_channel)
+freq_channel_tbl01 <- 
+    cbind.data.frame(trans_Bob$channel_cd, freq_channel, trans_Bob$fraud_flag) %>% 
+    set_names('channel_cd','freq_channel','fraud_flag')
+```
+
+Another way.
+
+```{r}
+freq_channel_tbl02 <- 
+    trans_Bob %>% 
+    mutate(channel_cd = factor(channel_cd)) %>% 
+    group_by(account_name,channel_cd) %>% 
+    arrange(timestamp) %>% 
+    mutate(freq_channel = row_number()-1) %>% 
+    ungroup() %>% 
+    select(-account_name) %>% 
+    select('channel_cd','freq_channel','fraud_flag')
+```
+
+```{r}
+setequal(freq_channel_tbl01,freq_channel_tbl02)
+```
+
+```{r}
+freq_channel_tbl02 %>% 
+    tail
+```
+
+注意欺诈发生于`freq_channel=0`的时候，这是freq feature的作用。
+
+
+
+
+# Recency features
+
+<input type="checkbox" id="checkbox1" class="styled"> how to add bracket in ggplot
+
+```{r}
+knitr::include_graphics(here::here('pic','recencyfeature.png'))
+```
+
+$$\text{recency} = e^{-\gamma t}$$
+
+1. $e^n|n<0 \in (0,1)$
+1. $t$ is time interval between two consecutive events of the same type
+1. $\gamma$ close to 0 (e.g. 0.01, 0.02, 0.05), control $t$ effect
+
+```{r}
+expand.grid(
+    time_interval = 0:350
+    ,gamma = c(0.01,0.02,0.05,0.10,0.20)
+) %>% 
+    mutate(recency = exp(-time_interval*gamma)
+           ,text = glue::glue('gamma is {gamma}')
+           ) %>% 
+    ggplot(aes(x = time_interval,y = recency, col = text)) +
+    geom_line()
+```
+
+1. recency descreases by time interval.
+1. recency desceases more by gamma increasing.
+
+```{r}
+recency_fun <- function(t, gamma, auth_cd, freq_auth) {
+    n_t <- length(t)
+    if (freq_auth[n_t] == 0) {
+        recency <- 0 # recency = 0 when frequency = 0
+    } else {
+        time_diff <- t[1] - max(t[2:n_t][auth_cd[(n_t-1):1] == auth_cd[n_t]]) # time-interval = current timestamp
+        # - timestamp of previous transfer with same auth_cd
+        recency <- exp(-gamma * time_diff) 
+    }
+    return(recency) 
+    }
+```
+
+```{r}
+trans <- 
+    plyr::join_all(
+        list(
+            fread(here::here('data','trans01.csv'))
+            ,fread(here::here('data','trans02.csv'))
+            ,fread(here::here('data','trans03.csv'))
+        )
+        ,by ='id'
+        ,type = 'left'
+    )
+```
+
+```{r}
+freq_channel_data <- 
+    trans %>% 
+    arrange(timestamp) %>% 
+    group_by(account_name,channel_cd) %>% 
+    mutate(
+        time_diff = timestamp-lag(timestamp)
+        ,gamma = 0.05116856
+        ,rec_channel = 
+            ifelse(freq_channel == 0,0,exp(-time_diff*gamma))
+            # if (freq_channel == 0) {
+            #   print(0)
+            # } else {
+            #   print(exp(-time_diff*gamma))
+            # }
+    ) %>% 
+    select(account_name, channel_cd, timestamp,freq_channel, rec_channel, fraud_flag)
+```
+
+注意`rec_channel=0`产生了欺诈行为。
+
+```{r}
+transfers %>% 
+    
+    mutate(channel_cd = factor(channel_cd)) %>% 
+    
+    # Freq feature
+    group_by(orig_account_id,channel_cd) %>% 
+    arrange(timestamp) %>% 
+    mutate(freq_channel = row_number()-1) %>% 
+    ungroup() %>% 
+    
+    # Rec feature
+
+    group_by(orig_account_id,channel_cd) %>% 
+    mutate(
+        time_diff = timestamp-lag(timestamp)
+        ,gamma = 0.05116856
+        ,rec_channel = 
+            ifelse(freq_channel == 0,0,exp(-time_diff*gamma))
+    ) %>% 
+    ungroup() %>% 
+    
+    # summary
+    group_by(fraud_flag) %>% 
+    select(freq_channel, rec_channel) %>% 
+    nest() %>% 
+    transmute(desc = map(data,psych::describe)) %>% 
+    unnest()
+```
+
+目前欺诈用户的统计指标在这两种变量中差异很大。
+
+# Network features
+
+<input type="checkbox" id="checkbox1" class="styled">chai: 小样本进行分析
+
+## Intro
+
+```{r}
+# Load the igraph library
+library(igraph)
+transfers <- fread(here::here('data','transfer_chp2.csv'))
+
+# Have a look at the data
+head(transfers)
+nrow(transfers)
+
+# Create an undirected network from the dataset
+net <- graph_from_data_frame(transfers, directed = F)
+net
+# Plot the network with the vertex labels in bold and black
+plot(net,
+     vertex.label.color = 'black',
+     vertex.label.font = 2)
+```
+
+```{r}
+edges <- fread(here::here('data','edges.csv')) %>% 
+    select(-id)
+# Load igraph and create a network from the data frame
+net <- graph_from_data_frame(edges, directed = FALSE)
+
+# Plot the network with the multiple edges
+plot(net, layout = layout.circle)
+
+# Specify new edge attributes width and curved
+E(net)$width <- count.multiple(net)
+E(net)$curved <- FALSE
+
+# Check the new edge attributes and plot the network with overlapping edges
+edge_attr(net)
+plot(net, layout = layout.circle)
+```
+
+>
+Fraudsters tend to cluster together:
+>
+1. are attending the same events/activities
+1. are involved in the same crimes
+1. use the same resources
+1. are sometimes one and the same person (identity theft)
+
+Homophily in social networks (from sociology)
+: People have a strong tendency to associate with other whom they perceive as being similar to themselves in some way.
+
+Homophily in fraud networks
+: Fraudsters are more likely to be connected to other fraudsters, and legitimate people are more likely to be connected to other legitimate people.
+
+<mark>因此对于VIP识别的数据，VIP用户也存在 Homophily。</mark>
+
+Non-relational model
+: sample independent
+: Behavior of one node might influence behavior of other nodes 
+: Correlated behavior between nodes
+
+Relational model
+: Relational neighbor classifier
+: The relational neighbor classifier, in particular, predicts a node's class based on its neighboring nodes and adjacent edges. (这是算法逻辑)
+
+因此传统的非关系模型可能不work，也是有原因的。
+
+1. `account_type` is a nominal variable -> use `assortativity_nominal`.
+
+```{r eval=F}
+# Add account_type as an attribute to the nodes of the network
+V(net)$account_type <- account_info$type
+
+# Have a look at the vertex attributes
+print(vertex_attr(net))
+
+# Check for homophily based on account_type
+assortativity_nominal(net, types = V(net)$account_type, directed = FALSE)
+# 0.1810621
+```
+
+>
+The assortativity coefficient is positive which means that accounts of the same type tend to connect to each other.
+
+这个地方的例子没理解。
+
+```{r eval=F}
+# Each account type is assigned a color
+vertex_colors <- c("grey", "lightblue", "darkorange")
+
+# Add attribute color to V(net) which holds the color of each node depending on its account_type
+V(net)$color <- vertex_colors[V(net)$account_type]
+
+# Plot the network
+plot(net)
+```
+
+同类型的用户聚集。
+
+money mule
+: A money mule or sometimes referred to as a "smurfer" is a person who transfers money acquired illegally.
+
+```{r eval=F}
+transfers <- fread(here::here('data','transfers_chp2_02.csv'))
+account_info <- fread(here::here('data','account_info.csv'))
+
+# From data frame to graph
+net <- graph_from_data_frame(transfers, directed = FALSE)
+
+# Plot the network; color nodes according to isMoneyMule-variable
+V(net)$color <- ifelse(account_info$isMoneyMule, "darkorange", "slateblue1")
+plot(net, vertex.label.color = "black", vertex.label.font = 2, vertex.size = 18)
+
+# Find the id of the money mule accounts
+print(account_info$id[account_info$isMoneyMule == TRUE])
+
+# Create subgraph containing node "I41" and all money mules nodes
+subnet <- subgraph(net, v = c("I41", "I47", "I87", "I20"))
+# Error in as.igraph.vs(graph, v) : Invalid vertex names
+
+# Compute the money mule probability of node "I41" based on the neighbors
+strength(subnet, v = "I41") / strength(net, v = "I41")
+# Error in "igraph" %in% class(graph) : 找不到对象'subnet'
+```
+
+为什么箭头没有显示出来。
+
+1. `as_data_frame(x, what = c("edges", "vertices", "both"))` 可以将`igraph`的对象变成`data.frame`。
+1. `vertex_*` n. 顶点；头顶；天顶，也就是Nodes的意思。
+
+## Feature Engineering
+
+There are three kinds of variable we can build.
+
+1. Degree
+: Number of edges.
+: If Network has N nodes, then normalizing means dividing by N − 1
+1. Closeness
+: Inverse distance of a node to all other nodes in the network
+: $(1+1+2)^{-1}$
+: normalized - $(\frac{(1+1+2)}{3})^{-1}$
+1. Betweenness
+: Number of times that a node or edge occurs in the geodesics of the network
+: normalized -  $\frac{...}{N}$
+
+```{r}
+kite <- fread(here::here('data','kite.csv')) %>% 
+    select(-id)
+kite <- graph_from_data_frame(kite,directed = F)
+plot(kite)
+```
+
+### degree
+
+```{r}
+# Find the degree of each node
+degree(kite)
+
+# Which node has the largest degree?
+which.max(degree(kite))
+
+# Plot kite with vertex.size proportional to the degree of each node
+plot(kite, vertex.size = 6 * degree(kite))
+```
+
+### Closeness
+
+```{r}
+# Find the closeness of each node
+closeness(kite)
+
+# Which node has the largest closeness?
+which.max(closeness(kite))
+
+# Plot kite with vertex.size proportional to the closeness of each node
+plot(kite, vertex.size = 500 * closeness(kite))
+```
+
+### betweenness
+
+```{r}
+# Find the betweenness of each node
+betweenness(kite)
+
+# Which node has the largest betweenness?
+which.max(betweenness(kite))
+
+# Plot kite with vertex.size proportional to the betweenness of each node
+plot(kite, vertex.size = 5 * betweenness(kite))
+```
+
+```{r}
+net <- fread(here::here('data','net.csv')) %>% 
+    select(-id)
+net <- graph_from_data_frame(net,directed = F)
+account_info <- fread(here::here('data','account_info_chp2.csv')) %>% 
+    select(-index)
+```
+
+### Combination of the new features
+
+```{r}
+# Plot network and print account info
+plot(net)
+legend("bottomleft", legend = c("known money mule", "legit account"), fill = c("darkorange", "lightblue"), bty = "n")
+print(account_info)
+
+# Degree
+account_info$degree <- degree(net, normalized = T)
+# degree colname is I47 or something.
+
+# Closeness
+account_info$closeness <- closeness(net, normalized = T)
+
+# Betweenness
+account_info$betweenness <- betweenness(net, normalized = T)
+
+print(account_info)
+account_info %>% distinct(type)
+```
+
+1. 接下来可以使用 non relational model 进行分析了，例如决策树。
+1. 但是数据还是存在imbalance的问题，因此需要处理。
+
+<input type="checkbox" id="checkbox1" class="styled"> 如何用SQL 翻译?
+<input type="checkbox" id="checkbox1" class="styled"> 先整理 PPT
+
+# Imbalanced class distributions
+
+<input type="checkbox" id="checkbox1" class="styled"> xs 的数据也存在不平衡的问题，因此变量需要进行以上特征工程。
+
+1. 准备每个x的inserttime
+
+sampling 只对 train 进行而不对 test 进行
+
+<input type="checkbox" id="checkbox1" class="styled"> Kaggle 上有直接处理反欺诈的数据库。
+<input type="checkbox" id="checkbox1" class="styled"> 复现PPT Chp3
+
+# Reference {-}
+>>>>>>> dad387eda4ac1c2681d7d3710a049b43ea099a32

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ---
 output: github_document
 ---
