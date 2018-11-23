@@ -375,7 +375,7 @@ freq_channel_tbl02 <-
 setequal(freq_channel_tbl01,freq_channel_tbl02)
 ```
 
-    ## [1] TRUE
+    ## TRUE
 
 ``` r
 freq_channel_tbl02 %>% 
@@ -397,13 +397,14 @@ freq_channel_tbl02 %>%
 # Recency features
 
 <input type="checkbox" id="checkbox1" class="styled"> how to add bracket
-in ggplot
+in
+ggplot
 
 ``` r
 knitr::include_graphics(here::here('pic','recencyfeature.png'))
 ```
 
-![](D:/weDo/anti_fraud_practice/pic/recencyfeature.png)<!-- -->
+![](/Users/vija/Downloads/180805_folder_01/tmp_jli/trans/projIN/anti_fraud_practice/pic/recencyfeature.png)<!-- -->
 
 \[\text{recency} = e^{-\gamma t}\]
 
@@ -559,10 +560,10 @@ net <- graph_from_data_frame(transfers, directed = F)
 net
 ```
 
-    ## IGRAPH f590202 UN-- 82 60 -- 
+    ## IGRAPH 0ecab78 UN-- 82 60 -- 
     ## + attr: name (v/c), beneficiary (e/c), amount (e/n), time (e/c),
     ## | benef_country (e/c), payment_channel (e/c)
-    ## + edges from f590202 (vertex names):
+    ## + edges from 0ecab78 (vertex names):
     ##  [1] 1 --I47 2 --I40 3 --I89 4 --I24 5 --I40 6 --I63 7 --I40 8 --I28
     ##  [9] 9 --I40 10--I44 11--I23 12--I41 13--I93 14--I28 15--I23 16--I28
     ## [17] 17--I40 18--I28 19--I63 20--I52 21--I25 22--I23 23--I28 24--I28
@@ -965,9 +966,375 @@ account_info %>% distinct(type)
 
 sampling 只对 train 进行而不对 test 进行
 
-<input type="checkbox" id="checkbox1" class="styled"> Kaggle
-上有直接处理反欺诈的数据库。
 <input type="checkbox" id="checkbox1" class="styled"> 复现PPT Chp3
+
+[Kaggle](https://www.kaggle.com/mlg-ulb/creditcardfraud)的反欺诈数据。
+
+``` r
+library(data.table)
+creditcard <- fread(here::here('data','creditcard.csv'))
+creditcard %>% 
+    mutate(index = rep_len(1:4,nrow(.))) %>% 
+    group_by(index) %>% 
+    nest() %>% 
+    mutate(data1 = map2(data,index,~write_excel_csv(.x,here::here('data',paste0('creditcard_',.y,'.csv')))))
+```
+
+``` r
+library(data.table)
+library(tidyverse)
+creditcard <- 
+    bind_rows(
+        map(1:4
+            ,~ paste0('creditcard_',.,'.csv') %>% 
+            here::here('data',.) %>% 
+            fread()
+            )
+        
+    ) %>% 
+    dplyr::sample_frac(0.1)
+```
+
+``` r
+creditcard %>% 
+    # nrow
+    pryr::object_size()
+```
+
+    ## 7.07 MB
+
+``` r
+creditcard %>% 
+    ggplot(aes(V1,V2,col=factor(Class))) +
+    geom_point(alpha=0.2)
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
+
+``` r
+# imbalance is an issue.
+```
+
+``` r
+creditcard %>% 
+    group_by(Class) %>% 
+    count() %>% 
+    ungroup() %>% 
+    mutate(n = n/sum(n))
+```
+
+    ## # A tibble: 2 x 2
+    ##   Class       n
+    ##   <int>   <dbl>
+    ## 1     0 0.999  
+    ## 2     1 0.00147
+
+Use `ovun.sample` from `ROSE` package to do over/under - sampling or
+combination of the two.
+
+## Oversampling
+
+``` r
+# We hope minority in the new sample is 40%.
+# We know majority size is 
+sum(creditcard$Class == 0)
+```
+
+    ## [1] 28439
+
+``` r
+# sum(creditcard$Class == 0)/(1-0.4) is the desired sample size.
+library(ROSE)
+oversampling_result <- 
+    ovun.sample(
+        Class ~ .
+        ,data = creditcard
+        ,method = "over"
+        ,N = sum(creditcard$Class == 0)/(1-0.4)
+        ,seed = 2018)
+# N - the sampling size you want.
+oversampled_credit <- oversampling_result$data
+table(oversampled_credit$Class)
+```
+
+    ## 
+    ##     0     1 
+    ## 28439 18959
+
+``` r
+table(creditcard$Class)
+```
+
+    ## 
+    ##     0     1 
+    ## 28439    42
+
+``` r
+prop.table(table(oversampled_credit$Class))
+```
+
+    ## 
+    ##         0         1 
+    ## 0.6000042 0.3999958
+
+``` r
+prop.table(table(creditcard$Class))
+```
+
+    ## 
+    ##           0           1 
+    ## 0.998525333 0.001474667
+
+完成sampling的工作。
+
+``` r
+oversampled_credit %>% 
+    ggplot(aes(V1,V2,col=factor(Class))) +
+    scale_color_manual(values = c('dodgerblue', 'red')) +
+    # customize the color for the points.
+    geom_point(alpha=0.2)
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
+
+``` r
+# imbalance is solved.
+```
+
+## Undersampling
+
+``` r
+# We hope minority in the new sample is 40%.
+# We know minority size is 
+sum(creditcard$Class == 1)
+```
+
+    ## [1] 42
+
+``` r
+# sum(creditcard$Class == 1)/0.4 is the desired sample size.
+undersampling_result <- 
+    ovun.sample(
+        Class ~ .
+        ,data = creditcard
+        ,method = "under"
+        ,N = sum(creditcard$Class == 1)/0.4
+        ,seed = 2018)
+# N - the sampling size you want.
+undersampled_credit <- undersampling_result$data
+table(undersampled_credit$Class)
+```
+
+    ## 
+    ##  0  1 
+    ## 63 42
+
+``` r
+prop.table(table(undersampled_credit$Class))
+```
+
+    ## 
+    ##   0   1 
+    ## 0.6 0.4
+
+``` r
+undersampled_credit %>% 
+    ggplot(aes(V1,V2,col=factor(Class))) +
+    scale_color_manual(values = c('dodgerblue', 'red')) +
+    geom_point(alpha=0.2)
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
+
+``` r
+# imbalance is solved.
+```
+
+## Over and Undersampling
+
+``` r
+bothsampling_result <- 
+    ovun.sample(
+        Class ~ .
+        ,data = creditcard
+        ,method = "both"
+        ,N = nrow(creditcard)
+        ,p = 0.5
+        ,seed = 2018)
+# N - the sampling size you want.
+bothsampled_credit <- bothsampling_result$data
+table(bothsampled_credit$Class)
+```
+
+    ## 
+    ##     0     1 
+    ## 14365 14116
+
+``` r
+prop.table(table(bothsampled_credit$Class))
+```
+
+    ## 
+    ##         0         1 
+    ## 0.5043713 0.4956287
+
+``` r
+table(creditcard$Class)
+```
+
+    ## 
+    ##     0     1 
+    ## 28439    42
+
+``` r
+# both actions are done.
+# oversampling the majority 
+# undersampling the minority.
+```
+
+``` r
+bothsampled_credit %>% 
+    ggplot(aes(V1,V2,col=factor(Class))) +
+    scale_color_manual(values = c('dodgerblue', 'red')) +
+    geom_point(alpha=0.2)
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-41-1.png)<!-- -->
+
+``` r
+# imbalance is solved.
+```
+
+## SMOTE
+
+### intro
+
+![](pic/smote_step1.png)
+
+如图，红色点表示欺诈用户在两变量上的表现，分别连线。
+
+![](pic/smote_step2.png)
+
+任意选择一点。
+
+![](pic/synthetic_case_3.png)
+
+选择任意比例，构建两点间的一个样本。
+
+![](pic/smote_step3.png)
+
+因此，SMOTE产生的新样本出现了。
+
+### other
+
+``` r
+library(smotefamily)
+```
+
+> `dup_size` parameter answers the question how many times SMOTE should
+> loop through the existing, real fraud cases.
+
+> SMOTE can only be applied based on numeric variables since it uses the
+> euclidean distance to determine nearest
+neighbors.
+
+``` r
+# Set the number of fraud and legitimate cases, and the desired percentage of legitimate cases
+n1 <- sum(creditcard$Class==1)
+n0 <- sum(creditcard$Class==0)
+r0 <- 0.6
+# r0: the desired percentage
+
+# Calculate the value for the dup_size parameter of SMOTE
+ntimes <- ((1 - r0) / r0) * (n0 / n1) - 1
+
+# Create synthetic fraud cases with SMOTE
+library(data.table)
+smote_output <- SMOTE(X = creditcard %>% select(-Time,Class), target = creditcard$Class, K = 5, dup_size = ntimes)
+# remove non-numeric vars
+
+# Make a scatter plot of the original and over-sampled dataset
+credit_smote <- smote_output$data
+colnames(credit_smote)[30] <- "Class"
+prop.table(table(credit_smote$Class))
+```
+
+    ## 
+    ##         0         1 
+    ## 0.6002195 0.3997805
+
+``` r
+ggplot(creditcard, aes(x = V1, y = V2, color = factor(Class))) +
+    geom_point() +
+    scale_color_manual(values = c('dodgerblue2', 'red'))
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-43-1.png)<!-- -->
+
+``` r
+ggplot(credit_smote, aes(x = V1, y = V2, color = factor(Class))) +
+  geom_point() +
+  scale_color_manual(values = c('dodgerblue2', 'red'))
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-43-2.png)<!-- -->
+
+1.  你会发现，通过SMOTE算法，以后很多点连成了直线，具体见 @ref(smoteintro)
+
+<details>
+
+<summary>报错`Errorin knearest(P_set, P_set, K) : 找不到对象'knD'`</summary>
+
+`smotefamily` `SMOTE`
+
+[CSDN博客](https://blog.csdn.net/scc_hy/article/details/84190080)
+其他的R中SMOTE的包
+
+`install.packages("FNN")`
+
+参考 [Stack
+Overflow](https://stackoverflow.com/questions/40206172/error-in-knearestdarr-p-set-k-object-knd-not-found?answertab=oldest)
+
+</details>
+
+<input type="checkbox" id="checkbox1" class="styled">`ntimes <- ((1 -
+r0) / r0) * (n0 / n1) - 1`理解公式
+
+<input type="checkbox" id="checkbox1" class="styled">SMOTE : Synthetic
+Minority Oversampling TEchnique (Chawla et al., 2002)
+
+<input type="checkbox" id="checkbox1" class="styled">仿照PPT出题
+
+加入SMOTE 的结构后，模型变得更加复杂了，更好了。
+
+`cost_model` 定义。
+
+ACC
+是有误导的。
+
+``` r
+cost_model <- function(predicted.classes, true.classes, amounts, fixedcost) {
+  library(hmeasure)
+  predicted.classes <- relabel(predicted.classes)
+  true.classes <- relabel(true.classes)
+  cost <- sum(true.classes * (1 - predicted.classes) * amounts + predicted.classes * fixedcost)
+  return(cost)
+}
+```
+
+# Digit analysis
+
+1.  If there is lower and/or upper bound or data is concentrated in
+    narrow interval, e.g. hourly wage rate, height of people.
+2.  If numbers are used as identification numbers or labels, e.g. social
+    security number, flight numbers, car license plate numbers, phone
+    numbers.
+3.  Additive fluctuations instead of multiplicative fluctuations,
+    e.g. heartbeats on a given day
+
+Benford’s Law
+
+adjboxStats PPT 上可以了解下。
 
 # Reference
 

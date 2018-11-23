@@ -1,6 +1,15 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+### 2018-11-23 23:37:32
+
+1.  更新SMOTE算法
+
+### 2018-11-22 17:54:56
+
+1.  基本完成Sampling的内容
+2.  开始 Digit analysis 的内容
+
 ### 2018-11-22 11:20:56
 
 1.  更新 CheckBox，适配Github document
