@@ -650,8 +650,9 @@ creditcard %>%
     mutate(data1 = map2(data,index,~write_excel_csv(.x,here::here('data',paste0('creditcard_',.y,'.csv')))))
 ```
 
-```{r eval=F}
+```{r}
 library(data.table)
+library(tidyverse)
 creditcard <- 
     bind_rows(
         map(1:4
@@ -660,22 +661,14 @@ creditcard <-
             fread()
             )
         
-    )
+    ) %>% 
+    dplyr::sample_frac(0.1)
 ```
 
 ```{r}
 creditcard %>% 
     # nrow
     pryr::object_size()
-```
-
-
-```{r}
-creditcard %>% 
-    group_by(str_sub(Time,-1,-1)) %>% 
-    nest %>% 
-    set_names('t','data') %>% 
-    mutate(data1 = map(data,map(data,~write_excel_csv(paste0('creditcard',t,'.csv')))))
 ```
 
 ```{r}
@@ -788,13 +781,7 @@ bothsampled_credit %>%
 
 ## SMOTE
 
-### intro
-
-```{r}
-list.files('pic',full.names = T) %>% 
-    str_flatten('\n') %>% 
-    cat
-```
+### intro {#smoteintro}
 
 ![](pic/smote_step1.png)
 
@@ -844,14 +831,32 @@ credit_smote <- smote_output$data
 colnames(credit_smote)[30] <- "Class"
 prop.table(table(credit_smote$Class))
 
-ggplot(creditcard, aes(x = V1, y = V2, color = Class)) +
-  geom_point() +
-  scale_color_manual(values = c('dodgerblue2', 'red'))
+ggplot(creditcard, aes(x = V1, y = V2, color = factor(Class))) +
+    geom_point() +
+    scale_color_manual(values = c('dodgerblue2', 'red'))
 
-ggplot(credit_smote, aes(x = V1, y = V2, color = Class)) +
+ggplot(credit_smote, aes(x = V1, y = V2, color = factor(Class))) +
   geom_point() +
   scale_color_manual(values = c('dodgerblue2', 'red'))
 ```
+
+1. 你会发现，通过SMOTE算法，以后很多点连成了直线，具体见 \@ref(smoteintro)
+
+<details>
+<summary>报错`Errorin knearest(P_set, P_set, K) : 找不到对象'knD'`</summary>
+
+`smotefamily`
+`SMOTE`
+
+[CSDN博客](https://blog.csdn.net/scc_hy/article/details/84190080)
+其他的R中SMOTE的包
+
+`install.packages("FNN")`
+
+参考
+[Stack Overflow](https://stackoverflow.com/questions/40206172/error-in-knearestdarr-p-set-k-object-knd-not-found?answertab=oldest)
+
+</details>
 
 <input type="checkbox" id="checkbox1" class="styled">`ntimes <- ((1 - r0) / r0) * (n0 / n1) - 1`理解公式
 
