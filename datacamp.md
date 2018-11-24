@@ -560,10 +560,10 @@ net <- graph_from_data_frame(transfers, directed = F)
 net
 ```
 
-    ## IGRAPH c44a45f UN-- 82 60 -- 
+    ## IGRAPH cc42e7e UN-- 82 60 -- 
     ## + attr: name (v/c), beneficiary (e/c), amount (e/n), time (e/c),
     ## | benef_country (e/c), payment_channel (e/c)
-    ## + edges from c44a45f (vertex names):
+    ## + edges from cc42e7e (vertex names):
     ##  [1] 1 --I47 2 --I40 3 --I89 4 --I24 5 --I40 6 --I63 7 --I40 8 --I28
     ##  [9] 9 --I40 10--I44 11--I23 12--I41 13--I93 14--I28 15--I23 16--I28
     ## [17] 17--I40 18--I28 19--I63 20--I52 21--I25 22--I23 23--I28 24--I28
@@ -1026,8 +1026,8 @@ creditcard %>%
     ## # A tibble: 2 x 2
     ##   Class       n
     ##   <int>   <dbl>
-    ## 1     0 0.998  
-    ## 2     1 0.00179
+    ## 1     0 0.999  
+    ## 2     1 0.00130
 
 Use `ovun.sample` from `ROSE` package to do over/under - sampling or
 combination of the two.
@@ -1040,7 +1040,7 @@ combination of the two.
 sum(creditcard$Class == 0)
 ```
 
-    ## [1] 28430
+    ## [1] 28444
 
 ``` r
 # sum(creditcard$Class == 0)/(1-0.4) is the desired sample size.
@@ -1059,7 +1059,7 @@ table(oversampled_credit$Class)
 
     ## 
     ##     0     1 
-    ## 28430 18953
+    ## 28444 18962
 
 ``` r
 table(creditcard$Class)
@@ -1067,7 +1067,7 @@ table(creditcard$Class)
 
     ## 
     ##     0     1 
-    ## 28430    51
+    ## 28444    37
 
 ``` r
 prop.table(table(oversampled_credit$Class))
@@ -1075,7 +1075,7 @@ prop.table(table(oversampled_credit$Class))
 
     ## 
     ##         0         1 
-    ## 0.6000042 0.3999958
+    ## 0.6000084 0.3999916
 
 ``` r
 prop.table(table(creditcard$Class))
@@ -1083,7 +1083,7 @@ prop.table(table(creditcard$Class))
 
     ## 
     ##           0           1 
-    ## 0.998209333 0.001790667
+    ## 0.998700888 0.001299112
 
 完成sampling的工作。
 
@@ -1109,7 +1109,7 @@ oversampled_credit %>%
 sum(creditcard$Class == 1)
 ```
 
-    ## [1] 51
+    ## [1] 37
 
 ``` r
 # sum(creditcard$Class == 1)/0.4 is the desired sample size.
@@ -1127,7 +1127,7 @@ table(undersampled_credit$Class)
 
     ## 
     ##  0  1 
-    ## 76 51
+    ## 55 37
 
 ``` r
 prop.table(table(undersampled_credit$Class))
@@ -1135,7 +1135,7 @@ prop.table(table(undersampled_credit$Class))
 
     ## 
     ##         0         1 
-    ## 0.5984252 0.4015748
+    ## 0.5978261 0.4021739
 
 ``` r
 undersampled_credit %>% 
@@ -1184,7 +1184,7 @@ table(creditcard$Class)
 
     ## 
     ##     0     1 
-    ## 28430    51
+    ## 28444    37
 
 ``` r
 # both actions are done.
@@ -1265,7 +1265,7 @@ prop.table(table(credit_smote$Class))
 
     ## 
     ##         0         1 
-    ## 0.6004097 0.3995903
+    ## 0.6002363 0.3997637
 
 ``` r
 ggplot(creditcard, aes(x = V1, y = V2, color = factor(Class))) +
@@ -1333,27 +1333,27 @@ confusionMatrix(
     ## 
     ##           Reference
     ## Prediction     0     1
-    ##          0 14211    16
-    ##          1     5     9
-    ##                                           
-    ##                Accuracy : 0.9985          
-    ##                  95% CI : (0.9977, 0.9991)
-    ##     No Information Rate : 0.9982          
-    ##     P-Value [Acc > NIR] : 0.2471          
-    ##                                           
-    ##                   Kappa : 0.4609          
-    ##  Mcnemar's Test P-Value : 0.0291          
-    ##                                           
-    ##             Sensitivity : 0.9996          
-    ##             Specificity : 0.3600          
-    ##          Pos Pred Value : 0.9989          
-    ##          Neg Pred Value : 0.6429          
-    ##              Prevalence : 0.9982          
-    ##          Detection Rate : 0.9979          
-    ##    Detection Prevalence : 0.9990          
-    ##       Balanced Accuracy : 0.6798          
-    ##                                           
-    ##        'Positive' Class : 0               
+    ##          0 14215     4
+    ##          1     3    19
+    ##                                          
+    ##                Accuracy : 0.9995         
+    ##                  95% CI : (0.999, 0.9998)
+    ##     No Information Rate : 0.9984         
+    ##     P-Value [Acc > NIR] : 9.647e-05      
+    ##                                          
+    ##                   Kappa : 0.8442         
+    ##  Mcnemar's Test P-Value : 1              
+    ##                                          
+    ##             Sensitivity : 0.9998         
+    ##             Specificity : 0.8261         
+    ##          Pos Pred Value : 0.9997         
+    ##          Neg Pred Value : 0.8636         
+    ##              Prevalence : 0.9984         
+    ##          Detection Rate : 0.9982         
+    ##    Detection Prevalence : 0.9985         
+    ##       Balanced Accuracy : 0.9129         
+    ##                                          
+    ##        'Positive' Class : 0              
     ## 
 
 ``` r
@@ -1361,7 +1361,7 @@ library(pROC)
 auc(roc(response = test$Class, predictor = scores01))
 ```
 
-    ## Area under the curve: 0.7597
+    ## Area under the curve: 0.9129
 
 ``` r
 library(smotefamily) 
@@ -1377,8 +1377,8 @@ prop.table(table(train$Class))
 ```
 
     ## 
-    ##           0           1 
-    ## 0.998174157 0.001825843
+    ##            0            1 
+    ## 0.9990168539 0.0009831461
 
 ``` r
 prop.table(table(train_oversampled$Class))
@@ -1386,7 +1386,7 @@ prop.table(table(train_oversampled$Class))
 
     ## 
     ##          0          1 
-    ## 0.91467181 0.08532819
+    ## 0.95220884 0.04779116
 
 ``` r
 library(rpart)
@@ -1409,27 +1409,27 @@ confusionMatrix(
     ## 
     ##           Reference
     ## Prediction     0     1
-    ##          0 14211    16
-    ##          1     5     9
-    ##                                           
-    ##                Accuracy : 0.9985          
-    ##                  95% CI : (0.9977, 0.9991)
-    ##     No Information Rate : 0.9982          
-    ##     P-Value [Acc > NIR] : 0.2471          
-    ##                                           
-    ##                   Kappa : 0.4609          
-    ##  Mcnemar's Test P-Value : 0.0291          
-    ##                                           
-    ##             Sensitivity : 0.9996          
-    ##             Specificity : 0.3600          
-    ##          Pos Pred Value : 0.9989          
-    ##          Neg Pred Value : 0.6429          
-    ##              Prevalence : 0.9982          
-    ##          Detection Rate : 0.9979          
-    ##    Detection Prevalence : 0.9990          
-    ##       Balanced Accuracy : 0.6798          
-    ##                                           
-    ##        'Positive' Class : 0               
+    ##          0 14215     4
+    ##          1     3    19
+    ##                                          
+    ##                Accuracy : 0.9995         
+    ##                  95% CI : (0.999, 0.9998)
+    ##     No Information Rate : 0.9984         
+    ##     P-Value [Acc > NIR] : 9.647e-05      
+    ##                                          
+    ##                   Kappa : 0.8442         
+    ##  Mcnemar's Test P-Value : 1              
+    ##                                          
+    ##             Sensitivity : 0.9998         
+    ##             Specificity : 0.8261         
+    ##          Pos Pred Value : 0.9997         
+    ##          Neg Pred Value : 0.8636         
+    ##              Prevalence : 0.9984         
+    ##          Detection Rate : 0.9982         
+    ##    Detection Prevalence : 0.9985         
+    ##       Balanced Accuracy : 0.9129         
+    ##                                          
+    ##        'Positive' Class : 0              
     ## 
 
 ``` r
@@ -1437,7 +1437,7 @@ library(pROC)
 auc(roc(response = test$Class, predictor = scores02))
 ```
 
-    ## Area under the curve: 0.7597
+    ## Area under the curve: 0.9129
 
 SMOTE 并不是每次都有效果，因此要通过这种方法进行验证。
 
@@ -1486,7 +1486,7 @@ cost_model(
 )
 ```
 
-    ## [1] 2422.54
+    ## [1] 545.54
 
 ``` r
 cost_model(
@@ -1497,11 +1497,167 @@ cost_model(
 )
 ```
 
-    ## [1] 2422.54
+    ## [1] 545.54
 
-1.  说明SMOTE 算法无效。
+1.  说明SMOTE
+算法无效。
 
-# Digit analysis
+# Benford’s law for digits
+
+## Benford’s law for the first digit
+
+\[P(D_1 = d_1) = \log(d_1+1) - \log(d_1) = \log(1 + \frac{1}{d_1});d_1 = 1,\dots,9\]
+
+``` r
+benford_data <- 
+    tibble(
+        d_1 = 1:9
+        ,P = log10(d_1+1) - log10(d_1)
+    )
+benford_data
+```
+
+    ## # A tibble: 9 x 2
+    ##     d_1      P
+    ##   <int>  <dbl>
+    ## 1     1 0.301 
+    ## 2     2 0.176 
+    ## 3     3 0.125 
+    ## 4     4 0.0969
+    ## 5     5 0.0792
+    ## 6     6 0.0669
+    ## 7     7 0.0580
+    ## 8     8 0.0512
+    ## 9     9 0.0458
+
+``` r
+benford_data %>% 
+    summarise(sum(P))
+```
+
+    ## # A tibble: 1 x 1
+    ##   `sum(P)`
+    ##      <dbl>
+    ## 1        1
+
+1.  也可以检验概率和为1
+
+## Test on the Fibonacci sequence
+
+> The Fibonacci sequence is characterized by the fact that every number
+> after the first two is the sum of the two preceding ones. (Baesens,
+> Höppner, and Verdonck 2018)
+
+``` r
+n <- 1000
+fibnum <- numeric(n)
+fibnum[1] <- 1
+fibnum[2] <- 1
+for (i in 3:n) { 
+  fibnum[i] <- fibnum[i-1]+fibnum[i-2]
+} 
+head(fibnum)
+```
+
+    ## [1] 1 1 2 3 5 8
+
+``` r
+library(benford.analysis)
+bfd.fib <- benford(fibnum,
+                number.of.digits = 1)
+plot(bfd.fib)
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-55-1.png)<!-- -->
+
+## Test on `census.2009`
+
+  - `census.2009`  
+    contains the populations of 19509 towns and cities of the United
+    States (July 2009) and was used in Nigrini and Wells (2012).
+
+<!-- end list -->
+
+``` r
+# Load package benford.analysis
+library(benford.analysis)
+data(census.2009)
+
+# Check conformity
+bfd.cen <- benford(census.2009$pop.2009, number.of.digits = 1) 
+plot(bfd.cen, except = c("second order", "summation", "mantissa", "chi squared","abs diff", "ex summation", "Legend"), multiple = F) 
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-56-1.png)<!-- -->![](datacamp_files/figure-gfm/unnamed-chunk-56-2.png)<!-- -->
+
+``` r
+census.2009 %>% 
+    transmute(pop.2009 = pop.2009 %>% 
+                  as.character %>% 
+                  str_sub(1,1) %>% 
+                  as.integer
+               ) %>% 
+    group_by(pop.2009) %>% 
+    count() %>% 
+    ungroup() %>% 
+    mutate(n = n/sum(n)) %>% 
+    mutate(benford = log10(1+1/pop.2009)) %>% 
+    gather(key,value,n:benford) %>% 
+    ggplot(aes(x=pop.2009,y=value,col=key)) +
+    geom_line()
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-57-1.png)<!-- -->
+
+``` r
+# Multiply the data by 3 and check conformity again
+data <- census.2009$pop.2009 * 3
+bfd.cen3 <- benford(data, number.of.digits=1)
+plot(bfd.cen3, except = c("second order", "summation", "mantissa", "chi squared","abs diff", "ex summation", "Legend"), multiple = F)
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-58-1.png)<!-- -->![](datacamp_files/figure-gfm/unnamed-chunk-58-2.png)<!-- -->
+
+1.  因此满足 benford 定律。
+2.  `plot.Benford`存在bug。
+
+## Satisfication
+
+Many datasets satisfy Benford’s Law
+
+1.  data where numbers represent sizes of facts or events
+2.  data in which numbers have no relationship to each other
+3.  data sets that grow exponentially or arise from multiplicative
+    fluctuations
+4.  mixtures of different data sets
+5.  Some well-known infinite integer sequences
+    1.  Fibonacci sequence
+6.  Preferably, more than 1000 numbers that go across multiple orders.
+
+Such as
+
+1.  accounting transactions
+2.  credit card transactions
+3.  customer balances
+4.  death rates
+5.  diameter of planets
+6.  electricity and telephone bills
+7.  Fibonacci numbers
+8.  incomes
+9.  insurance claims
+10. lengths and flow rates of rivers
+11. loan data
+12. numbers of newspaper articles
+13. physical and mathematical constants
+14. populations of cities
+15. powers of 2
+16. purchase orders
+17. stock and house prices
+    1.  可以做特征工程
+
+这些可以不用记忆，等之后使用了再融会贯通。
+
+某些数据是不满足 Benfold 规则的，
 
 1.  If there is lower and/or upper bound or data is concentrated in
     narrow interval, e.g. hourly wage rate, height of people.
@@ -1509,9 +1665,79 @@ cost_model(
     security number, flight numbers, car license plate numbers, phone
     numbers.
 3.  Additive fluctuations instead of multiplicative fluctuations,
-    e.g. heartbeats on a given day
+    e.g. heartbeats on a given
+day
 
-Benford’s Law
+## Benford’s Law for the first-two digits
+
+\[P(D_1D_2 = d_1d_2) = \log(d_1d_2+1) - \log(d_1d_2) = \log(1 + \frac{1}{d_1d_2});d_1d_2 = 10,\dots,99\]
+
+``` r
+benford_data <- 
+    tibble(
+        d_1d_2 = 10:99
+        ,P = log10(d_1d_2+1) - log10(d_1d_2)
+    )
+benford_data
+```
+
+    ## # A tibble: 90 x 2
+    ##    d_1d_2      P
+    ##     <int>  <dbl>
+    ##  1     10 0.0414
+    ##  2     11 0.0378
+    ##  3     12 0.0348
+    ##  4     13 0.0322
+    ##  5     14 0.0300
+    ##  6     15 0.0280
+    ##  7     16 0.0263
+    ##  8     17 0.0248
+    ##  9     18 0.0235
+    ## 10     19 0.0223
+    ## # ... with 80 more rows
+
+``` r
+benford_data %>% 
+    summarise(sum(P))
+```
+
+    ## # A tibble: 1 x 1
+    ##   `sum(P)`
+    ##      <dbl>
+    ## 1        1
+
+1.  也可以检验概率和为1
+
+> This test is more reliable than the first digits test and is most
+> frequently used in fraud detection. (Baesens, Höppner, and Verdonck
+> 2018)
+
+``` r
+bfd.cen <- benford(census.2009$pop.2009,number.of.digits = 2) 
+plot(bfd.cen)
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-60-1.png)<!-- -->
+
+``` r
+bfd1.exp <- benford(expenses,  number.of.digits = 1) 
+plot(bfd1.exp)
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-61-1.png)<!-- -->
+
+``` r
+bfd2.exp <- benford(expenses, number.of.digits = 2) 
+plot(bfd2.exp)
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-61-2.png)<!-- -->
+
+## how to use
+
+如上图一，字母在75左右时，数字没有符合 Benfold 规律，因此很有可能是人为因素，因此可以作为分类变量。
+
+# Outliers
 
 adjboxStats PPT 上可以了解下。
 
@@ -1532,6 +1758,13 @@ Detection in R.” 2018.
 Chawla, Nitesh V., Kevin W. Bowyer, Lawrence O. Hall, and W. Philip
 Kegelmeyer. 2002. “SMOTE: Synthetic Minority over-Sampling Technique.”
 *Journal of Artificial Intelligence Research* 16 (1): 321–57.
+
+</div>
+
+<div id="ref-Nigrini2012Benford">
+
+Nigrini, Mark, and Joseph T. Wells. 2012. “Benford’s Law: Applications
+for Forensic Accounting, Auditing, and Fraud Detection.”
 
 </div>
 

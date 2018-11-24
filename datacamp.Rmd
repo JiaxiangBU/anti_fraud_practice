@@ -32,7 +32,7 @@ library(here)
 library(igraph)
 # here is both in pkg here and lubridate
 
-# load(here::here('data','expenses.rdata'))
+load(here::here('data','expenses.rdata'))
 # load(here::here('data','amountNA.rdata'))
 # expenses %>% head
 # amountNA %>% head
@@ -971,13 +971,193 @@ cost_model(
 
 1. 说明SMOTE 算法无效。
 
-# Digit analysis
+# Benford's law for digits
+
+## Benford's law for the first digit
+
+$$P(D_1 = d_1) = \log(d_1+1) - \log(d_1) = \log(1 + \frac{1}{d_1});d_1 = 1,\dots,9$$
+
+```{r}
+benford_data <- 
+    tibble(
+        d_1 = 1:9
+        ,P = log10(d_1+1) - log10(d_1)
+    )
+benford_data
+benford_data %>% 
+    summarise(sum(P))
+```
+
+1. 也可以检验概率和为1 
+
+## Test on the Fibonacci sequence
+
+>
+The Fibonacci sequence is characterized by the fact that every number after the first two is the sum of the two preceding ones.
+[@BaesensFraud]
+
+```{r}
+n <- 1000
+fibnum <- numeric(n)
+fibnum[1] <- 1
+fibnum[2] <- 1
+for (i in 3:n) { 
+  fibnum[i] <- fibnum[i-1]+fibnum[i-2]
+} 
+head(fibnum)
+```
+
+
+```{r}
+library(benford.analysis)
+bfd.fib <- benford(fibnum,
+                number.of.digits = 1)
+plot(bfd.fib)
+```
+
+## Test on `census.2009`
+
+`census.2009`
+: contains the populations of 19509 towns and cities of the United States (July 2009) and was used in @Nigrini2012Benford.
+
+```{r}
+# Load package benford.analysis
+library(benford.analysis)
+data(census.2009)
+
+# Check conformity
+bfd.cen <- benford(census.2009$pop.2009, number.of.digits = 1) 
+plot(bfd.cen, except = c("second order", "summation", "mantissa", "chi squared","abs diff", "ex summation", "Legend"), multiple = F) 
+```
+
+
+```{r}
+census.2009 %>% 
+    transmute(pop.2009 = pop.2009 %>% 
+                  as.character %>% 
+                  str_sub(1,1) %>% 
+                  as.integer
+               ) %>% 
+    group_by(pop.2009) %>% 
+    count() %>% 
+    ungroup() %>% 
+    mutate(n = n/sum(n)) %>% 
+    mutate(benford = log10(1+1/pop.2009)) %>% 
+    gather(key,value,n:benford) %>% 
+    ggplot(aes(x=pop.2009,y=value,col=key)) +
+    geom_line()
+```
+ 
+ 
+```{r}
+# Multiply the data by 3 and check conformity again
+data <- census.2009$pop.2009 * 3
+bfd.cen3 <- benford(data, number.of.digits=1)
+plot(bfd.cen3, except = c("second order", "summation", "mantissa", "chi squared","abs diff", "ex summation", "Legend"), multiple = F)
+```
+
+1. 因此满足 benford 定律。
+1. `plot.Benford`存在bug。
+
+## Satisfication 
+
+Many datasets satisfy Benford's Law
+
+1. data where numbers represent sizes of facts or events
+1. data in which numbers have no relationship to each other
+1. data sets that grow exponentially or arise from multiplicative fluctuations
+1. mixtures of different data sets
+1. Some well-known infinite integer sequences
+    1. Fibonacci sequence
+1. Preferably, more than 1000 numbers that go across multiple orders.
+
+Such as 
+
+1. accounting transactions
+1. credit card transactions
+1. customer balances
+1. death rates
+1. diameter of planets
+1. electricity and telephone bills
+1. Fibonacci numbers
+1. incomes
+1. insurance claims
+1. lengths and flow rates of rivers
+1. loan data
+1. numbers of newspaper articles
+1. physical and mathematical constants
+1. populations of cities
+1. powers of 2
+1. purchase orders
+1. stock and house prices
+    1. 可以做特征工程
+    
+这些可以不用记忆，等之后使用了再融会贯通。
+
+某些数据是不满足 Benfold 规则的，
 
 1. If there is lower and/or upper bound or data is concentrated in narrow interval, e.g. hourly wage rate, height of people.
 1. If numbers are used as identification numbers or labels, e.g. social security number, flight numbers, car license plate numbers, phone numbers.
 1. Additive fluctuations instead of multiplicative fluctuations, e.g. heartbeats on a given day
 
-Benford's Law
+## Benford's Law for the first-two digits
+
+
+$$P(D_1D_2 = d_1d_2) = \log(d_1d_2+1) - \log(d_1d_2) = \log(1 + \frac{1}{d_1d_2});d_1d_2 = 10,\dots,99$$
+
+```{r}
+benford_data <- 
+    tibble(
+        d_1d_2 = 10:99
+        ,P = log10(d_1d_2+1) - log10(d_1d_2)
+    )
+benford_data
+benford_data %>% 
+    summarise(sum(P))
+```
+
+1. 也可以检验概率和为1 
+
+>
+This test is more reliable than the first digits test and is most frequently used in fraud detection.
+[@BaesensFraud]
+
+```{r}
+bfd.cen <- benford(census.2009$pop.2009,number.of.digits = 2) 
+plot(bfd.cen)
+```
+
+```{r}
+bfd1.exp <- benford(expenses,  number.of.digits = 1) 
+plot(bfd1.exp)
+bfd2.exp <- benford(expenses, number.of.digits = 2) 
+plot(bfd2.exp)
+```
+
+## how to use
+
+如上图一，字母在75左右时，数字没有符合 Benfold 规律，因此很有可能是人为因素，因此可以作为分类变量。
+
+# Robust statistics for Outliers
+
+robust statistcis vs. classic statistics
+
+受到更少的outlier影响
+
+z-score 有robust
+boxplot 有箱型图
+
+书签
+https://campus.datacamp.com/courses/fraud-detection-in-r/digit-analysis-and-robust-statistics?ex=9
+
+## z-score
+
+作为分类变量
+
+```{r}
+
+```
+
 
 adjboxStats PPT 上可以了解下。
 
