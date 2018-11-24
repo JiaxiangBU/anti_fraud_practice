@@ -1,6 +1,10 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+### 2018-11-24 23:05:37
+
+1.  更新 Benfold 规律，用于提取特征变量
+
 ### 2018-11-24 18:25:44
 
 1.  更新成本函数的解释、公式和R构建
