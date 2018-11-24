@@ -923,11 +923,26 @@ auc(roc(response = test$Class, predictor = scores02))
 
 SMOTE 并不是每次都有效果，因此要通过这种方法进行验证。
 
-### other
+### cost model
 
-`cost_model` 定义。
+在不平衡样本中，ACC是有误导的，因此引入成本矩阵。
 
-ACC 是有误导的。
+```{r}
+here::here('pic','cost_matrix.png') %>% 
+    knitr::include_graphics()
+```
+
+如图，一共有两种成本
+
+1. Cost of analyzing the case
+1. 被欺诈损失的本金
+
+因此成本函数可以定义为
+
+$$Cost(\text{model})=\sum_{i=1}^{N}y_i(1-\hat y_i)\text{Amount}_i + \hat y_i C_a$$
+
+1. $y_i$为真实值
+1. $\hat y_i$为预测值
 
 ```{r}
 cost_model <- function(predicted.classes, true.classes, amounts, fixedcost) {
@@ -939,7 +954,22 @@ cost_model <- function(predicted.classes, true.classes, amounts, fixedcost) {
 }
 ```
 
+```{r}
+cost_model(
+    predicted.classes = predicted_class01
+    ,true.classes = test$Class
+    ,amounts = test$Amount
+    ,fixedcost = 10
+)
+cost_model(
+    predicted.classes = predicted_class02
+    ,true.classes = test$Class
+    ,amounts = test$Amount
+    ,fixedcost = 10
+)
+```
 
+1. 说明SMOTE 算法无效。
 
 # Digit analysis
 
