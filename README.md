@@ -1,6 +1,10 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+### 2018-11-24 18:25:44
+
+1.  更新成本函数的解释、公式和R构建
+
 ### 2018-11-23 23:37:32
 
 1.  更新SMOTE算法
