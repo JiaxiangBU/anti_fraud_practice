@@ -560,10 +560,10 @@ net <- graph_from_data_frame(transfers, directed = F)
 net
 ```
 
-    ## IGRAPH 0ecab78 UN-- 82 60 -- 
+    ## IGRAPH c44a45f UN-- 82 60 -- 
     ## + attr: name (v/c), beneficiary (e/c), amount (e/n), time (e/c),
     ## | benef_country (e/c), payment_channel (e/c)
-    ## + edges from 0ecab78 (vertex names):
+    ## + edges from c44a45f (vertex names):
     ##  [1] 1 --I47 2 --I40 3 --I89 4 --I24 5 --I40 6 --I63 7 --I40 8 --I28
     ##  [9] 9 --I40 10--I44 11--I23 12--I41 13--I93 14--I28 15--I23 16--I28
     ## [17] 17--I40 18--I28 19--I63 20--I52 21--I25 22--I23 23--I28 24--I28
@@ -1026,8 +1026,8 @@ creditcard %>%
     ## # A tibble: 2 x 2
     ##   Class       n
     ##   <int>   <dbl>
-    ## 1     0 0.999  
-    ## 2     1 0.00147
+    ## 1     0 0.998  
+    ## 2     1 0.00179
 
 Use `ovun.sample` from `ROSE` package to do over/under - sampling or
 combination of the two.
@@ -1040,7 +1040,7 @@ combination of the two.
 sum(creditcard$Class == 0)
 ```
 
-    ## [1] 28439
+    ## [1] 28430
 
 ``` r
 # sum(creditcard$Class == 0)/(1-0.4) is the desired sample size.
@@ -1059,7 +1059,7 @@ table(oversampled_credit$Class)
 
     ## 
     ##     0     1 
-    ## 28439 18959
+    ## 28430 18953
 
 ``` r
 table(creditcard$Class)
@@ -1067,7 +1067,7 @@ table(creditcard$Class)
 
     ## 
     ##     0     1 
-    ## 28439    42
+    ## 28430    51
 
 ``` r
 prop.table(table(oversampled_credit$Class))
@@ -1083,7 +1083,7 @@ prop.table(table(creditcard$Class))
 
     ## 
     ##           0           1 
-    ## 0.998525333 0.001474667
+    ## 0.998209333 0.001790667
 
 完成sampling的工作。
 
@@ -1109,7 +1109,7 @@ oversampled_credit %>%
 sum(creditcard$Class == 1)
 ```
 
-    ## [1] 42
+    ## [1] 51
 
 ``` r
 # sum(creditcard$Class == 1)/0.4 is the desired sample size.
@@ -1127,15 +1127,15 @@ table(undersampled_credit$Class)
 
     ## 
     ##  0  1 
-    ## 63 42
+    ## 76 51
 
 ``` r
 prop.table(table(undersampled_credit$Class))
 ```
 
     ## 
-    ##   0   1 
-    ## 0.6 0.4
+    ##         0         1 
+    ## 0.5984252 0.4015748
 
 ``` r
 undersampled_credit %>% 
@@ -1184,7 +1184,7 @@ table(creditcard$Class)
 
     ## 
     ##     0     1 
-    ## 28439    42
+    ## 28430    51
 
 ``` r
 # both actions are done.
@@ -1207,6 +1207,8 @@ bothsampled_credit %>%
 
 ## SMOTE
 
+Chawla et al. (2002) 提出SMOTE方法，用于解决不平衡样本的问题。
+
 ### intro
 
 ![](pic/smote_step1.png)
@@ -1225,14 +1227,16 @@ bothsampled_credit %>%
 
 因此，SMOTE产生的新样本出现了。
 
-### other
+> `dup_size` parameter answers the question how many times SMOTE should
+> loop through the existing, real fraud cases.
+
+同时参数`dup_size`给定SMOTE算法需要给每个`y=1`产生多少个新的样本。
+
+### modeling
 
 ``` r
 library(smotefamily)
 ```
-
-> `dup_size` parameter answers the question how many times SMOTE should
-> loop through the existing, real fraud cases.
 
 > SMOTE can only be applied based on numeric variables since it uses the
 > euclidean distance to determine nearest
@@ -1261,7 +1265,7 @@ prop.table(table(credit_smote$Class))
 
     ## 
     ##         0         1 
-    ## 0.6002195 0.3997805
+    ## 0.6004097 0.3995903
 
 ``` r
 ggplot(creditcard, aes(x = V1, y = V2, color = factor(Class))) +
@@ -1285,32 +1289,183 @@ ggplot(credit_smote, aes(x = V1, y = V2, color = factor(Class))) +
 
 <summary>报错`Errorin knearest(P_set, P_set, K) : 找不到对象'knD'`</summary>
 
-`smotefamily` `SMOTE`
-
-[CSDN博客](https://blog.csdn.net/scc_hy/article/details/84190080)
-其他的R中SMOTE的包
-
-`install.packages("FNN")`
-
-参考 [Stack
-Overflow](https://stackoverflow.com/questions/40206172/error-in-knearestdarr-p-set-k-object-knd-not-found?answertab=oldest)
+1.  函数为`smotefamily::SMOTE` 1
+    [CSDN博客](https://blog.csdn.net/scc_hy/article/details/84190080)介绍其他的R中SMOTE的包
+2.  解决办法是`install.packages("FNN")` 参考 [Stack
+    Overflow](https://stackoverflow.com/questions/40206172/error-in-knearestdarr-p-set-k-object-knd-not-found?answertab=oldest)
 
 </details>
 
-<input type="checkbox" id="checkbox1" class="styled">`ntimes <- ((1 -
-r0) / r0) * (n0 / n1) - 1`理解公式
+1.  <input type="checkbox" id="checkbox1" class="styled">`ntimes <- ((1
+    - r0) / r0) * (n0 / n1) - 1`理解公式
 
-<input type="checkbox" id="checkbox1" class="styled">SMOTE : Synthetic
-Minority Oversampling TEchnique (Chawla et al., 2002)
+### split train and test
 
-<input type="checkbox" id="checkbox1" class="styled">仿照PPT出题
+这里用于验证SMOTE方法是否有提高模型效果。
 
-加入SMOTE 的结构后，模型变得更加复杂了，更好了。
+``` r
+dim(creditcard)
+```
 
-`cost_model` 定义。
+    ## [1] 28481    31
 
-ACC
-是有误导的。
+``` r
+set.seed(123)
+creditcard <- creditcard %>% mutate(Class = as.factor(Class))
+train_index <- sample(nrow(creditcard),round(0.5*nrow(creditcard)))
+train <- creditcard[train_index,]
+test <- creditcard[-train_index,]
+```
+
+``` r
+library(rpart)
+model01 <-  rpart(factor(Class) ~ ., data = train)
+library(caret)
+scores01 <- predict(model01,newdata=test,type = "prob")[,2]
+predicted_class01 <- ifelse(scores01>0.5,1,0) %>% factor()
+confusionMatrix(
+    data = predicted_class01
+    ,reference = test$Class
+)
+```
+
+    ## Confusion Matrix and Statistics
+    ## 
+    ##           Reference
+    ## Prediction     0     1
+    ##          0 14211    16
+    ##          1     5     9
+    ##                                           
+    ##                Accuracy : 0.9985          
+    ##                  95% CI : (0.9977, 0.9991)
+    ##     No Information Rate : 0.9982          
+    ##     P-Value [Acc > NIR] : 0.2471          
+    ##                                           
+    ##                   Kappa : 0.4609          
+    ##  Mcnemar's Test P-Value : 0.0291          
+    ##                                           
+    ##             Sensitivity : 0.9996          
+    ##             Specificity : 0.3600          
+    ##          Pos Pred Value : 0.9989          
+    ##          Neg Pred Value : 0.6429          
+    ##              Prevalence : 0.9982          
+    ##          Detection Rate : 0.9979          
+    ##    Detection Prevalence : 0.9990          
+    ##       Balanced Accuracy : 0.6798          
+    ##                                           
+    ##        'Positive' Class : 0               
+    ## 
+
+``` r
+library(pROC)
+auc(roc(response = test$Class, predictor = scores01))
+```
+
+    ## Area under the curve: 0.7597
+
+``` r
+library(smotefamily) 
+set.seed(123)
+smote_result <- SMOTE(X = train %>% select(-Class),target = train$Class,K = 10, dup_size = 50)
+train_oversampled <- 
+    smote_result$data %>% 
+    mutate(Class = class)
+```
+
+``` r
+prop.table(table(train$Class))
+```
+
+    ## 
+    ##           0           1 
+    ## 0.998174157 0.001825843
+
+``` r
+prop.table(table(train_oversampled$Class))
+```
+
+    ## 
+    ##          0          1 
+    ## 0.91467181 0.08532819
+
+``` r
+library(rpart)
+model02<- rpart(Class ~ ., data = train_oversampled)
+```
+
+``` r
+library(rpart)
+model02 <-  rpart(factor(Class) ~ ., data = train)
+library(caret)
+scores02 <- predict(model02,newdata=test,type = "prob")[,2]
+predicted_class02 <- ifelse(scores02>0.5,1,0) %>% factor()
+confusionMatrix(
+    data = predicted_class02
+    ,reference = test$Class
+)
+```
+
+    ## Confusion Matrix and Statistics
+    ## 
+    ##           Reference
+    ## Prediction     0     1
+    ##          0 14211    16
+    ##          1     5     9
+    ##                                           
+    ##                Accuracy : 0.9985          
+    ##                  95% CI : (0.9977, 0.9991)
+    ##     No Information Rate : 0.9982          
+    ##     P-Value [Acc > NIR] : 0.2471          
+    ##                                           
+    ##                   Kappa : 0.4609          
+    ##  Mcnemar's Test P-Value : 0.0291          
+    ##                                           
+    ##             Sensitivity : 0.9996          
+    ##             Specificity : 0.3600          
+    ##          Pos Pred Value : 0.9989          
+    ##          Neg Pred Value : 0.6429          
+    ##              Prevalence : 0.9982          
+    ##          Detection Rate : 0.9979          
+    ##    Detection Prevalence : 0.9990          
+    ##       Balanced Accuracy : 0.6798          
+    ##                                           
+    ##        'Positive' Class : 0               
+    ## 
+
+``` r
+library(pROC)
+auc(roc(response = test$Class, predictor = scores02))
+```
+
+    ## Area under the curve: 0.7597
+
+SMOTE 并不是每次都有效果，因此要通过这种方法进行验证。
+
+### cost model
+
+在不平衡样本中，ACC是有误导的，因此引入成本矩阵。
+
+``` r
+here::here('pic','cost_matrix.png') %>% 
+    knitr::include_graphics()
+```
+
+![](/Users/vija/Downloads/180805_folder_01/tmp_jli/trans/projIN/anti_fraud_practice/pic/cost_matrix.png)<!-- -->
+
+如图，一共有两种成本
+
+1.  Cost of analyzing the
+case
+2.  被欺诈损失的本金
+
+因此成本函数可以定义为
+
+\[Cost(\text{model})=\sum_{i=1}^{N}y_i(1-\hat y_i)\text{Amount}_i + \hat y_i C_a\]
+
+1.  \(y_i\)为真实值
+2.  \(\hat y_i\)为预测值
+
+<!-- end list -->
 
 ``` r
 cost_model <- function(predicted.classes, true.classes, amounts, fixedcost) {
@@ -1321,6 +1476,30 @@ cost_model <- function(predicted.classes, true.classes, amounts, fixedcost) {
   return(cost)
 }
 ```
+
+``` r
+cost_model(
+    predicted.classes = predicted_class01
+    ,true.classes = test$Class
+    ,amounts = test$Amount
+    ,fixedcost = 10
+)
+```
+
+    ## [1] 2422.54
+
+``` r
+cost_model(
+    predicted.classes = predicted_class02
+    ,true.classes = test$Class
+    ,amounts = test$Amount
+    ,fixedcost = 10
+)
+```
+
+    ## [1] 2422.54
+
+1.  说明SMOTE 算法无效。
 
 # Digit analysis
 
@@ -1345,6 +1524,14 @@ adjboxStats PPT 上可以了解下。
 Baesens, Bart, Sebastiaan Höppner, and Tim Verdonck. 2018. “Fraud
 Detection in R.” 2018.
 <https://www.datacamp.com/courses/fraud-detection-in-r>.
+
+</div>
+
+<div id="ref-Chawla2002SMOTE">
+
+Chawla, Nitesh V., Kevin W. Bowyer, Lawrence O. Hall, and W. Philip
+Kegelmeyer. 2002. “SMOTE: Synthetic Minority over-Sampling Technique.”
+*Journal of Artificial Intelligence Research* 16 (1): 321–57.
 
 </div>
 
