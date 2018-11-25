@@ -560,10 +560,10 @@ net <- graph_from_data_frame(transfers, directed = F)
 net
 ```
 
-    ## IGRAPH cc42e7e UN-- 82 60 -- 
+    ## IGRAPH 524f5b2 UN-- 82 60 -- 
     ## + attr: name (v/c), beneficiary (e/c), amount (e/n), time (e/c),
     ## | benef_country (e/c), payment_channel (e/c)
-    ## + edges from cc42e7e (vertex names):
+    ## + edges from 524f5b2 (vertex names):
     ##  [1] 1 --I47 2 --I40 3 --I89 4 --I24 5 --I40 6 --I63 7 --I40 8 --I28
     ##  [9] 9 --I40 10--I44 11--I23 12--I41 13--I93 14--I28 15--I23 16--I28
     ## [17] 17--I40 18--I28 19--I63 20--I52 21--I25 22--I23 23--I28 24--I28
@@ -1026,8 +1026,8 @@ creditcard %>%
     ## # A tibble: 2 x 2
     ##   Class       n
     ##   <int>   <dbl>
-    ## 1     0 0.999  
-    ## 2     1 0.00130
+    ## 1     0 0.998  
+    ## 2     1 0.00190
 
 Use `ovun.sample` from `ROSE` package to do over/under - sampling or
 combination of the two.
@@ -1040,7 +1040,7 @@ combination of the two.
 sum(creditcard$Class == 0)
 ```
 
-    ## [1] 28444
+    ## [1] 28427
 
 ``` r
 # sum(creditcard$Class == 0)/(1-0.4) is the desired sample size.
@@ -1059,7 +1059,7 @@ table(oversampled_credit$Class)
 
     ## 
     ##     0     1 
-    ## 28444 18962
+    ## 28427 18951
 
 ``` r
 table(creditcard$Class)
@@ -1067,7 +1067,7 @@ table(creditcard$Class)
 
     ## 
     ##     0     1 
-    ## 28444    37
+    ## 28427    54
 
 ``` r
 prop.table(table(oversampled_credit$Class))
@@ -1075,7 +1075,7 @@ prop.table(table(oversampled_credit$Class))
 
     ## 
     ##         0         1 
-    ## 0.6000084 0.3999916
+    ## 0.6000042 0.3999958
 
 ``` r
 prop.table(table(creditcard$Class))
@@ -1083,7 +1083,7 @@ prop.table(table(creditcard$Class))
 
     ## 
     ##           0           1 
-    ## 0.998700888 0.001299112
+    ## 0.998103999 0.001896001
 
 完成sampling的工作。
 
@@ -1109,7 +1109,7 @@ oversampled_credit %>%
 sum(creditcard$Class == 1)
 ```
 
-    ## [1] 37
+    ## [1] 54
 
 ``` r
 # sum(creditcard$Class == 1)/0.4 is the desired sample size.
@@ -1127,15 +1127,15 @@ table(undersampled_credit$Class)
 
     ## 
     ##  0  1 
-    ## 55 37
+    ## 81 54
 
 ``` r
 prop.table(table(undersampled_credit$Class))
 ```
 
     ## 
-    ##         0         1 
-    ## 0.5978261 0.4021739
+    ##   0   1 
+    ## 0.6 0.4
 
 ``` r
 undersampled_credit %>% 
@@ -1184,7 +1184,7 @@ table(creditcard$Class)
 
     ## 
     ##     0     1 
-    ## 28444    37
+    ## 28427    54
 
 ``` r
 # both actions are done.
@@ -1265,7 +1265,7 @@ prop.table(table(credit_smote$Class))
 
     ## 
     ##         0         1 
-    ## 0.6002363 0.3997637
+    ## 0.6006508 0.3993492
 
 ``` r
 ggplot(creditcard, aes(x = V1, y = V2, color = factor(Class))) +
@@ -1333,27 +1333,27 @@ confusionMatrix(
     ## 
     ##           Reference
     ## Prediction     0     1
-    ##          0 14215     4
-    ##          1     3    19
-    ##                                          
-    ##                Accuracy : 0.9995         
-    ##                  95% CI : (0.999, 0.9998)
-    ##     No Information Rate : 0.9984         
-    ##     P-Value [Acc > NIR] : 9.647e-05      
-    ##                                          
-    ##                   Kappa : 0.8442         
-    ##  Mcnemar's Test P-Value : 1              
-    ##                                          
-    ##             Sensitivity : 0.9998         
-    ##             Specificity : 0.8261         
-    ##          Pos Pred Value : 0.9997         
-    ##          Neg Pred Value : 0.8636         
-    ##              Prevalence : 0.9984         
-    ##          Detection Rate : 0.9982         
-    ##    Detection Prevalence : 0.9985         
-    ##       Balanced Accuracy : 0.9129         
-    ##                                          
-    ##        'Positive' Class : 0              
+    ##          0 14211    10
+    ##          1     5    15
+    ##                                           
+    ##                Accuracy : 0.9989          
+    ##                  95% CI : (0.9983, 0.9994)
+    ##     No Information Rate : 0.9982          
+    ##     P-Value [Acc > NIR] : 0.02221         
+    ##                                           
+    ##                   Kappa : 0.6661          
+    ##  Mcnemar's Test P-Value : 0.30170         
+    ##                                           
+    ##             Sensitivity : 0.9996          
+    ##             Specificity : 0.6000          
+    ##          Pos Pred Value : 0.9993          
+    ##          Neg Pred Value : 0.7500          
+    ##              Prevalence : 0.9982          
+    ##          Detection Rate : 0.9979          
+    ##    Detection Prevalence : 0.9986          
+    ##       Balanced Accuracy : 0.7998          
+    ##                                           
+    ##        'Positive' Class : 0               
     ## 
 
 ``` r
@@ -1361,7 +1361,7 @@ library(pROC)
 auc(roc(response = test$Class, predictor = scores01))
 ```
 
-    ## Area under the curve: 0.9129
+    ## Area under the curve: 0.8398
 
 ``` r
 library(smotefamily) 
@@ -1377,8 +1377,8 @@ prop.table(table(train$Class))
 ```
 
     ## 
-    ##            0            1 
-    ## 0.9990168539 0.0009831461
+    ##           0           1 
+    ## 0.997963483 0.002036517
 
 ``` r
 prop.table(table(train_oversampled$Class))
@@ -1386,7 +1386,7 @@ prop.table(table(train_oversampled$Class))
 
     ## 
     ##          0          1 
-    ## 0.95220884 0.04779116
+    ## 0.90573614 0.09426386
 
 ``` r
 library(rpart)
@@ -1409,27 +1409,27 @@ confusionMatrix(
     ## 
     ##           Reference
     ## Prediction     0     1
-    ##          0 14215     4
-    ##          1     3    19
-    ##                                          
-    ##                Accuracy : 0.9995         
-    ##                  95% CI : (0.999, 0.9998)
-    ##     No Information Rate : 0.9984         
-    ##     P-Value [Acc > NIR] : 9.647e-05      
-    ##                                          
-    ##                   Kappa : 0.8442         
-    ##  Mcnemar's Test P-Value : 1              
-    ##                                          
-    ##             Sensitivity : 0.9998         
-    ##             Specificity : 0.8261         
-    ##          Pos Pred Value : 0.9997         
-    ##          Neg Pred Value : 0.8636         
-    ##              Prevalence : 0.9984         
-    ##          Detection Rate : 0.9982         
-    ##    Detection Prevalence : 0.9985         
-    ##       Balanced Accuracy : 0.9129         
-    ##                                          
-    ##        'Positive' Class : 0              
+    ##          0 14211    10
+    ##          1     5    15
+    ##                                           
+    ##                Accuracy : 0.9989          
+    ##                  95% CI : (0.9983, 0.9994)
+    ##     No Information Rate : 0.9982          
+    ##     P-Value [Acc > NIR] : 0.02221         
+    ##                                           
+    ##                   Kappa : 0.6661          
+    ##  Mcnemar's Test P-Value : 0.30170         
+    ##                                           
+    ##             Sensitivity : 0.9996          
+    ##             Specificity : 0.6000          
+    ##          Pos Pred Value : 0.9993          
+    ##          Neg Pred Value : 0.7500          
+    ##              Prevalence : 0.9982          
+    ##          Detection Rate : 0.9979          
+    ##    Detection Prevalence : 0.9986          
+    ##       Balanced Accuracy : 0.7998          
+    ##                                           
+    ##        'Positive' Class : 0               
     ## 
 
 ``` r
@@ -1437,7 +1437,7 @@ library(pROC)
 auc(roc(response = test$Class, predictor = scores02))
 ```
 
-    ## Area under the curve: 0.9129
+    ## Area under the curve: 0.8398
 
 SMOTE 并不是每次都有效果，因此要通过这种方法进行验证。
 
@@ -1486,7 +1486,7 @@ cost_model(
 )
 ```
 
-    ## [1] 545.54
+    ## [1] 818.15
 
 ``` r
 cost_model(
@@ -1497,7 +1497,7 @@ cost_model(
 )
 ```
 
-    ## [1] 545.54
+    ## [1] 818.15
 
 1.  说明SMOTE
 算法无效。
@@ -1735,9 +1735,355 @@ plot(bfd2.exp)
 
 ## how to use
 
-如上图一，字母在75左右时，数字没有符合 Benfold 规律，因此很有可能是人为因素，因此可以作为分类变量。
+如上图一，字母在75左右时，数字没有符合 Benfold
+规律，因此很有可能是人为因素，因此可以作为分类变量。
 
-# Outliers
+# Robust statistics for Outliers
+
+## Robust z-scores
+
+\[z_i = \frac{x_i - \hat \mu}{\hat \sigma} = \frac{x_i - \text{Med}(X)}{\text{Mad}(X)}\]
+
+``` r
+transfer <- 
+    list.files('data',full.names = T) %>% 
+    str_subset('transfer_chp4') %>% 
+    map(~fread(.) %>% select(-id)) %>% 
+    bind_cols()
+```
+
+``` r
+# Get observations identified as fraud
+which(transfers$fraud_flag == 1)
+```
+
+    ## integer(0)
+
+``` r
+# Compute median and mean absolute deviation for `amount`
+m <- median(transfers$amount)
+s <- mad(transfers$amount)
+
+# Compute robust z-score for each observation
+robzscore <- abs((transfers$amount - m) / (s))
+
+# Get observations with robust z-score higher than 3 in absolute value
+which(abs(robzscore) > 3)
+```
+
+    ##  [1]  1  5 10 12 16 38 39 41 43 47 48 51 55
+
+<input type="checkbox" id="checkbox1" class="styled">
+[`mad`理解清楚](https://en.wikipedia.org/wiki/Median_absolute_deviation)
+
+1.  因此异常值的发现，相当于做一个分类变量。
+2.  这里`amount`的异常值包含了四个欺诈用户的标签。
+3.  这里的z score 没有对`amount`使用重复信息，它是根据`amount`的**分布**进行衍生的变量，算特征工程。
+
+## Boxplot
+
+\[[Q_1 - 1.5\text{IQR},Q_1 + 1.5\text{IQR}]\]
+
+``` r
+thexp <- fread(here::here('data','thexp.csv'),drop='id')
+thexp <- thexp$thexp
+```
+
+``` r
+# Create boxplot
+bp.thexp <- boxplot(thexp, col = "lightblue", main = "Standard boxplot", ylab = "Total household expenditure")
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-65-1.png)<!-- -->
+
+``` r
+# Extract the outliers from the data
+bp.thexp$out
+```
+
+    ##  [1]  96396  95389  84354  85065  86577  92957 106032 107065  74958  78286
+    ## [11] 108756  74111  78760 116262  74197  74993  99834 147498  81646  94587
+    ## [21]  74298  75043  83158  79147 108752 130773  80495
+
+``` r
+# Create adjusted boxplot
+library(robustbase)
+adj.thexp <- adjbox(thexp, col = "lightblue", main = "Adjusted boxplot", ylab = "Total household expenditure")
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-65-2.png)<!-- -->
+
+> However, when the data are skewed, usually many points exceed the
+> whiskers and are often erroneously declared as outliers. An adjustment
+> of the boxplot is presented that includes a robust measure of skewness
+> in the determination of the whiskers. (Hubert and Vandervieren 2004)
+
+因此 Adjusted boxplot(Hubert and Vandervieren 2004) 主要是针对 Skewed
+数据而错判异常值而提出的。
+
+<input type="checkbox" id="checkbox1" class="styled">Skewed
+数据而错判异常值而提出的，找资源，可以就看这个paper
+<input type="checkbox" id="checkbox1" class="styled">IQR怎么抉择
+
+## Use mahalanobis distance for multivariate outliers
+
+在这种情况下，异常值可以是多维度确定。
+
+``` r
+knitr::include_graphics(here::here('pic','mahalanobiseuclidean_ggplot.png'))
+```
+
+![](/Users/vija/Downloads/180805_folder_01/tmp_jli/trans/projIN/anti_fraud_practice/pic/mahalanobiseuclidean_ggplot.png)<!-- -->
+
+> Mahalanobis (or generalized) distance for observation is the distance
+> from this observation to the center, taking into account the
+> covariance matrix. (Baesens, Höppner, and Verdonck 2018)
+
+Mhalanobis distance 因为考虑了协方差，因此比 Euclidean distance 更有合理的假设。
+
+> To detect multivariate outliers the mahalanobis distance is compared
+> with a cut-off value, which is derived from the chisquare
+> distribution. (Baesens, Höppner, and Verdonck 2018)
+
+<input type="checkbox" id="checkbox1" class="styled">Mahalanobis
+是如何从卡方从拿出来
+
+<input type="checkbox" id="checkbox1" class="styled">根据tsi\_real 和 p
+可以剔除一些异常值
+
+``` r
+hailinsurance <- 
+    fread(here::here('data','hailinsurance.csv'),sep=' ') %>% 
+    dplyr::select(-V1) %>% 
+    as.matrix()
+```
+
+``` r
+plot(hailinsurance)
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-68-1.png)<!-- -->
+
+1.  如图，可以发现有异常值。
+
+<!-- end list -->
+
+``` r
+# Compute the sample mean and sample covariance matrix
+clcenter <- colMeans(hailinsurance)
+clcov <- cov(hailinsurance)
+```
+
+``` r
+clcenter
+```
+
+    ##       [,1]       [,2] 
+    ## 197898.973   1549.658
+
+``` r
+clcov
+```
+
+    ##           [,1]       [,2]
+    ## [,1] 854093524 12530366.4
+    ## [,2]  12530366   622840.6
+
+``` r
+# Add 97.5% tolerance ellipsoid
+rad <- 
+    sqrt(qchisq(0.975, ncol(hailinsurance))) %>% 
+    sqrt
+library(car)
+ellipse(center = clcenter, shape = clcov, radius = rad, col = "blue", lty = 2)
+```
+
+<input type="checkbox" id="checkbox1" class="styled">为什么这里选择的是两列。
+
+产生报错 `Error in plot.xy(xy.coords(x, y), type = type, ...) : plot.new has
+not been called yet` 已经在
+[https://community.rstudio.com/t/error-in-plot-xy-xy-coords-x-y-type-type-plot-new-has-not-been-called-yet/18750?u=econkid](Community)
+上提问了。
+
+> The function `qchisq` calculates a quantile from the chisquare
+> distribution by giving as input parameters: 1) the probability
+> (i.e. 97.5%) 2) the degrees of freedom.
+
+### Animals data
+
+  - `Animals`  
+    containing the average brain and body weights for 28 species of land
+    animals.
+
+<!-- end list -->
+
+``` r
+library(MASS) 
+data("Animals")
+head(Animals)
+```
+
+    ## # A tibble: 6 x 2
+    ##       body brain
+    ## *    <dbl> <dbl>
+    ## 1     1.35   8.1
+    ## 2   465    423  
+    ## 3    36.3  120. 
+    ## 4    27.7  115  
+    ## 5     1.04   5.5
+    ## 6 11700     50
+
+``` r
+Animals <- 
+    Animals %>% 
+    mutate_all(log)
+head(Animals)
+```
+
+    ## # A tibble: 6 x 2
+    ##     body brain
+    ## *  <dbl> <dbl>
+    ## 1 0.300   2.09
+    ## 2 6.14    6.05
+    ## 3 3.59    4.78
+    ## 4 3.32    4.74
+    ## 5 0.0392  1.70
+    ## 6 9.37    3.91
+
+``` r
+Animals %>% 
+    gather(key,value,body:brain) %>% 
+    ggplot(aes(x = key, y = value)) +
+    stat_boxplot(width=0.2) + 
+    ylab("log(weight)") + 
+    xlab("")
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-73-1.png)<!-- -->
+
+``` r
+fig <- 
+    Animals %>% 
+    ggplot(aes(x = body, y = brain)) + 
+    geom_point(size = 5) +
+    ylim(-5, 15) + 
+    scale_x_continuous(limits = c(-10, 16), breaks = seq(-15, 15, 5))
+fig
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-74-1.png)<!-- -->
+
+``` r
+X <- Animals
+animals.clcenter <- colMeans(X) 
+animals.clcov <- cov(X)
+rad <- sqrt(qchisq(0.975, df = ncol(X)))
+library(car)
+ellipse.cl <- 
+    data.frame(
+        ellipse(
+            center = animals.clcenter
+            ,shape = animals.clcov
+            ,radius = rad
+            ,segments = 100
+            ,draw = FALSE)
+        ) %>% 
+    `colnames<-`(colnames(X))
+fig <- 
+    fig +
+    geom_polygon(
+        data=ellipse.cl
+        ,color = "dodgerblue"
+        ,fill = "dodgerblue"
+        ,alpha = 0.2) + 
+    geom_point(aes(x = animals.clcenter[1]
+                   ,y = animals.clcenter[2])
+               ,color = "blue"
+               ,size = 6)
+fig
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-75-1.png)<!-- -->
+
+### Minimum Covariance Determinant (MCD)
+
+<input type="checkbox" id="checkbox1" class="styled">MCD looks for those
+h observations whose classical covariance matrix has the lowest possible
+determinant.
+
+``` r
+library(robustbase) 
+animals.mcd <- covMcd(X)
+# Robust estimate of location
+animals.mcd$center
+```
+
+    ##     body    brain 
+    ## 3.028827 4.275608
+
+``` r
+# Robust estimate of scatter
+animals.mcd$cov
+```
+
+    ##           body    brain
+    ## body  18.85849 14.16031
+    ## brain 14.16031 11.03351
+
+``` r
+library(robustbase)
+animals.mcd <- covMcd(X)
+ellipse.mcd <- 
+    data.frame(
+        ellipse(
+            center = animals.mcd$center
+            ,shape = animals.mcd$cov
+            ,radius=rad
+            ,segments=100
+            ,draw=FALSE)
+        ) %>% 
+    `colnames<-`(colnames(X))
+fig <- 
+    fig +
+    geom_polygon(data=ellipse.mcd, color="red", fill="red", alpha=0.3) + 
+    geom_point(aes(x = animals.mcd$center[1], y = animals.mcd$center[2]),color = "red", size = 6)
+fig
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-77-1.png)<!-- -->
+
+### Distance-distance plot
+
+当变量为三个时，可以用3D图进行可视化，但是 当变量超过3个以上，就无法可视化 tolerance ellipsoid 了。
+
+> The **distance-distance plot** shows the robust distance of each
+> observation versus its classical Mahalanobis distance, obtained
+> immediately from `MCD` object. (Baesens, Höppner, and Verdonck 2018)
+
+<input type="checkbox" id="checkbox1" class="styled">distance-distance
+plot 没有理解
+<input type="checkbox" id="checkbox1" class="styled">如何导出outlier呢?
+
+``` r
+plot(animals.mcd, which = "dd")
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-78-1.png)<!-- -->
+
+## other
+
+robust statistcis vs. classic statistics
+
+受到更少的outlier影响
+
+z-score 有robust boxplot 有箱型图
+
+书签
+<https://campus.datacamp.com/courses/fraud-detection-in-r/digit-analysis-and-robust-statistics?ex=9>
+
+## z-score
+
+作为分类变量
 
 adjboxStats PPT 上可以了解下。
 
@@ -1758,6 +2104,14 @@ Detection in R.” 2018.
 Chawla, Nitesh V., Kevin W. Bowyer, Lawrence O. Hall, and W. Philip
 Kegelmeyer. 2002. “SMOTE: Synthetic Minority over-Sampling Technique.”
 *Journal of Artificial Intelligence Research* 16 (1): 321–57.
+
+</div>
+
+<div id="ref-Hubert2004An">
+
+Hubert, M., and E. Vandervieren. 2004. “An Adjusted Boxplot for Skewed
+Distributions.” *Computational Statistics & Data Analysis* 52 (12):
+5186–5201.
 
 </div>
 
