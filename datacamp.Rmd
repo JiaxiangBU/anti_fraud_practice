@@ -2,7 +2,8 @@
 output: 
     github_document:
         df_print: tibble
-        toc: TRUE
+        toc: true
+        toc_depth: 2
 bibliography: add.bib
 ---
 
@@ -19,6 +20,8 @@ bibliography: add.bib
 1. the imbalance or skewness of the data and 
 1. the various costs for different types of misclassification
 1. digit analysis
+
+<input type="checkbox" id="checkbox1" class="styled">整理主要内容
 
 ```{r setup,echo = FALSE}
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
@@ -1140,6 +1143,252 @@ plot(bfd2.exp)
 
 # Robust statistics for Outliers
 
+## Robust z-scores
+
+$$z_i = \frac{x_i - \hat \mu}{\hat \sigma} = \frac{x_i - \text{Med}(X)}{\text{Mad}(X)}$$
+
+```{r}
+transfer <- 
+    list.files('data',full.names = T) %>% 
+    str_subset('transfer_chp4') %>% 
+    map(~fread(.) %>% select(-id)) %>% 
+    bind_cols()
+```
+
+```{r}
+# Get observations identified as fraud
+which(transfers$fraud_flag == 1)
+
+# Compute median and mean absolute deviation for `amount`
+m <- median(transfers$amount)
+s <- mad(transfers$amount)
+
+# Compute robust z-score for each observation
+robzscore <- abs((transfers$amount - m) / (s))
+
+# Get observations with robust z-score higher than 3 in absolute value
+which(abs(robzscore) > 3)
+```
+
+<input type="checkbox" id="checkbox1" class="styled"> [`mad`理解清楚](https://en.wikipedia.org/wiki/Median_absolute_deviation)
+
+1. 因此异常值的发现，相当于做一个分类变量。
+1. 这里`amount`的异常值包含了四个欺诈用户的标签。
+1. 这里的z score 没有对`amount`使用重复信息，它是根据`amount`的**分布**进行衍生的变量，算特征工程。
+
+## Boxplot
+
+$$[Q_1 - 1.5\text{IQR},Q_1 + 1.5\text{IQR}]$$
+
+```{r}
+thexp <- fread(here::here('data','thexp.csv'),drop='id')
+thexp <- thexp$thexp
+```
+
+```{r}
+# Create boxplot
+bp.thexp <- boxplot(thexp, col = "lightblue", main = "Standard boxplot", ylab = "Total household expenditure")
+
+# Extract the outliers from the data
+bp.thexp$out
+
+# Create adjusted boxplot
+library(robustbase)
+adj.thexp <- adjbox(thexp, col = "lightblue", main = "Adjusted boxplot", ylab = "Total household expenditure")
+```
+
+>
+However, when the data are skewed, usually many points exceed the whiskers and are often erroneously declared as outliers. An adjustment of the boxplot is presented that includes a robust measure of skewness in the determination of the whiskers.
+[@Hubert2004An]
+
+因此 Adjusted boxplot[@Hubert2004An] 主要是针对 Skewed 数据而错判异常值而提出的。
+
+<input type="checkbox" id="checkbox1" class="styled">Skewed 数据而错判异常值而提出的，找资源，可以就看这个paper
+<input type="checkbox" id="checkbox1" class="styled">IQR怎么抉择
+
+## Use mahalanobis distance for multivariate outliers
+
+在这种情况下，异常值可以是多维度确定。
+
+```{r}
+knitr::include_graphics(here::here('pic','mahalanobiseuclidean_ggplot.png'))
+```
+
+>
+Mahalanobis (or generalized) distance for observation is the distance from this observation to the center, taking into account the covariance matrix.
+[@BaesensFraud]
+
+Mhalanobis distance 因为考虑了协方差，因此比 Euclidean distance 更有合理的假设。
+
+>
+To detect multivariate outliers the mahalanobis distance is compared with a cut-off
+value, which is derived from the chisquare distribution.
+[@BaesensFraud]
+
+<input type="checkbox" id="checkbox1" class="styled">Mahalanobis 是如何从卡方从拿出来
+
+<input type="checkbox" id="checkbox1" class="styled">根据tsi_real 和 p 可以剔除一些异常值
+
+```{r}
+hailinsurance <- 
+    fread(here::here('data','hailinsurance.csv'),sep=' ') %>% 
+    dplyr::select(-V1) %>% 
+    as.matrix()
+```
+
+```{r}
+plot(hailinsurance)
+```
+
+1. 如图，可以发现有异常值。
+
+```{r}
+# Compute the sample mean and sample covariance matrix
+clcenter <- colMeans(hailinsurance)
+clcov <- cov(hailinsurance)
+```
+
+```{r}
+clcenter
+clcov
+```
+
+```{r eval=F}
+# Add 97.5% tolerance ellipsoid
+rad <- 
+    sqrt(qchisq(0.975, ncol(hailinsurance))) %>% 
+    sqrt
+library(car)
+ellipse(center = clcenter, shape = clcov, radius = rad, col = "blue", lty = 2)
+```
+
+<input type="checkbox" id="checkbox1" class="styled">为什么这里选择的是两列。
+
+产生报错
+`Error in plot.xy(xy.coords(x, y), type = type, ...) : plot.new has not been called yet`
+已经在
+[https://community.rstudio.com/t/error-in-plot-xy-xy-coords-x-y-type-type-plot-new-has-not-been-called-yet/18750?u=econkid](Community)
+上提问了。
+
+>
+The function `qchisq` calculates a quantile from the chisquare distribution by giving as input parameters: 1) the probability (i.e. 97.5%) 2) the degrees of freedom.
+
+### Animals data
+
+`Animals`
+: containing the average brain and body weights for 28 species of land animals.
+
+```{r}
+library(MASS) 
+data("Animals")
+head(Animals)
+Animals <- 
+    Animals %>% 
+    mutate_all(log)
+head(Animals)
+```
+
+```{r}
+Animals %>% 
+    gather(key,value,body:brain) %>% 
+    ggplot(aes(x = key, y = value)) +
+    stat_boxplot(width=0.2) + 
+    ylab("log(weight)") + 
+    xlab("")
+```
+
+```{r}
+fig <- 
+    Animals %>% 
+    ggplot(aes(x = body, y = brain)) + 
+    geom_point(size = 5) +
+    ylim(-5, 15) + 
+    scale_x_continuous(limits = c(-10, 16), breaks = seq(-15, 15, 5))
+fig
+```
+
+```{r}
+X <- Animals
+animals.clcenter <- colMeans(X) 
+animals.clcov <- cov(X)
+rad <- sqrt(qchisq(0.975, df = ncol(X)))
+library(car)
+ellipse.cl <- 
+    data.frame(
+        ellipse(
+            center = animals.clcenter
+            ,shape = animals.clcov
+            ,radius = rad
+            ,segments = 100
+            ,draw = FALSE)
+        ) %>% 
+    `colnames<-`(colnames(X))
+fig <- 
+    fig +
+    geom_polygon(
+        data=ellipse.cl
+        ,color = "dodgerblue"
+        ,fill = "dodgerblue"
+        ,alpha = 0.2) + 
+    geom_point(aes(x = animals.clcenter[1]
+                   ,y = animals.clcenter[2])
+               ,color = "blue"
+               ,size = 6)
+fig
+```
+
+### Minimum Covariance Determinant (MCD)
+
+<input type="checkbox" id="checkbox1" class="styled">MCD looks for those h observations whose classical covariance matrix has the lowest possible determinant.
+
+```{r}
+library(robustbase) 
+animals.mcd <- covMcd(X)
+# Robust estimate of location
+animals.mcd$center
+# Robust estimate of scatter
+animals.mcd$cov
+```
+
+```{r}
+library(robustbase)
+animals.mcd <- covMcd(X)
+ellipse.mcd <- 
+    data.frame(
+        ellipse(
+            center = animals.mcd$center
+            ,shape = animals.mcd$cov
+            ,radius=rad
+            ,segments=100
+            ,draw=FALSE)
+        ) %>% 
+    `colnames<-`(colnames(X))
+fig <- 
+    fig +
+    geom_polygon(data=ellipse.mcd, color="red", fill="red", alpha=0.3) + 
+    geom_point(aes(x = animals.mcd$center[1], y = animals.mcd$center[2]),color = "red", size = 6)
+fig
+```
+
+### Distance-distance plot
+
+当变量为三个时，可以用3D图进行可视化，但是
+当变量超过3个以上，就无法可视化 tolerance ellipsoid 了。
+
+>
+The **distance-distance plot** shows the robust distance of each observation
+versus its classical Mahalanobis distance, obtained immediately from `MCD` object.
+[@BaesensFraud]
+
+<input type="checkbox" id="checkbox1" class="styled">distance-distance plot 没有理解
+<input type="checkbox" id="checkbox1" class="styled">如何导出outlier呢?
+
+```{r}
+plot(animals.mcd, which = "dd")
+```
+
+## other
+
 robust statistcis vs. classic statistics
 
 受到更少的outlier影响
@@ -1149,17 +1398,5 @@ boxplot 有箱型图
 
 书签
 https://campus.datacamp.com/courses/fraud-detection-in-r/digit-analysis-and-robust-statistics?ex=9
-
-## z-score
-
-作为分类变量
-
-```{r}
-
-```
-
-
-adjboxStats PPT 上可以了解下。
-
 
 # Reference {-}
