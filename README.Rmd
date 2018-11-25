@@ -11,6 +11,19 @@ knitr::opts_chunk$set(
 )
 ```
 
+### 2018-11-25 12:10:42
+
+1. 增加异常值剔除的内容
+    1. Z值异常值剔除
+    1. Robust Statistics 举例
+    1. 修正箱形图
+    1. 马氏距离
+1. 整理章节 Robust statistics for Outliers
+
+### 2018-11-25 01:08:47
+
+1. 增加 Chp 4 的PPT
+
 ### 2018-11-24 23:05:37
 
 1. 更新 Benfold 规律，用于提取特征变量
