@@ -1,6 +1,10 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+### 2018-11-25 22:53:02
+
+1.  尝试 build site，报错。
+
 ### 2018-11-25 12:10:42
 
 1.  增加异常值剔除的内容
