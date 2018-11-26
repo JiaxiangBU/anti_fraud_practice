@@ -27,7 +27,7 @@ bibliography: add.bib
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
 ```
 
-```{r echo=FALSE}
+```{r setup,echo=FALSE}
 library(readr)
 library(tidyverse)
 library(data.table)
@@ -1259,6 +1259,8 @@ rad <-
     sqrt(qchisq(0.975, ncol(hailinsurance))) %>% 
     sqrt
 library(car)
+plot(hailinsurance)
+# call plot before 
 ellipse(center = clcenter, shape = clcov, radius = rad, col = "blue", lty = 2)
 ```
 
@@ -1269,6 +1271,7 @@ ellipse(center = clcenter, shape = clcov, radius = rad, col = "blue", lty = 2)
 已经在
 [https://community.rstudio.com/t/error-in-plot-xy-xy-coords-x-y-type-type-plot-new-has-not-been-called-yet/18750?u=econkid](Community)
 上提问了。
+解决方式是之前要先call `plot`。
 
 >
 The function `qchisq` calculates a quantile from the chisquare distribution by giving as input parameters: 1) the probability (i.e. 97.5%) 2) the degrees of freedom.

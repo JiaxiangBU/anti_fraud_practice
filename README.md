@@ -1,6 +1,10 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+### 2018-11-26 11:23:01
+
+1.  更新 `ellipse` 函数的报错
+
 ### 2018-11-25 22:53:02
 
 1.  尝试 build site，报错。
