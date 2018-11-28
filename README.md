@@ -1,6 +1,10 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+### 2018-11-28 18:22:32
+
+1.  增加网络模型的特征变量解释
+
 ### 2018-11-28 13:15:36
 
 1.  knit datacamp.Rmd and joshua.Rmd

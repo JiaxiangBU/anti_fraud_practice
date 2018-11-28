@@ -12,16 +12,16 @@
 
 <input type="checkbox" id="checkbox1" class="styled">整理主要内容
 
-    ## ─ Attaching packages ────────────────────────────────────── tidyverse 1.2.1 ─
+    ## -- Attaching packages -------------------------------------------------------------------------------------------------------------- tidyverse 1.2.1 --
 
-    ## ✔ ggplot2 3.0.0     ✔ purrr   0.2.5
-    ## ✔ tibble  1.4.2     ✔ dplyr   0.7.6
-    ## ✔ tidyr   0.8.1     ✔ stringr 1.3.1
-    ## ✔ ggplot2 3.0.0     ✔ forcats 0.3.0
+    ## √ ggplot2 3.1.0     √ purrr   0.2.5
+    ## √ tibble  1.4.2     √ dplyr   0.7.8
+    ## √ tidyr   0.8.2     √ stringr 1.3.1
+    ## √ ggplot2 3.1.0     √ forcats 0.3.0
 
-    ## ─ Conflicts ──────────────────────────────────────── tidyverse_conflicts() ─
-    ## ✖ dplyr::filter() masks stats::filter()
-    ## ✖ dplyr::lag()    masks stats::lag()
+    ## -- Conflicts ----------------------------------------------------------------------------------------------------------------- tidyverse_conflicts() --
+    ## x dplyr::filter() masks stats::filter()
+    ## x dplyr::lag()    masks stats::lag()
 
     ## 
     ## Attaching package: 'data.table'
@@ -34,7 +34,7 @@
     ## 
     ##     transpose
 
-    ## here() starts at /Users/vija/Downloads/180805_folder_01/tmp_jli/trans/projIN/anti_fraud_practice
+    ## here() starts at D:/weDo/anti_fraud_practice
 
     ## 
     ## Attaching package: 'igraph'
@@ -394,7 +394,7 @@ freq_channel_tbl02 <-
 
 ``` r
 setequal(freq_channel_tbl01,freq_channel_tbl02)
-#> TRUE
+#> [1] TRUE
 ```
 
 ``` r
@@ -416,14 +416,13 @@ freq_channel_tbl02 %>%
 # Recency features
 
 <input type="checkbox" id="checkbox1" class="styled"> how to add bracket
-in
-ggplot
+in ggplot
 
 ``` r
 knitr::include_graphics(here::here('pic','recencyfeature.png'))
 ```
 
-![](/Users/vija/Downloads/180805_folder_01/tmp_jli/trans/projIN/anti_fraud_practice/pic/recencyfeature.png)<!-- -->
+![](D:/weDo/anti_fraud_practice/pic/recencyfeature.png)<!-- -->
 
 \[\text{recency} = e^{-\gamma t}\]
 
@@ -569,10 +568,10 @@ nrow(transfers)
 # Create an undirected network from the dataset
 net <- graph_from_data_frame(transfers, directed = F)
 net
-#> IGRAPH 5e0b916 UN-- 82 60 -- 
+#> IGRAPH 85d2749 UN-- 82 60 -- 
 #> + attr: name (v/c), beneficiary (e/c), amount (e/n), time (e/c),
 #> | benef_country (e/c), payment_channel (e/c)
-#> + edges from 5e0b916 (vertex names):
+#> + edges from 85d2749 (vertex names):
 #>  [1] 1 --I47 2 --I40 3 --I89 4 --I24 5 --I40 6 --I63 7 --I40 8 --I28
 #>  [9] 9 --I40 10--I44 11--I23 12--I41 13--I93 14--I28 15--I23 16--I28
 #> [17] 17--I40 18--I28 19--I63 20--I52 21--I25 22--I23 23--I28 24--I28
@@ -725,18 +724,23 @@ There are three kinds of variable we can build.
 1.    - Degree  
         Number of edges.
         If Network has N nodes, then normalizing means dividing by N − 1
+        体现连接个数
 
 2.    - Closeness  
         Inverse distance of a node to all other nodes in the network
         \((1+1+2)^{-1}\)
         normalized - \((\frac{(1+1+2)}{3})^{-1}\)
+        因此离各点越近，Closeness越高
 
 3.    - Betweenness  
         Number of times that a node or edge occurs in the geodesics of
         the network
         normalized - \(\frac{...}{N}\)
+        体现中间人的重要性
 
-<!-- end list -->
+<input type="checkbox" id="checkbox1" class="styled">寻找这本文献 Analysis D D
+and Raya V 2013 Social Network Analysis, Methods and Measurements
+Calculations pp 2–5
 
 ``` r
 kite <- fread(here::here('data','kite.csv')) %>% 
@@ -944,8 +948,6 @@ account_info %>% distinct(type)
 
 sampling 只对 train 进行而不对 test 进行
 
-<input type="checkbox" id="checkbox1" class="styled"> 复现PPT Chp3
-
 [Kaggle](https://www.kaggle.com/mlg-ulb/creditcardfraud)的反欺诈数据。
 
 ``` r
@@ -1002,7 +1004,7 @@ creditcard %>%
 #>   Class       n
 #>   <int>   <dbl>
 #> 1     0 0.998  
-#> 2     1 0.00162
+#> 2     1 0.00186
 ```
 
 Use `ovun.sample` from `ROSE` package to do over/under - sampling or
@@ -1014,7 +1016,7 @@ combination of the two.
 # We hope minority in the new sample is 40%.
 # We know majority size is 
 sum(creditcard$Class == 0)
-#> [1] 28435
+#> [1] 28428
 # sum(creditcard$Class == 0)/(1-0.4) is the desired sample size.
 library(ROSE)
 oversampling_result <- 
@@ -1029,19 +1031,19 @@ oversampled_credit <- oversampling_result$data
 table(oversampled_credit$Class)
 #> 
 #>     0     1 
-#> 28435 18956
+#> 28428 18952
 table(creditcard$Class)
 #> 
 #>     0     1 
-#> 28435    46
+#> 28428    53
 prop.table(table(oversampled_credit$Class))
 #> 
-#>         0         1 
-#> 0.6000084 0.3999916
+#>   0   1 
+#> 0.6 0.4
 prop.table(table(creditcard$Class))
 #> 
-#>           0           1 
-#> 0.998384888 0.001615112
+#>          0          1 
+#> 0.99813911 0.00186089
 ```
 
 完成sampling的工作。
@@ -1066,7 +1068,7 @@ oversampled_credit %>%
 # We hope minority in the new sample is 40%.
 # We know minority size is 
 sum(creditcard$Class == 1)
-#> [1] 46
+#> [1] 53
 # sum(creditcard$Class == 1)/0.4 is the desired sample size.
 undersampling_result <- 
     ovun.sample(
@@ -1080,11 +1082,11 @@ undersampled_credit <- undersampling_result$data
 table(undersampled_credit$Class)
 #> 
 #>  0  1 
-#> 69 46
+#> 79 53
 prop.table(table(undersampled_credit$Class))
 #> 
-#>   0   1 
-#> 0.6 0.4
+#>         0         1 
+#> 0.5984848 0.4015152
 ```
 
 ``` r
@@ -1124,7 +1126,7 @@ prop.table(table(bothsampled_credit$Class))
 table(creditcard$Class)
 #> 
 #>     0     1 
-#> 28435    46
+#> 28428    53
 # both actions are done.
 # oversampling the majority 
 # undersampling the minority.
@@ -1201,7 +1203,7 @@ colnames(credit_smote)[30] <- "Class"
 prop.table(table(credit_smote$Class))
 #> 
 #>         0         1 
-#> 0.6000591 0.3999409
+#> 0.6003928 0.3996072
 
 ggplot(creditcard, aes(x = V1, y = V2, color = factor(Class))) +
     geom_point() +
@@ -1263,32 +1265,32 @@ confusionMatrix(
 #> 
 #>           Reference
 #> Prediction     0     1
-#>          0 14211    10
-#>          1     6    14
+#>          0 14216     7
+#>          1     7    11
 #>                                           
-#>                Accuracy : 0.9989          
-#>                  95% CI : (0.9982, 0.9994)
-#>     No Information Rate : 0.9983          
-#>     P-Value [Acc > NIR] : 0.05611         
+#>                Accuracy : 0.999           
+#>                  95% CI : (0.9984, 0.9995)
+#>     No Information Rate : 0.9987          
+#>     P-Value [Acc > NIR] : 0.2079          
 #>                                           
-#>                   Kappa : 0.6358          
-#>  Mcnemar's Test P-Value : 0.45325         
+#>                   Kappa : 0.6106          
+#>  Mcnemar's Test P-Value : 1.0000          
 #>                                           
-#>             Sensitivity : 0.9996          
-#>             Specificity : 0.5833          
-#>          Pos Pred Value : 0.9993          
-#>          Neg Pred Value : 0.7000          
-#>              Prevalence : 0.9983          
-#>          Detection Rate : 0.9979          
-#>    Detection Prevalence : 0.9986          
-#>       Balanced Accuracy : 0.7915          
+#>             Sensitivity : 0.9995          
+#>             Specificity : 0.6111          
+#>          Pos Pred Value : 0.9995          
+#>          Neg Pred Value : 0.6111          
+#>              Prevalence : 0.9987          
+#>          Detection Rate : 0.9982          
+#>    Detection Prevalence : 0.9987          
+#>       Balanced Accuracy : 0.8053          
 #>                                           
 #>        'Positive' Class : 0               
 #> 
 
 library(pROC)
 auc(roc(response = test$Class, predictor = scores01))
-#> Area under the curve: 0.7915
+#> Area under the curve: 0.8054
 ```
 
 ``` r
@@ -1304,11 +1306,11 @@ train_oversampled <-
 prop.table(table(train$Class))
 #> 
 #>           0           1 
-#> 0.998455056 0.001544944
+#> 0.997542135 0.002457865
 prop.table(table(train_oversampled$Class))
 #> 
-#>          0          1 
-#> 0.92685789 0.07314211
+#>         0         1 
+#> 0.8883677 0.1116323
 ```
 
 ``` r
@@ -1330,32 +1332,32 @@ confusionMatrix(
 #> 
 #>           Reference
 #> Prediction     0     1
-#>          0 14211    10
-#>          1     6    14
+#>          0 14216     7
+#>          1     7    11
 #>                                           
-#>                Accuracy : 0.9989          
-#>                  95% CI : (0.9982, 0.9994)
-#>     No Information Rate : 0.9983          
-#>     P-Value [Acc > NIR] : 0.05611         
+#>                Accuracy : 0.999           
+#>                  95% CI : (0.9984, 0.9995)
+#>     No Information Rate : 0.9987          
+#>     P-Value [Acc > NIR] : 0.2079          
 #>                                           
-#>                   Kappa : 0.6358          
-#>  Mcnemar's Test P-Value : 0.45325         
+#>                   Kappa : 0.6106          
+#>  Mcnemar's Test P-Value : 1.0000          
 #>                                           
-#>             Sensitivity : 0.9996          
-#>             Specificity : 0.5833          
-#>          Pos Pred Value : 0.9993          
-#>          Neg Pred Value : 0.7000          
-#>              Prevalence : 0.9983          
-#>          Detection Rate : 0.9979          
-#>    Detection Prevalence : 0.9986          
-#>       Balanced Accuracy : 0.7915          
+#>             Sensitivity : 0.9995          
+#>             Specificity : 0.6111          
+#>          Pos Pred Value : 0.9995          
+#>          Neg Pred Value : 0.6111          
+#>              Prevalence : 0.9987          
+#>          Detection Rate : 0.9982          
+#>    Detection Prevalence : 0.9987          
+#>       Balanced Accuracy : 0.8053          
 #>                                           
 #>        'Positive' Class : 0               
 #> 
 
 library(pROC)
 auc(roc(response = test$Class, predictor = scores02))
-#> Area under the curve: 0.7915
+#> Area under the curve: 0.8054
 ```
 
 SMOTE 并不是每次都有效果，因此要通过这种方法进行验证。
@@ -1369,7 +1371,7 @@ here::here('pic','cost_matrix.png') %>%
     knitr::include_graphics()
 ```
 
-![](/Users/vija/Downloads/180805_folder_01/tmp_jli/trans/projIN/anti_fraud_practice/pic/cost_matrix.png)<!-- -->
+![](D:/weDo/anti_fraud_practice/pic/cost_matrix.png)<!-- -->
 
 <input type="checkbox" id="checkbox1" class="styled">SMOTE : Synthetic
 Minority Oversampling TEchnique (Chawla et al., 2002)
@@ -1418,32 +1420,32 @@ confusionMatrix(
 #> 
 #>           Reference
 #> Prediction     0     1
-#>          0 14211    10
-#>          1     6    14
+#>          0 14216     7
+#>          1     7    11
 #>                                           
-#>                Accuracy : 0.9989          
-#>                  95% CI : (0.9982, 0.9994)
-#>     No Information Rate : 0.9983          
-#>     P-Value [Acc > NIR] : 0.05611         
+#>                Accuracy : 0.999           
+#>                  95% CI : (0.9984, 0.9995)
+#>     No Information Rate : 0.9987          
+#>     P-Value [Acc > NIR] : 0.2079          
 #>                                           
-#>                   Kappa : 0.6358          
-#>  Mcnemar's Test P-Value : 0.45325         
+#>                   Kappa : 0.6106          
+#>  Mcnemar's Test P-Value : 1.0000          
 #>                                           
-#>             Sensitivity : 0.9996          
-#>             Specificity : 0.5833          
-#>          Pos Pred Value : 0.9993          
-#>          Neg Pred Value : 0.7000          
-#>              Prevalence : 0.9983          
-#>          Detection Rate : 0.9979          
-#>    Detection Prevalence : 0.9986          
-#>       Balanced Accuracy : 0.7915          
+#>             Sensitivity : 0.9995          
+#>             Specificity : 0.6111          
+#>          Pos Pred Value : 0.9995          
+#>          Neg Pred Value : 0.6111          
+#>              Prevalence : 0.9987          
+#>          Detection Rate : 0.9982          
+#>    Detection Prevalence : 0.9987          
+#>       Balanced Accuracy : 0.8053          
 #>                                           
 #>        'Positive' Class : 0               
 #> 
 
 library(pROC)
 auc(roc(response = test$Class, predictor = scores01))
-#> Area under the curve: 0.7915
+#> Area under the curve: 0.8054
 ```
 
 ``` r
@@ -1459,11 +1461,11 @@ train_oversampled <-
 prop.table(table(train$Class))
 #> 
 #>           0           1 
-#> 0.998455056 0.001544944
+#> 0.997542135 0.002457865
 prop.table(table(train_oversampled$Class))
 #> 
-#>          0          1 
-#> 0.92685789 0.07314211
+#>         0         1 
+#> 0.8883677 0.1116323
 ```
 
 ``` r
@@ -1485,32 +1487,32 @@ confusionMatrix(
 #> 
 #>           Reference
 #> Prediction     0     1
-#>          0 14211    10
-#>          1     6    14
+#>          0 14216     7
+#>          1     7    11
 #>                                           
-#>                Accuracy : 0.9989          
-#>                  95% CI : (0.9982, 0.9994)
-#>     No Information Rate : 0.9983          
-#>     P-Value [Acc > NIR] : 0.05611         
+#>                Accuracy : 0.999           
+#>                  95% CI : (0.9984, 0.9995)
+#>     No Information Rate : 0.9987          
+#>     P-Value [Acc > NIR] : 0.2079          
 #>                                           
-#>                   Kappa : 0.6358          
-#>  Mcnemar's Test P-Value : 0.45325         
+#>                   Kappa : 0.6106          
+#>  Mcnemar's Test P-Value : 1.0000          
 #>                                           
-#>             Sensitivity : 0.9996          
-#>             Specificity : 0.5833          
-#>          Pos Pred Value : 0.9993          
-#>          Neg Pred Value : 0.7000          
-#>              Prevalence : 0.9983          
-#>          Detection Rate : 0.9979          
-#>    Detection Prevalence : 0.9986          
-#>       Balanced Accuracy : 0.7915          
+#>             Sensitivity : 0.9995          
+#>             Specificity : 0.6111          
+#>          Pos Pred Value : 0.9995          
+#>          Neg Pred Value : 0.6111          
+#>              Prevalence : 0.9987          
+#>          Detection Rate : 0.9982          
+#>    Detection Prevalence : 0.9987          
+#>       Balanced Accuracy : 0.8053          
 #>                                           
 #>        'Positive' Class : 0               
 #> 
 
 library(pROC)
 auc(roc(response = test$Class, predictor = scores02))
-#> Area under the curve: 0.7915
+#> Area under the curve: 0.8054
 ```
 
 SMOTE 并不是每次都有效果，因此要通过这种方法进行验证。
@@ -1524,7 +1526,7 @@ here::here('pic','cost_matrix.png') %>%
     knitr::include_graphics()
 ```
 
-![](/Users/vija/Downloads/180805_folder_01/tmp_jli/trans/projIN/anti_fraud_practice/pic/cost_matrix.png)<!-- -->
+![](D:/weDo/anti_fraud_practice/pic/cost_matrix.png)<!-- -->
 
 如图，一共有两种成本
 
@@ -1565,14 +1567,14 @@ cost_model(
     ,amounts = test$Amount
     ,fixedcost = 10
 )
-#> [1] 3108.4
+#> [1] 1140.63
 cost_model(
     predicted.classes = predicted_class02
     ,true.classes = test$Class
     ,amounts = test$Amount
     ,fixedcost = 10
 )
-#> [1] 3108.4
+#> [1] 1140.63
 ```
 
 1.  说明SMOTE
@@ -1734,14 +1736,14 @@ cost_model(
     ,amounts = test$Amount
     ,fixedcost = 10
 )
-#> [1] 3108.4
+#> [1] 1140.63
 cost_model(
     predicted.classes = predicted_class02
     ,true.classes = test$Class
     ,amounts = test$Amount
     ,fixedcost = 10
 )
-#> [1] 3108.4
+#> [1] 1140.63
 ```
 
 1.  说明SMOTE
@@ -2064,7 +2066,7 @@ adj.thexp <- adjbox(thexp, col = "lightblue", main = "Adjusted boxplot", ylab = 
 knitr::include_graphics(here::here('pic','mahalanobiseuclidean_ggplot.png'))
 ```
 
-![](/Users/vija/Downloads/180805_folder_01/tmp_jli/trans/projIN/anti_fraud_practice/pic/mahalanobiseuclidean_ggplot.png)<!-- -->
+![](D:/weDo/anti_fraud_practice/pic/mahalanobiseuclidean_ggplot.png)<!-- -->
 
 > Mahalanobis (or generalized) distance for observation is the distance
 > from this observation to the center, taking into account the

@@ -23,31 +23,90 @@ bibliography: add.bib
 
 <input type="checkbox" id="checkbox1" class="styled">整理主要内容
 
-```{r setup,echo = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  message = FALSE, warning = FALSE,
-  comment = "#>"
-)
-library(readr)
-library(tidyverse)
-library(data.table)
-library(here)
-library(igraph)
-# here is both in pkg here and lubridate
 
-load(here::here('data','expenses.rdata'))
-# load(here::here('data','amountNA.rdata'))
-# expenses %>% head
-# amountNA %>% head
-# 这两个数据根本没用到
-# read `.Rdata`
-# : https://stackoverflow.com/questions/7270544/how-to-see-data-from-rdata-file
+```
+## -- Attaching packages -------------------------------------------------------------------------------------------------------------- tidyverse 1.2.1 --
+```
+
+```
+## √ ggplot2 3.1.0     √ purrr   0.2.5
+## √ tibble  1.4.2     √ dplyr   0.7.8
+## √ tidyr   0.8.2     √ stringr 1.3.1
+## √ ggplot2 3.1.0     √ forcats 0.3.0
+```
+
+```
+## -- Conflicts ----------------------------------------------------------------------------------------------------------------- tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()
+```
+
+```
+## 
+## Attaching package: 'data.table'
+```
+
+```
+## The following objects are masked from 'package:dplyr':
+## 
+##     between, first, last
+```
+
+```
+## The following object is masked from 'package:purrr':
+## 
+##     transpose
+```
+
+```
+## here() starts at D:/weDo/anti_fraud_practice
+```
+
+```
+## 
+## Attaching package: 'igraph'
+```
+
+```
+## The following objects are masked from 'package:dplyr':
+## 
+##     as_data_frame, groups, union
+```
+
+```
+## The following objects are masked from 'package:purrr':
+## 
+##     compose, simplify
+```
+
+```
+## The following object is masked from 'package:tidyr':
+## 
+##     crossing
+```
+
+```
+## The following object is masked from 'package:tibble':
+## 
+##     as_data_frame
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     decompose, spectrum
+```
+
+```
+## The following object is masked from 'package:base':
+## 
+##     union
 ```
 
 # Imbalance phenomena
 
-```{r}
+
+```r
 transfers <- 
     plyr::join_all(
         list(
@@ -60,7 +119,8 @@ transfers <-
     )
 ```
 
-```{r}
+
+```r
 theme_nothing <- 
 function (base_size = 12, legend = FALSE) 
 {
@@ -81,16 +141,48 @@ function (base_size = 12, legend = FALSE)
 }
 ```
 
-```{r}
+
+```r
 # Print the first 6 rows of the dataset
 head(transfers)
+#> # A tibble: 6 x 13
+#>      id fraud_flag transfer_id timestamp orig_account_id benef_account_id
+#>   <int>      <int> <chr>           <int> <chr>           <chr>           
+#> 1   226          0 xtr215694    21966103 X27769025       X86111129       
+#> 2   141          0 xtr671675    40885557 X15452684       X63932196       
+#> 3   493          0 xtr977348    19945191 X96278924       X56011266       
+#> 4   240          0 xtr655123    27404301 X27769025       X95653232       
+#> 5   445          0 xtr785302     6566236 X96278924       X85352318       
+#> 6    88          0 xtr187306    17576922 X15452684       X18544316       
+#> # ... with 7 more variables: benef_country <chr>, channel_cd <chr>,
+#> #   authentication_cd <chr>, communication_cd <chr>,
+#> #   empty_communication_flag <int>, orig_balance_before <int>,
+#> #   amount <int>
 
 # Display the structure of the dataset
 str(transfers)
+#> Classes 'data.table' and 'data.frame':	628 obs. of  13 variables:
+#>  $ id                      : int  226 141 493 240 445 88 714 475 97 132 ...
+#>  $ fraud_flag              : int  0 0 0 0 0 0 0 0 0 0 ...
+#>  $ transfer_id             : chr  "xtr215694" "xtr671675" "xtr977348" "xtr655123" ...
+#>  $ timestamp               : int  21966103 40885557 19945191 27404301 6566236 17576922 29583007 14857126 22221450 38214048 ...
+#>  $ orig_account_id         : chr  "X27769025" "X15452684" "X96278924" "X27769025" ...
+#>  $ benef_account_id        : chr  "X86111129" "X63932196" "X56011266" "X95653232" ...
+#>  $ benef_country           : chr  "ISO03" "ISO03" "ISO03" "ISO03" ...
+#>  $ channel_cd              : chr  "CH01" "CH03" "CH04" "CH01" ...
+#>  $ authentication_cd       : chr  "AU02" "AU02" "AU05" "AU04" ...
+#>  $ communication_cd        : chr  "COM02" "COM02" "COM02" "COM02" ...
+#>  $ empty_communication_flag: int  0 0 0 0 0 0 0 0 0 0 ...
+#>  $ orig_balance_before     : int  5412 7268 1971 10603 6228 4933 1779 1866 4582 6218 ...
+#>  $ amount                  : int  33 40 227 20 5176 54 71 27 28 59 ...
+#>  - attr(*, ".internal.selfref")=<externalptr>
 
 # Determine fraction of legitimate and fraudulent cases
 class_distribution <- prop.table(table(transfers$fraud_flag))
 print(class_distribution)
+#> 
+#>          0          1 
+#> 0.97770701 0.02229299
 
 # Make pie chart of column fraud_flag
 df <- data.frame(class = c("no fraud", "fraud"), 
@@ -112,23 +204,55 @@ ggplot(df, aes(x = 1, weight = pct, fill = class)) +
     theme_nothing()
 ```
 
+![](datacamp_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
 Here is the imbalance of data.
 
 Set confusion matrix with loss cost.
 
-```{r}
+
+```r
 # Create vector predictions containing 0 for every transfer
 predictions <- factor(rep.int(0, nrow(transfers)), levels = c(0, 1))
 
 # Compute confusion matrix
 library(caret)
 levels(predictions)
+#> [1] "0" "1"
 levels(as.factor(transfers$fraud_flag))
+#> [1] "0" "1"
 # 错误: package e1071 is required
 confusionMatrix(data = predictions, reference = as.factor(transfers$fraud_flag))
+#> Confusion Matrix and Statistics
+#> 
+#>           Reference
+#> Prediction   0   1
+#>          0 614  14
+#>          1   0   0
+#>                                           
+#>                Accuracy : 0.9777          
+#>                  95% CI : (0.9629, 0.9878)
+#>     No Information Rate : 0.9777          
+#>     P-Value [Acc > NIR] : 0.570441        
+#>                                           
+#>                   Kappa : 0               
+#>  Mcnemar's Test P-Value : 0.000512        
+#>                                           
+#>             Sensitivity : 1.0000          
+#>             Specificity : 0.0000          
+#>          Pos Pred Value : 0.9777          
+#>          Neg Pred Value :    NaN          
+#>              Prevalence : 0.9777          
+#>          Detection Rate : 0.9777          
+#>    Detection Prevalence : 1.0000          
+#>       Balanced Accuracy : 0.5000          
+#>                                           
+#>        'Positive' Class : 0               
+#> 
 # Compute cost of not detecting fraud
 cost <- sum(transfers$amount[transfers$fraud_flag == 1])
 print(cost)
+#> [1] 64410
 ```
 
 1. `amount`是借款本金，在不考虑逾期后回款的情况(这是欺诈用户的特征)，那么都算损失。
@@ -152,7 +276,8 @@ The circular histogram is a visual representation of the timestamps of events.
 
 解决方案是使用循环直方图。
 
-```{r}
+
+```r
 timestamps <- 
 c(
     "08:43:48","09:17:52","12:56:22","12:27:32","10:59:23","07:22:45"
@@ -167,7 +292,8 @@ c(
 
 Use Von Mises distribution.
 
-```{r}
+
+```r
 # Convert the plain text to hours
 library(lubridate)
 ts <- as.numeric(hms(timestamps)) / 3600
@@ -181,6 +307,14 @@ ts <- circular(ts, units = 'hours', template = "clock24")
 estimates <- mle.vonmises(ts)
 p_mean <- estimates$mu %% 24
 p_mean
+#> Circular Data: 
+#> Type = angles 
+#> Units = hours 
+#> Template = clock24 
+#> Modulo = asis 
+#> Zero = 1.570796 
+#> Rotation = clock 
+#> [1] 10.09938
 # In the plot, 10 AM is the peroidic mean.
 
 # Plot a circular histogram
@@ -191,11 +325,14 @@ clock <- ggplot(data.frame(ts), aes(x = ts)) +
 plot(clock)
 ```
 
+![](datacamp_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
 因此发现有一个出现在晚上6点半左右，那么就算异常。
 
 <input type="checkbox" id="checkbox1" class="styled">预测置信区间。
 
-```{r}
+
+```r
 # Estimate the periodic mean and concentration on the first 24 timestamps
 p_mean <- estimates$mu %% 24
 concentration <- estimates$kappa
@@ -209,6 +346,32 @@ cutoff <- dvonmises(qvonmises((1 - .95)/2, mu = p_mean, kappa = concentration), 
 # Define the variable time_feature
 time_feature <- densities >= cutoff
 print(cbind.data.frame(ts, time_feature))
+#>           ts time_feature
+#> 1   8.730000         TRUE
+#> 2   9.297778         TRUE
+#> 3  12.939444         TRUE
+#> 4  12.458889         TRUE
+#> 5  10.989722         TRUE
+#> 6   7.379167         TRUE
+#> 7  11.233056         TRUE
+#> 8  10.223889         TRUE
+#> 9  10.116944         TRUE
+#> 10  6.165556         TRUE
+#> 11 12.721389         TRUE
+#> 12  7.126389         TRUE
+#> 13  9.612222         TRUE
+#> 14 10.750000         TRUE
+#> 15  8.460000         TRUE
+#> 16  7.926389         TRUE
+#> 17 11.548889         TRUE
+#> 18 13.309722         TRUE
+#> 19 11.164167         TRUE
+#> 20  9.775833         TRUE
+#> 21  6.986667         TRUE
+#> 22 10.326667         TRUE
+#> 23  9.663056         TRUE
+#> 24  9.662778         TRUE
+#> 25 18.398333        FALSE
 # time_feature == FALSE => outlier.
 ```
 
@@ -223,7 +386,8 @@ von Mises probability distribution
 
 查询一个用户不同渠道重复的频率。
 
-```{r}
+
+```r
 trans_Bob <- 
     plyr::join_all(
         list(
@@ -236,7 +400,8 @@ trans_Bob <-
     )
 ```
 
-```{r}
+
+```r
 # Frequency feature based on channel_cd
 frequency_fun <- function(steps, channel) {
   n <- length(steps)
@@ -257,6 +422,7 @@ freq_channel <-
         )
 
 length(freq_channel)
+#> [1] 16
 
 # Print the features channel_cd, freq_channel and fraud_flag next to each other
 freq_channel <- c(0, freq_channel)
@@ -267,7 +433,8 @@ freq_channel_tbl01 <-
 
 Another way.
 
-```{r}
+
+```r
 freq_channel_tbl02 <- 
     trans_Bob %>% 
     mutate(channel_cd = factor(channel_cd)) %>% 
@@ -279,13 +446,25 @@ freq_channel_tbl02 <-
     select('channel_cd','freq_channel','fraud_flag')
 ```
 
-```{r}
+
+```r
 setequal(freq_channel_tbl01,freq_channel_tbl02)
+#> [1] TRUE
 ```
 
-```{r}
+
+```r
 freq_channel_tbl02 %>% 
     tail
+#> # A tibble: 6 x 3
+#>   channel_cd freq_channel fraud_flag
+#>   <fct>             <dbl>      <int>
+#> 1 CH07                  6          0
+#> 2 CH06                  3          0
+#> 3 CH02                  2          0
+#> 4 CH07                  7          0
+#> 5 CH06                  4          0
+#> 6 CH05                  0          1
 ```
 
 注意欺诈发生于`freq_channel=0`的时候，这是freq feature的作用。
@@ -297,9 +476,12 @@ freq_channel_tbl02 %>%
 
 <input type="checkbox" id="checkbox1" class="styled"> how to add bracket in ggplot
 
-```{r}
+
+```r
 knitr::include_graphics(here::here('pic','recencyfeature.png'))
 ```
+
+![](D:/weDo/anti_fraud_practice/pic/recencyfeature.png)<!-- -->
 
 $$\text{recency} = e^{-\gamma t}$$
 
@@ -307,7 +489,8 @@ $$\text{recency} = e^{-\gamma t}$$
 1. $t$ is time interval between two consecutive events of the same type
 1. $\gamma$ close to 0 (e.g. 0.01, 0.02, 0.05), control $t$ effect
 
-```{r}
+
+```r
 expand.grid(
     time_interval = 0:350
     ,gamma = c(0.01,0.02,0.05,0.10,0.20)
@@ -319,10 +502,13 @@ expand.grid(
     geom_line()
 ```
 
+![](datacamp_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
 1. recency descreases by time interval.
 1. recency desceases more by gamma increasing.
 
-```{r}
+
+```r
 recency_fun <- function(t, gamma, auth_cd, freq_auth) {
     n_t <- length(t)
     if (freq_auth[n_t] == 0) {
@@ -336,7 +522,8 @@ recency_fun <- function(t, gamma, auth_cd, freq_auth) {
     }
 ```
 
-```{r}
+
+```r
 trans <- 
     plyr::join_all(
         list(
@@ -349,7 +536,8 @@ trans <-
     )
 ```
 
-```{r}
+
+```r
 freq_channel_data <- 
     trans %>% 
     arrange(timestamp) %>% 
@@ -370,7 +558,8 @@ freq_channel_data <-
 
 注意`rec_channel=0`产生了欺诈行为。
 
-```{r}
+
+```r
 transfers %>% 
     
     mutate(channel_cd = factor(channel_cd)) %>% 
@@ -398,6 +587,14 @@ transfers %>%
     nest() %>% 
     transmute(desc = map(data,psych::describe)) %>% 
     unnest()
+#> # A tibble: 4 x 13
+#>    vars     n    mean      sd median trimmed   mad   min     max   range
+#>   <int> <dbl>   <dbl>   <dbl>  <dbl>   <dbl> <dbl> <dbl>   <dbl>   <dbl>
+#> 1     1   614 3.50e+1 3.30e+1   25   3.02e+1  29.7     0 1.37e+2 1.37e+2
+#> 2     2   614 6.07e-2 2.28e-1    0   1.45e-3   0       0 1.00e+0 1.00e+0
+#> 3     1    14 3.09e+1 3.49e+1   12.5 2.94e+1  18.5     0 8.00e+1 8.00e+1
+#> 4     2    14 1.39e-4 5.20e-4    0   5.22e-7   0       0 1.94e-3 1.94e-3
+#> # ... with 3 more variables: skew <dbl>, kurtosis <dbl>, se <dbl>
 ```
 
 目前欺诈用户的统计指标在这两种变量中差异很大。
@@ -408,25 +605,51 @@ transfers %>%
 
 ## Intro
 
-```{r}
+
+```r
 # Load the igraph library
 library(igraph)
 transfers <- fread(here::here('data','transfer_chp2.csv'))
 
 # Have a look at the data
 head(transfers)
+#> # A tibble: 6 x 7
+#>      V1 originator beneficiary amount time  benef_country payment_channel
+#>   <int> <chr>      <chr>        <dbl> <chr> <chr>         <chr>          
+#> 1     1 I47        I87         1464.  15:12 CAN           CHAN_01        
+#> 2     2 I40        I61          143.  15:40 GBR           CHAN_01        
+#> 3     3 I89        I61           53.3 11:44 GBR           CHAN_05        
+#> 4     4 I24        I52          226.  14:55 GBR           CHAN_03        
+#> 5     5 I40        I87         1151.  21:20 CAN           CHAN_03        
+#> 6     6 I63        I54          110.  20:21 GBR           CHAN_03
 nrow(transfers)
+#> [1] 60
 
 # Create an undirected network from the dataset
 net <- graph_from_data_frame(transfers, directed = F)
 net
+#> IGRAPH 85d2749 UN-- 82 60 -- 
+#> + attr: name (v/c), beneficiary (e/c), amount (e/n), time (e/c),
+#> | benef_country (e/c), payment_channel (e/c)
+#> + edges from 85d2749 (vertex names):
+#>  [1] 1 --I47 2 --I40 3 --I89 4 --I24 5 --I40 6 --I63 7 --I40 8 --I28
+#>  [9] 9 --I40 10--I44 11--I23 12--I41 13--I93 14--I28 15--I23 16--I28
+#> [17] 17--I40 18--I28 19--I63 20--I52 21--I25 22--I23 23--I28 24--I28
+#> [25] 25--I69 26--I15 27--I23 28--I44 29--I21 30--I77 31--I24 32--I76
+#> [33] 33--I44 34--I23 35--I17 36--I28 37--I81 38--I23 39--I24 40--I44
+#> [41] 41--I37 42--I24 43--I41 44--I69 45--I23 46--I81 47--I11 48--I47
+#> [49] 49--I44 50--I44 51--I47 52--I28 53--I77 54--I24 55--I87 56--I23
+#> + ... omitted several edges
 # Plot the network with the vertex labels in bold and black
 plot(net,
      vertex.label.color = 'black',
      vertex.label.font = 2)
 ```
 
-```{r}
+![](datacamp_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+
+
+```r
 edges <- fread(here::here('data','edges.csv')) %>% 
     select(-id)
 # Load igraph and create a network from the data frame
@@ -434,6 +657,11 @@ net <- graph_from_data_frame(edges, directed = FALSE)
 
 # Plot the network with the multiple edges
 plot(net, layout = layout.circle)
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+
+```r
 
 # Specify new edge attributes width and curved
 E(net)$width <- count.multiple(net)
@@ -441,8 +669,16 @@ E(net)$curved <- FALSE
 
 # Check the new edge attributes and plot the network with overlapping edges
 edge_attr(net)
+#> $width
+#>  [1] 7 7 7 7 7 7 7 1 1 1 4 4 4 4 1 1
+#> 
+#> $curved
+#>  [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE
+#> [12] FALSE FALSE FALSE FALSE FALSE
 plot(net, layout = layout.circle)
 ```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-20-2.png)<!-- -->
 
 >
 Fraudsters tend to cluster together:
@@ -473,7 +709,8 @@ Relational model
 
 1. `account_type` is a nominal variable -> use `assortativity_nominal`.
 
-```{r eval=F}
+
+```r
 # Add account_type as an attribute to the nodes of the network
 V(net)$account_type <- account_info$type
 
@@ -490,7 +727,8 @@ The assortativity coefficient is positive which means that accounts of the same 
 
 这个地方的例子没理解。
 
-```{r eval=F}
+
+```r
 # Each account type is assigned a color
 vertex_colors <- c("grey", "lightblue", "darkorange")
 
@@ -506,7 +744,8 @@ plot(net)
 money mule
 : A money mule or sometimes referred to as a "smurfer" is a person who transfers money acquired illegally.
 
-```{r eval=F}
+
+```r
 transfers <- fread(here::here('data','transfers_chp2_02.csv'))
 account_info <- fread(here::here('data','account_info.csv'))
 
@@ -554,58 +793,83 @@ There are three kinds of variable we can build.
 
 <input type="checkbox" id="checkbox1" class="styled">寻找这本文献
 Analysis D D and Raya V 2013 Social Network Analysis, Methods and Measurements Calculations pp 2–5
-https://www.zhihu.com/question/22610633
-<input type="checkbox" id="checkbox1" class="styled">对于理解，学习 Network 的模型
-https://www.datacamp.com/instructors/bartbaesens
-https://www.datacamp.com/courses/network-science-in-r-a-tidy-approach
 
-```{r}
+
+```r
 kite <- fread(here::here('data','kite.csv')) %>% 
     select(-id)
 kite <- graph_from_data_frame(kite,directed = F)
 plot(kite)
 ```
 
+![](datacamp_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+
 ### degree
 
-```{r}
+
+```r
 # Find the degree of each node
 degree(kite)
+#>  1  2  3  4  5  6  7  8  9 10 
+#>  4  4  3  6  3  5  5  3  2  1
 
 # Which node has the largest degree?
 which.max(degree(kite))
+#> 4 
+#> 4
 
 # Plot kite with vertex.size proportional to the degree of each node
 plot(kite, vertex.size = 6 * degree(kite))
 ```
 
+![](datacamp_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+
 ### Closeness
 
-```{r}
+
+```r
 # Find the closeness of each node
 closeness(kite)
+#>          1          2          3          4          5          6 
+#> 0.05882353 0.05882353 0.05555556 0.06666667 0.05555556 0.07142857 
+#>          7          8          9         10 
+#> 0.07142857 0.06666667 0.04761905 0.03448276
 
 # Which node has the largest closeness?
 which.max(closeness(kite))
+#> 6 
+#> 6
 
 # Plot kite with vertex.size proportional to the closeness of each node
 plot(kite, vertex.size = 500 * closeness(kite))
 ```
 
+![](datacamp_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+
 ### betweenness
 
-```{r}
+
+```r
 # Find the betweenness of each node
 betweenness(kite)
+#>          1          2          3          4          5          6 
+#>  0.8333333  0.8333333  0.0000000  3.6666667  0.0000000  8.3333333 
+#>          7          8          9         10 
+#>  8.3333333 14.0000000  8.0000000  0.0000000
 
 # Which node has the largest betweenness?
 which.max(betweenness(kite))
+#> 8 
+#> 8
 
 # Plot kite with vertex.size proportional to the betweenness of each node
 plot(kite, vertex.size = 5 * betweenness(kite))
 ```
 
-```{r}
+![](datacamp_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+
+
+```r
 net <- fread(here::here('data','net.csv')) %>% 
     select(-id)
 net <- graph_from_data_frame(net,directed = F)
@@ -615,11 +879,57 @@ account_info <- fread(here::here('data','account_info_chp2.csv')) %>%
 
 ### Combination of the new features
 
-```{r}
+
+```r
 # Plot network and print account info
 plot(net)
 legend("bottomleft", legend = c("known money mule", "legit account"), fill = c("darkorange", "lightblue"), bty = "n")
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+
+```r
 print(account_info)
+#>      id isMoneyMule type
+#>  1: I47        TRUE    3
+#>  2: I40       FALSE    3
+#>  3: I89       FALSE    1
+#>  4: I24       FALSE    2
+#>  5: I63       FALSE    2
+#>  6: I28       FALSE    1
+#>  7: I44       FALSE    1
+#>  8: I23       FALSE    1
+#>  9: I41        TRUE    3
+#> 10: I93       FALSE    2
+#> 11: I52       FALSE    2
+#> 12: I25       FALSE    1
+#> 13: I69       FALSE    2
+#> 14: I15       FALSE    1
+#> 15: I21       FALSE    2
+#> 16: I77       FALSE    1
+#> 17: I76       FALSE    2
+#> 18: I17       FALSE    1
+#> 19: I81       FALSE    1
+#> 20: I37       FALSE    3
+#> 21: I11       FALSE    3
+#> 22: I87        TRUE    3
+#> 23: I61       FALSE    1
+#> 24: I54       FALSE    1
+#> 25: I80       FALSE    1
+#> 26: I20        TRUE    3
+#> 27: I64       FALSE    2
+#> 28: I46       FALSE    2
+#> 29: I19       FALSE    2
+#> 30: I55       FALSE    1
+#> 31: I14       FALSE    1
+#> 32: I30       FALSE    2
+#> 33: I29       FALSE    2
+#> 34: I35       FALSE    2
+#> 35: I27       FALSE    2
+#> 36: I60       FALSE    1
+#> 37: I22       FALSE    1
+#> 38: I66       FALSE    2
+#>      id isMoneyMule type
 
 # Degree
 account_info$degree <- degree(net, normalized = T)
@@ -632,7 +942,53 @@ account_info$closeness <- closeness(net, normalized = T)
 account_info$betweenness <- betweenness(net, normalized = T)
 
 print(account_info)
+#>      id isMoneyMule type     degree closeness  betweenness
+#>  1: I47        TRUE    3 0.08108108 0.3775510 0.0000000000
+#>  2: I40       FALSE    3 0.16216216 0.3425926 0.1979479479
+#>  3: I89       FALSE    1 0.05405405 0.2587413 0.0000000000
+#>  4: I24       FALSE    2 0.18918919 0.3737374 0.2600100100
+#>  5: I63       FALSE    2 0.13513514 0.2983871 0.0350350350
+#>  6: I28       FALSE    1 0.21621622 0.3627451 0.2942942943
+#>  7: I44       FALSE    1 0.18918919 0.3663366 0.2209709710
+#>  8: I23       FALSE    1 0.21621622 0.3592233 0.2757757758
+#>  9: I41        TRUE    3 0.13513514 0.4352941 0.2817817818
+#> 10: I93       FALSE    2 0.08108108 0.3274336 0.0838338338
+#> 11: I52       FALSE    2 0.05405405 0.2846154 0.0000000000
+#> 12: I25       FALSE    1 0.08108108 0.2781955 0.0000000000
+#> 13: I69       FALSE    2 0.08108108 0.2720588 0.0007507508
+#> 14: I15       FALSE    1 0.05405405 0.2700730 0.0000000000
+#> 15: I21       FALSE    2 0.08108108 0.2700730 0.0000000000
+#> 16: I77       FALSE    1 0.08108108 0.2700730 0.0000000000
+#> 17: I76       FALSE    2 0.05405405 0.3032787 0.0315315315
+#> 18: I17       FALSE    1 0.05405405 0.3217391 0.0155155155
+#> 19: I81       FALSE    1 0.08108108 0.2720588 0.0007507508
+#> 20: I37       FALSE    3 0.08108108 0.3663366 0.0950950951
+#> 21: I11       FALSE    3 0.16216216 0.4352941 0.3753753754
+#> 22: I87        TRUE    3 0.05405405 0.2587413 0.0000000000
+#> 23: I61       FALSE    1 0.05405405 0.2761194 0.0000000000
+#> 24: I54       FALSE    1 0.02702703 0.2569444 0.0000000000
+#> 25: I80       FALSE    1 0.13513514 0.4157303 0.2309809810
+#> 26: I20        TRUE    3 0.08108108 0.3057851 0.0385385385
+#> 27: I64       FALSE    2 0.05405405 0.2700730 0.0000000000
+#> 28: I46       FALSE    2 0.02702703 0.2661871 0.0000000000
+#> 29: I19       FALSE    2 0.05405405 0.2700730 0.0000000000
+#> 30: I55       FALSE    1 0.08108108 0.2781955 0.0000000000
+#> 31: I14       FALSE    1 0.08108108 0.3008130 0.0347847848
+#> 32: I30       FALSE    2 0.05405405 0.2700730 0.0000000000
+#> 33: I29       FALSE    2 0.08108108 0.2700730 0.0000000000
+#> 34: I35       FALSE    2 0.02702703 0.2700730 0.0000000000
+#> 35: I27       FALSE    2 0.02702703 0.2740741 0.0000000000
+#> 36: I60       FALSE    1 0.02702703 0.2661871 0.0000000000
+#> 37: I22       FALSE    1 0.02702703 0.2740741 0.0000000000
+#> 38: I66       FALSE    2 0.02702703 0.2740741 0.0000000000
+#>      id isMoneyMule type     degree closeness  betweenness
 account_info %>% distinct(type)
+#> # A tibble: 3 x 1
+#>    type
+#>   <int>
+#> 1     3
+#> 2     1
+#> 3     2
 ```
 
 1. 接下来可以使用 non relational model 进行分析了，例如决策树。
@@ -651,7 +1007,8 @@ sampling 只对 train 进行而不对 test 进行
 
 [Kaggle](https://www.kaggle.com/mlg-ulb/creditcardfraud)的反欺诈数据。
 
-```{r eval=F}
+
+```r
 library(data.table)
 creditcard <- fread(here::here('data','creditcard.csv'))
 creditcard %>% 
@@ -661,7 +1018,8 @@ creditcard %>%
     mutate(data1 = map2(data,index,~write_excel_csv(.x,here::here('data',paste0('creditcard_',.y,'.csv')))))
 ```
 
-```{r}
+
+```r
 library(data.table)
 library(tidyverse)
 creditcard <- 
@@ -676,35 +1034,51 @@ creditcard <-
     dplyr::sample_frac(0.1)
 ```
 
-```{r}
+
+```r
 creditcard %>% 
     # nrow
     pryr::object_size()
+#> 7.07 MB
 ```
 
-```{r}
+
+```r
 creditcard %>% 
     ggplot(aes(V1,V2,col=factor(Class))) +
     geom_point(alpha=0.2)
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
+
+```r
 # imbalance is an issue.
 ```
 
-```{r}
+
+```r
 creditcard %>% 
     group_by(Class) %>% 
     count() %>% 
     ungroup() %>% 
     mutate(n = n/sum(n))
+#> # A tibble: 2 x 2
+#>   Class       n
+#>   <int>   <dbl>
+#> 1     0 0.998  
+#> 2     1 0.00186
 ```
 
 Use `ovun.sample` from `ROSE` package to do over/under - sampling or combination of the two.
 
 ## Oversampling
 
-```{r}
+
+```r
 # We hope minority in the new sample is 40%.
 # We know majority size is 
 sum(creditcard$Class == 0)
+#> [1] 28428
 # sum(creditcard$Class == 0)/(1-0.4) is the desired sample size.
 library(ROSE)
 oversampling_result <- 
@@ -717,28 +1091,48 @@ oversampling_result <-
 # N - the sampling size you want.
 oversampled_credit <- oversampling_result$data
 table(oversampled_credit$Class)
+#> 
+#>     0     1 
+#> 28428 18952
 table(creditcard$Class)
+#> 
+#>     0     1 
+#> 28428    53
 prop.table(table(oversampled_credit$Class))
+#> 
+#>   0   1 
+#> 0.6 0.4
 prop.table(table(creditcard$Class))
+#> 
+#>          0          1 
+#> 0.99813911 0.00186089
 ```
 
 完成sampling的工作。
 
-```{r}
+
+```r
 oversampled_credit %>% 
     ggplot(aes(V1,V2,col=factor(Class))) +
     scale_color_manual(values = c('dodgerblue', 'red')) +
     # customize the color for the points.
     geom_point(alpha=0.2)
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
+
+```r
 # imbalance is solved.
 ```
 
 ## Undersampling
 
-```{r}
+
+```r
 # We hope minority in the new sample is 40%.
 # We know minority size is 
 sum(creditcard$Class == 1)
+#> [1] 53
 # sum(creditcard$Class == 1)/0.4 is the desired sample size.
 undersampling_result <- 
     ovun.sample(
@@ -750,20 +1144,33 @@ undersampling_result <-
 # N - the sampling size you want.
 undersampled_credit <- undersampling_result$data
 table(undersampled_credit$Class)
+#> 
+#>  0  1 
+#> 79 53
 prop.table(table(undersampled_credit$Class))
+#> 
+#>         0         1 
+#> 0.5984848 0.4015152
 ```
 
-```{r}
+
+```r
 undersampled_credit %>% 
     ggplot(aes(V1,V2,col=factor(Class))) +
     scale_color_manual(values = c('dodgerblue', 'red')) +
     geom_point(alpha=0.2)
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
+
+```r
 # imbalance is solved.
 ```
 
 ## Over and Undersampling
 
-```{r}
+
+```r
 bothsampling_result <- 
     ovun.sample(
         Class ~ .
@@ -775,18 +1182,33 @@ bothsampling_result <-
 # N - the sampling size you want.
 bothsampled_credit <- bothsampling_result$data
 table(bothsampled_credit$Class)
+#> 
+#>     0     1 
+#> 14365 14116
 prop.table(table(bothsampled_credit$Class))
+#> 
+#>         0         1 
+#> 0.5043713 0.4956287
 table(creditcard$Class)
+#> 
+#>     0     1 
+#> 28428    53
 # both actions are done.
 # oversampling the majority 
 # undersampling the minority.
 ```
 
-```{r}
+
+```r
 bothsampled_credit %>% 
     ggplot(aes(V1,V2,col=factor(Class))) +
     scale_color_manual(values = c('dodgerblue', 'red')) +
     geom_point(alpha=0.2)
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-40-1.png)<!-- -->
+
+```r
 # imbalance is solved.
 ```
 
@@ -819,14 +1241,16 @@ bothsampled_credit %>%
 
 ### modeling
 
-```{r}
+
+```r
 library(smotefamily)
 ```
 
 >
 SMOTE can only be applied based on numeric variables since it uses the euclidean distance to determine nearest neighbors.
 
-```{r}
+
+```r
 # Set the number of fraud and legitimate cases, and the desired percentage of legitimate cases
 n1 <- sum(creditcard$Class==1)
 n0 <- sum(creditcard$Class==0)
@@ -845,15 +1269,25 @@ smote_output <- SMOTE(X = creditcard %>% select(-Time,Class), target = creditcar
 credit_smote <- smote_output$data
 colnames(credit_smote)[30] <- "Class"
 prop.table(table(credit_smote$Class))
+#> 
+#>         0         1 
+#> 0.6003928 0.3996072
 
 ggplot(creditcard, aes(x = V1, y = V2, color = factor(Class))) +
     geom_point() +
     scale_color_manual(values = c('dodgerblue2', 'red'))
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-42-1.png)<!-- -->
+
+```r
 
 ggplot(credit_smote, aes(x = V1, y = V2, color = factor(Class))) +
   geom_point() +
   scale_color_manual(values = c('dodgerblue2', 'red'))
 ```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-42-2.png)<!-- -->
 
 1. 你会发现，通过SMOTE算法，以后很多点连成了直线，具体见 \@ref(smoteintro)
 
@@ -874,8 +1308,10 @@ ggplot(credit_smote, aes(x = V1, y = V2, color = factor(Class))) +
 
 这里用于验证SMOTE方法是否有提高模型效果。
 
-```{r}
+
+```r
 dim(creditcard)
+#> [1] 28481    31
 set.seed(123)
 creditcard <- creditcard %>% mutate(Class = as.factor(Class))
 train_index <- sample(nrow(creditcard),round(0.5*nrow(creditcard)))
@@ -883,7 +1319,8 @@ train <- creditcard[train_index,]
 test <- creditcard[-train_index,]
 ```
 
-```{r}
+
+```r
 library(rpart)
 model01 <-  rpart(factor(Class) ~ ., data = train)
 library(caret)
@@ -893,12 +1330,40 @@ confusionMatrix(
     data = predicted_class01
     ,reference = test$Class
 )
+#> Confusion Matrix and Statistics
+#> 
+#>           Reference
+#> Prediction     0     1
+#>          0 14216     7
+#>          1     7    11
+#>                                           
+#>                Accuracy : 0.999           
+#>                  95% CI : (0.9984, 0.9995)
+#>     No Information Rate : 0.9987          
+#>     P-Value [Acc > NIR] : 0.2079          
+#>                                           
+#>                   Kappa : 0.6106          
+#>  Mcnemar's Test P-Value : 1.0000          
+#>                                           
+#>             Sensitivity : 0.9995          
+#>             Specificity : 0.6111          
+#>          Pos Pred Value : 0.9995          
+#>          Neg Pred Value : 0.6111          
+#>              Prevalence : 0.9987          
+#>          Detection Rate : 0.9982          
+#>    Detection Prevalence : 0.9987          
+#>       Balanced Accuracy : 0.8053          
+#>                                           
+#>        'Positive' Class : 0               
+#> 
 
 library(pROC)
 auc(roc(response = test$Class, predictor = scores01))
+#> Area under the curve: 0.8054
 ```
 
-```{r}
+
+```r
 library(smotefamily) 
 set.seed(123)
 smote_result <- SMOTE(X = train %>% select(-Class),target = train$Class,K = 10, dup_size = 50)
@@ -907,17 +1372,26 @@ train_oversampled <-
     mutate(Class = class)
 ```
 
-```{r}
+
+```r
 prop.table(table(train$Class))
+#> 
+#>           0           1 
+#> 0.997542135 0.002457865
 prop.table(table(train_oversampled$Class))
+#> 
+#>         0         1 
+#> 0.8883677 0.1116323
 ```
 
-```{r}
+
+```r
 library(rpart)
 model02<- rpart(Class ~ ., data = train_oversampled)
 ```
 
-```{r}
+
+```r
 library(rpart)
 model02 <-  rpart(factor(Class) ~ ., data = train)
 library(caret)
@@ -927,9 +1401,36 @@ confusionMatrix(
     data = predicted_class02
     ,reference = test$Class
 )
+#> Confusion Matrix and Statistics
+#> 
+#>           Reference
+#> Prediction     0     1
+#>          0 14216     7
+#>          1     7    11
+#>                                           
+#>                Accuracy : 0.999           
+#>                  95% CI : (0.9984, 0.9995)
+#>     No Information Rate : 0.9987          
+#>     P-Value [Acc > NIR] : 0.2079          
+#>                                           
+#>                   Kappa : 0.6106          
+#>  Mcnemar's Test P-Value : 1.0000          
+#>                                           
+#>             Sensitivity : 0.9995          
+#>             Specificity : 0.6111          
+#>          Pos Pred Value : 0.9995          
+#>          Neg Pred Value : 0.6111          
+#>              Prevalence : 0.9987          
+#>          Detection Rate : 0.9982          
+#>    Detection Prevalence : 0.9987          
+#>       Balanced Accuracy : 0.8053          
+#>                                           
+#>        'Positive' Class : 0               
+#> 
 
 library(pROC)
 auc(roc(response = test$Class, predictor = scores02))
+#> Area under the curve: 0.8054
 ```
 
 SMOTE 并不是每次都有效果，因此要通过这种方法进行验证。
@@ -938,10 +1439,13 @@ SMOTE 并不是每次都有效果，因此要通过这种方法进行验证。
 
 在不平衡样本中，ACC是有误导的，因此引入成本矩阵。
 
-```{r}
+
+```r
 here::here('pic','cost_matrix.png') %>% 
     knitr::include_graphics()
 ```
+
+![](D:/weDo/anti_fraud_practice/pic/cost_matrix.png)<!-- -->
 
 <input type="checkbox" id="checkbox1" class="styled">SMOTE : Synthetic Minority Oversampling TEchnique (Chawla et al., 2002)
 
@@ -964,8 +1468,10 @@ here::here('pic','cost_matrix.png') %>%
 
 这里用于验证SMOTE方法是否有提高模型效果。
 
-```{r}
+
+```r
 dim(creditcard)
+#> [1] 28481    31
 set.seed(123)
 creditcard <- creditcard %>% mutate(Class = as.factor(Class))
 train_index <- sample(nrow(creditcard),round(0.5*nrow(creditcard)))
@@ -973,7 +1479,8 @@ train <- creditcard[train_index,]
 test <- creditcard[-train_index,]
 ```
 
-```{r}
+
+```r
 library(rpart)
 model01 <-  rpart(factor(Class) ~ ., data = train)
 library(caret)
@@ -983,12 +1490,40 @@ confusionMatrix(
     data = predicted_class01
     ,reference = test$Class
 )
+#> Confusion Matrix and Statistics
+#> 
+#>           Reference
+#> Prediction     0     1
+#>          0 14216     7
+#>          1     7    11
+#>                                           
+#>                Accuracy : 0.999           
+#>                  95% CI : (0.9984, 0.9995)
+#>     No Information Rate : 0.9987          
+#>     P-Value [Acc > NIR] : 0.2079          
+#>                                           
+#>                   Kappa : 0.6106          
+#>  Mcnemar's Test P-Value : 1.0000          
+#>                                           
+#>             Sensitivity : 0.9995          
+#>             Specificity : 0.6111          
+#>          Pos Pred Value : 0.9995          
+#>          Neg Pred Value : 0.6111          
+#>              Prevalence : 0.9987          
+#>          Detection Rate : 0.9982          
+#>    Detection Prevalence : 0.9987          
+#>       Balanced Accuracy : 0.8053          
+#>                                           
+#>        'Positive' Class : 0               
+#> 
 
 library(pROC)
 auc(roc(response = test$Class, predictor = scores01))
+#> Area under the curve: 0.8054
 ```
 
-```{r}
+
+```r
 library(smotefamily) 
 set.seed(123)
 smote_result <- SMOTE(X = train %>% select(-Class),target = train$Class,K = 10, dup_size = 50)
@@ -997,17 +1532,26 @@ train_oversampled <-
     mutate(Class = class)
 ```
 
-```{r}
+
+```r
 prop.table(table(train$Class))
+#> 
+#>           0           1 
+#> 0.997542135 0.002457865
 prop.table(table(train_oversampled$Class))
+#> 
+#>         0         1 
+#> 0.8883677 0.1116323
 ```
 
-```{r}
+
+```r
 library(rpart)
 model02<- rpart(Class ~ ., data = train_oversampled)
 ```
 
-```{r}
+
+```r
 library(rpart)
 model02 <-  rpart(factor(Class) ~ ., data = train)
 library(caret)
@@ -1017,9 +1561,36 @@ confusionMatrix(
     data = predicted_class02
     ,reference = test$Class
 )
+#> Confusion Matrix and Statistics
+#> 
+#>           Reference
+#> Prediction     0     1
+#>          0 14216     7
+#>          1     7    11
+#>                                           
+#>                Accuracy : 0.999           
+#>                  95% CI : (0.9984, 0.9995)
+#>     No Information Rate : 0.9987          
+#>     P-Value [Acc > NIR] : 0.2079          
+#>                                           
+#>                   Kappa : 0.6106          
+#>  Mcnemar's Test P-Value : 1.0000          
+#>                                           
+#>             Sensitivity : 0.9995          
+#>             Specificity : 0.6111          
+#>          Pos Pred Value : 0.9995          
+#>          Neg Pred Value : 0.6111          
+#>              Prevalence : 0.9987          
+#>          Detection Rate : 0.9982          
+#>    Detection Prevalence : 0.9987          
+#>       Balanced Accuracy : 0.8053          
+#>                                           
+#>        'Positive' Class : 0               
+#> 
 
 library(pROC)
 auc(roc(response = test$Class, predictor = scores02))
+#> Area under the curve: 0.8054
 ```
 
 SMOTE 并不是每次都有效果，因此要通过这种方法进行验证。
@@ -1028,10 +1599,13 @@ SMOTE 并不是每次都有效果，因此要通过这种方法进行验证。
 
 在不平衡样本中，ACC是有误导的，因此引入成本矩阵。
 
-```{r}
+
+```r
 here::here('pic','cost_matrix.png') %>% 
     knitr::include_graphics()
 ```
+
+![](D:/weDo/anti_fraud_practice/pic/cost_matrix.png)<!-- -->
 
 如图，一共有两种成本
 
@@ -1053,7 +1627,8 @@ $$Cost(\text{model})=\sum_{i=1}^{N}y_i(1-\hat y_i)\text{Amount}_i + \hat y_i C_a
 
 ACC 是有误导的。
 
-```{r}
+
+```r
 cost_model <- function(predicted.classes, true.classes, amounts, fixedcost) {
   library(hmeasure)
   predicted.classes <- relabel(predicted.classes)
@@ -1063,19 +1638,22 @@ cost_model <- function(predicted.classes, true.classes, amounts, fixedcost) {
 }
 ```
 
-```{r}
+
+```r
 cost_model(
     predicted.classes = predicted_class01
     ,true.classes = test$Class
     ,amounts = test$Amount
     ,fixedcost = 10
 )
+#> [1] 1140.63
 cost_model(
     predicted.classes = predicted_class02
     ,true.classes = test$Class
     ,amounts = test$Amount
     ,fixedcost = 10
 )
+#> [1] 1140.63
 ```
 
 1. 说明SMOTE 算法无效。
@@ -1086,15 +1664,32 @@ cost_model(
 
 $$P(D_1 = d_1) = \log(d_1+1) - \log(d_1) = \log(1 + \frac{1}{d_1});d_1 = 1,\dots,9$$
 
-```{r}
+
+```r
 benford_data <- 
     tibble(
         d_1 = 1:9
         ,P = log10(d_1+1) - log10(d_1)
     )
 benford_data
+#> # A tibble: 9 x 2
+#>     d_1      P
+#>   <int>  <dbl>
+#> 1     1 0.301 
+#> 2     2 0.176 
+#> 3     3 0.125 
+#> 4     4 0.0969
+#> 5     5 0.0792
+#> 6     6 0.0669
+#> 7     7 0.0580
+#> 8     8 0.0512
+#> 9     9 0.0458
 benford_data %>% 
     summarise(sum(P))
+#> # A tibble: 1 x 1
+#>   `sum(P)`
+#>      <dbl>
+#> 1        1
 ```
 
 1. 也可以检验概率和为1 
@@ -1105,7 +1700,8 @@ benford_data %>%
 The Fibonacci sequence is characterized by the fact that every number after the first two is the sum of the two preceding ones.
 [@BaesensFraud]
 
-```{r}
+
+```r
 n <- 1000
 fibnum <- numeric(n)
 fibnum[1] <- 1
@@ -1114,22 +1710,27 @@ for (i in 3:n) {
   fibnum[i] <- fibnum[i-1]+fibnum[i-2]
 } 
 head(fibnum)
+#> [1] 1 1 2 3 5 8
 ```
 
 
-```{r}
+
+```r
 library(benford.analysis)
 bfd.fib <- benford(fibnum,
                 number.of.digits = 1)
 plot(bfd.fib)
 ```
 
+![](datacamp_files/figure-gfm/unnamed-chunk-61-1.png)<!-- -->
+
 ## Test on `census.2009`
 
 `census.2009`
 : contains the populations of 19509 towns and cities of the United States (July 2009) and was used in @Nigrini2012Benford.
 
-```{r}
+
+```r
 # Load package benford.analysis
 library(benford.analysis)
 data(census.2009)
@@ -1139,8 +1740,11 @@ bfd.cen <- benford(census.2009$pop.2009, number.of.digits = 1)
 plot(bfd.cen, except = c("second order", "summation", "mantissa", "chi squared","abs diff", "ex summation", "Legend"), multiple = F) 
 ```
 
+![](datacamp_files/figure-gfm/unnamed-chunk-62-1.png)<!-- -->![](datacamp_files/figure-gfm/unnamed-chunk-62-2.png)<!-- -->
 
-```{r}
+
+
+```r
 census.2009 %>% 
     transmute(pop.2009 = pop.2009 %>% 
                   as.character %>% 
@@ -1156,14 +1760,19 @@ census.2009 %>%
     ggplot(aes(x=pop.2009,y=value,col=key)) +
     geom_line()
 ```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-63-1.png)<!-- -->
  
  
-```{r}
+
+```r
 # Multiply the data by 3 and check conformity again
 data <- census.2009$pop.2009 * 3
 bfd.cen3 <- benford(data, number.of.digits=1)
 plot(bfd.cen3, except = c("second order", "summation", "mantissa", "chi squared","abs diff", "ex summation", "Legend"), multiple = F)
 ```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-64-1.png)<!-- -->![](datacamp_files/figure-gfm/unnamed-chunk-64-2.png)<!-- -->
 
 1. 因此满足 benford 定律。
 1. `plot.Benford`存在bug。
@@ -1204,19 +1813,22 @@ Such as
 这些可以不用记忆，等之后使用了再融会贯通。
 ||||||| merged common ancestors
 =======
-```{r}
+
+```r
 cost_model(
     predicted.classes = predicted_class01
     ,true.classes = test$Class
     ,amounts = test$Amount
     ,fixedcost = 10
 )
+#> [1] 1140.63
 cost_model(
     predicted.classes = predicted_class02
     ,true.classes = test$Class
     ,amounts = test$Amount
     ,fixedcost = 10
 )
+#> [1] 1140.63
 ```
 
 1. 说明SMOTE 算法无效。
@@ -1227,15 +1839,32 @@ cost_model(
 
 $$P(D_1 = d_1) = \log(d_1+1) - \log(d_1) = \log(1 + \frac{1}{d_1});d_1 = 1,\dots,9$$
 
-```{r}
+
+```r
 benford_data <- 
     tibble(
         d_1 = 1:9
         ,P = log10(d_1+1) - log10(d_1)
     )
 benford_data
+#> # A tibble: 9 x 2
+#>     d_1      P
+#>   <int>  <dbl>
+#> 1     1 0.301 
+#> 2     2 0.176 
+#> 3     3 0.125 
+#> 4     4 0.0969
+#> 5     5 0.0792
+#> 6     6 0.0669
+#> 7     7 0.0580
+#> 8     8 0.0512
+#> 9     9 0.0458
 benford_data %>% 
     summarise(sum(P))
+#> # A tibble: 1 x 1
+#>   `sum(P)`
+#>      <dbl>
+#> 1        1
 ```
 
 1. 也可以检验概率和为1 
@@ -1246,7 +1875,8 @@ benford_data %>%
 The Fibonacci sequence is characterized by the fact that every number after the first two is the sum of the two preceding ones.
 [@BaesensFraud]
 
-```{r}
+
+```r
 n <- 1000
 fibnum <- numeric(n)
 fibnum[1] <- 1
@@ -1255,22 +1885,27 @@ for (i in 3:n) {
   fibnum[i] <- fibnum[i-1]+fibnum[i-2]
 } 
 head(fibnum)
+#> [1] 1 1 2 3 5 8
 ```
 
 
-```{r}
+
+```r
 library(benford.analysis)
 bfd.fib <- benford(fibnum,
                 number.of.digits = 1)
 plot(bfd.fib)
 ```
 
+![](datacamp_files/figure-gfm/unnamed-chunk-68-1.png)<!-- -->
+
 ## Test on `census.2009`
 
 `census.2009`
 : contains the populations of 19509 towns and cities of the United States (July 2009) and was used in @Nigrini2012Benford.
 
-```{r}
+
+```r
 # Load package benford.analysis
 library(benford.analysis)
 data(census.2009)
@@ -1280,8 +1915,11 @@ bfd.cen <- benford(census.2009$pop.2009, number.of.digits = 1)
 plot(bfd.cen, except = c("second order", "summation", "mantissa", "chi squared","abs diff", "ex summation", "Legend"), multiple = F) 
 ```
 
+![](datacamp_files/figure-gfm/unnamed-chunk-69-1.png)<!-- -->![](datacamp_files/figure-gfm/unnamed-chunk-69-2.png)<!-- -->
 
-```{r}
+
+
+```r
 census.2009 %>% 
     transmute(pop.2009 = pop.2009 %>% 
                   as.character %>% 
@@ -1297,14 +1935,19 @@ census.2009 %>%
     ggplot(aes(x=pop.2009,y=value,col=key)) +
     geom_line()
 ```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-70-1.png)<!-- -->
  
  
-```{r}
+
+```r
 # Multiply the data by 3 and check conformity again
 data <- census.2009$pop.2009 * 3
 bfd.cen3 <- benford(data, number.of.digits=1)
 plot(bfd.cen3, except = c("second order", "summation", "mantissa", "chi squared","abs diff", "ex summation", "Legend"), multiple = F)
 ```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-71-1.png)<!-- -->![](datacamp_files/figure-gfm/unnamed-chunk-71-2.png)<!-- -->
 >>>>>>> fa6684efee460f284f61fd9d1fd6f08b62855b82
 
 <<<<<<< HEAD
@@ -1362,15 +2005,34 @@ Such as
 
 $$P(D_1D_2 = d_1d_2) = \log(d_1d_2+1) - \log(d_1d_2) = \log(1 + \frac{1}{d_1d_2});d_1d_2 = 10,\dots,99$$
 
-```{r}
+
+```r
 benford_data <- 
     tibble(
         d_1d_2 = 10:99
         ,P = log10(d_1d_2+1) - log10(d_1d_2)
     )
 benford_data
+#> # A tibble: 90 x 2
+#>    d_1d_2      P
+#>     <int>  <dbl>
+#>  1     10 0.0414
+#>  2     11 0.0378
+#>  3     12 0.0348
+#>  4     13 0.0322
+#>  5     14 0.0300
+#>  6     15 0.0280
+#>  7     16 0.0263
+#>  8     17 0.0248
+#>  9     18 0.0235
+#> 10     19 0.0223
+#> # ... with 80 more rows
 benford_data %>% 
     summarise(sum(P))
+#> # A tibble: 1 x 1
+#>   `sum(P)`
+#>      <dbl>
+#> 1        1
 ```
 
 1. 也可以检验概率和为1 
@@ -1379,17 +2041,28 @@ benford_data %>%
 This test is more reliable than the first digits test and is most frequently used in fraud detection.
 [@BaesensFraud]
 
-```{r}
+
+```r
 bfd.cen <- benford(census.2009$pop.2009,number.of.digits = 2) 
 plot(bfd.cen)
 ```
 
-```{r}
+![](datacamp_files/figure-gfm/unnamed-chunk-73-1.png)<!-- -->
+
+
+```r
 bfd1.exp <- benford(expenses,  number.of.digits = 1) 
 plot(bfd1.exp)
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-74-1.png)<!-- -->
+
+```r
 bfd2.exp <- benford(expenses, number.of.digits = 2) 
 plot(bfd2.exp)
 ```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-74-2.png)<!-- -->
 
 ## how to use
 
@@ -1401,7 +2074,8 @@ plot(bfd2.exp)
 
 $$z_i = \frac{x_i - \hat \mu}{\hat \sigma} = \frac{x_i - \text{Med}(X)}{\text{Mad}(X)}$$
 
-```{r}
+
+```r
 transfer <- 
     list.files('data',full.names = T) %>% 
     str_subset('transfer_chp4') %>% 
@@ -1409,9 +2083,11 @@ transfer <-
     bind_cols()
 ```
 
-```{r}
+
+```r
 # Get observations identified as fraud
 which(transfers$fraud_flag == 1)
+#> integer(0)
 
 # Compute median and mean absolute deviation for `amount`
 m <- median(transfers$amount)
@@ -1422,6 +2098,7 @@ robzscore <- abs((transfers$amount - m) / (s))
 
 # Get observations with robust z-score higher than 3 in absolute value
 which(abs(robzscore) > 3)
+#>  [1]  1  5 10 12 16 38 39 41 43 47 48 51 55
 ```
 
 <input type="checkbox" id="checkbox1" class="styled"> [`mad`理解清楚](https://en.wikipedia.org/wiki/Median_absolute_deviation)
@@ -1434,22 +2111,34 @@ which(abs(robzscore) > 3)
 
 $$[Q_1 - 1.5\text{IQR},Q_1 + 1.5\text{IQR}]$$
 
-```{r}
+
+```r
 thexp <- fread(here::here('data','thexp.csv'),drop='id')
 thexp <- thexp$thexp
 ```
 
-```{r}
+
+```r
 # Create boxplot
 bp.thexp <- boxplot(thexp, col = "lightblue", main = "Standard boxplot", ylab = "Total household expenditure")
+```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-78-1.png)<!-- -->
+
+```r
 
 # Extract the outliers from the data
 bp.thexp$out
+#>  [1]  96396  95389  84354  85065  86577  92957 106032 107065  74958  78286
+#> [11] 108756  74111  78760 116262  74197  74993  99834 147498  81646  94587
+#> [21]  74298  75043  83158  79147 108752 130773  80495
 
 # Create adjusted boxplot
 library(robustbase)
 adj.thexp <- adjbox(thexp, col = "lightblue", main = "Adjusted boxplot", ylab = "Total household expenditure")
 ```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-78-2.png)<!-- -->
 
 >
 However, when the data are skewed, usually many points exceed the whiskers and are often erroneously declared as outliers. An adjustment of the boxplot is presented that includes a robust measure of skewness in the determination of the whiskers.
@@ -1464,9 +2153,12 @@ However, when the data are skewed, usually many points exceed the whiskers and a
 
 在这种情况下，异常值可以是多维度确定。
 
-```{r}
+
+```r
 knitr::include_graphics(here::here('pic','mahalanobiseuclidean_ggplot.png'))
 ```
+
+![](D:/weDo/anti_fraud_practice/pic/mahalanobiseuclidean_ggplot.png)<!-- -->
 
 >
 Mahalanobis (or generalized) distance for observation is the distance from this observation to the center, taking into account the covariance matrix.
@@ -1483,31 +2175,43 @@ value, which is derived from the chisquare distribution.
 
 <input type="checkbox" id="checkbox1" class="styled">根据tsi_real 和 p 可以剔除一些异常值
 
-```{r}
+
+```r
 hailinsurance <- 
     fread(here::here('data','hailinsurance.csv'),sep=' ') %>% 
     dplyr::select(-V1) %>% 
     as.matrix()
 ```
 
-```{r}
+
+```r
 plot(hailinsurance)
 ```
 
+![](datacamp_files/figure-gfm/unnamed-chunk-81-1.png)<!-- -->
+
 1. 如图，可以发现有异常值。
 
-```{r}
+
+```r
 # Compute the sample mean and sample covariance matrix
 clcenter <- colMeans(hailinsurance)
 clcov <- cov(hailinsurance)
 ```
 
-```{r}
+
+```r
 clcenter
+#>       [,1]       [,2] 
+#> 197898.973   1549.658
 clcov
+#>           [,1]       [,2]
+#> [,1] 854093524 12530366.4
+#> [,2]  12530366   622840.6
 ```
 
-```{r eval=F}
+
+```r
 # Add 97.5% tolerance ellipsoid
 rad <- 
     sqrt(qchisq(0.975, ncol(hailinsurance))) %>% 
@@ -1535,17 +2239,37 @@ The function `qchisq` calculates a quantile from the chisquare distribution by g
 `Animals`
 : containing the average brain and body weights for 28 species of land animals.
 
-```{r}
+
+```r
 library(MASS) 
 data("Animals")
 head(Animals)
+#> # A tibble: 6 x 2
+#>       body brain
+#> *    <dbl> <dbl>
+#> 1     1.35   8.1
+#> 2   465    423  
+#> 3    36.3  120. 
+#> 4    27.7  115  
+#> 5     1.04   5.5
+#> 6 11700     50
 Animals <- 
     Animals %>% 
     mutate_all(log)
 head(Animals)
+#> # A tibble: 6 x 2
+#>     body brain
+#> *  <dbl> <dbl>
+#> 1 0.300   2.09
+#> 2 6.14    6.05
+#> 3 3.59    4.78
+#> 4 3.32    4.74
+#> 5 0.0392  1.70
+#> 6 9.37    3.91
 ```
 
-```{r}
+
+```r
 Animals %>% 
     gather(key,value,body:brain) %>% 
     ggplot(aes(x = key, y = value)) +
@@ -1554,7 +2278,10 @@ Animals %>%
     xlab("")
 ```
 
-```{r}
+![](datacamp_files/figure-gfm/unnamed-chunk-86-1.png)<!-- -->
+
+
+```r
 fig <- 
     Animals %>% 
     ggplot(aes(x = body, y = brain)) + 
@@ -1564,7 +2291,10 @@ fig <-
 fig
 ```
 
-```{r}
+![](datacamp_files/figure-gfm/unnamed-chunk-87-1.png)<!-- -->
+
+
+```r
 X <- Animals
 animals.clcenter <- colMeans(X) 
 animals.clcov <- cov(X)
@@ -1594,20 +2324,29 @@ fig <-
 fig
 ```
 
+![](datacamp_files/figure-gfm/unnamed-chunk-88-1.png)<!-- -->
+
 ### Minimum Covariance Determinant (MCD)
 
 <input type="checkbox" id="checkbox1" class="styled">MCD looks for those h observations whose classical covariance matrix has the lowest possible determinant.
 
-```{r}
+
+```r
 library(robustbase) 
 animals.mcd <- covMcd(X)
 # Robust estimate of location
 animals.mcd$center
+#>     body    brain 
+#> 3.028827 4.275608
 # Robust estimate of scatter
 animals.mcd$cov
+#>           body    brain
+#> body  18.85849 14.16031
+#> brain 14.16031 11.03351
 ```
 
-```{r}
+
+```r
 library(robustbase)
 animals.mcd <- covMcd(X)
 ellipse.mcd <- 
@@ -1627,6 +2366,8 @@ fig <-
 fig
 ```
 
+![](datacamp_files/figure-gfm/unnamed-chunk-90-1.png)<!-- -->
+
 ### Distance-distance plot
 
 当变量为三个时，可以用3D图进行可视化，但是
@@ -1640,9 +2381,12 @@ versus its classical Mahalanobis distance, obtained immediately from `MCD` objec
 <input type="checkbox" id="checkbox1" class="styled">distance-distance plot 没有理解
 <input type="checkbox" id="checkbox1" class="styled">如何导出outlier呢?
 
-```{r}
+
+```r
 plot(animals.mcd, which = "dd")
 ```
+
+![](datacamp_files/figure-gfm/unnamed-chunk-91-1.png)<!-- -->
 
 ## other
 
