@@ -1,6 +1,14 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+### 2018-11-28 13:15:36
+
+1.  knit datacamp.Rmd and joshua.Rmd
+
+### 2018-11-28 12:44:31
+
+1.  新增 Kaggle 数据
+
 ### 2018-11-26 11:23:01
 
 1.  更新 `ellipse` 函数的报错

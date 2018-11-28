@@ -14,6 +14,14 @@ There is a lack of public available datasets on financial services and specially
 
 专门做网贷的数据。
 
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
 ```{r eval=F}
 library(data.table)
 raw_data <- fread('PS_20174392719_1491204439457_log.csv')

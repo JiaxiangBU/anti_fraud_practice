@@ -7,7 +7,61 @@
 2.  Network features <!-- 老柴 -->
 3.  the imbalance or skewness of the data and
 4.  the various costs for different types of misclassification
-5.  digit analysis
+5.  digit
+    analysis
+
+<input type="checkbox" id="checkbox1" class="styled">整理主要内容
+
+    ## -- Attaching packages -------------------------------------------------------------------------------------------------------------- tidyverse 1.2.1 --
+
+    ## √ ggplot2 3.1.0     √ purrr   0.2.5
+    ## √ tibble  1.4.2     √ dplyr   0.7.8
+    ## √ tidyr   0.8.2     √ stringr 1.3.1
+    ## √ ggplot2 3.1.0     √ forcats 0.3.0
+
+    ## -- Conflicts ----------------------------------------------------------------------------------------------------------------- tidyverse_conflicts() --
+    ## x dplyr::filter() masks stats::filter()
+    ## x dplyr::lag()    masks stats::lag()
+
+    ## 
+    ## Attaching package: 'data.table'
+
+    ## The following objects are masked from 'package:dplyr':
+    ## 
+    ##     between, first, last
+
+    ## The following object is masked from 'package:purrr':
+    ## 
+    ##     transpose
+
+    ## here() starts at D:/weDo/anti_fraud_practice
+
+    ## 
+    ## Attaching package: 'igraph'
+
+    ## The following objects are masked from 'package:dplyr':
+    ## 
+    ##     as_data_frame, groups, union
+
+    ## The following objects are masked from 'package:purrr':
+    ## 
+    ##     compose, simplify
+
+    ## The following object is masked from 'package:tidyr':
+    ## 
+    ##     crossing
+
+    ## The following object is masked from 'package:tibble':
+    ## 
+    ##     as_data_frame
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     decompose, spectrum
+
+    ## The following object is masked from 'package:base':
+    ## 
+    ##     union
 
 # Imbalance phenomena
 
@@ -116,7 +170,7 @@ ggplot(df, aes(x = 1, weight = pct, fill = class)) +
     theme_nothing()
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 Here is the imbalance of data.
 
@@ -248,7 +302,7 @@ clock <- ggplot(data.frame(ts), aes(x = ts)) +
 plot(clock)
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 因此发现有一个出现在晚上6点半左右，那么就算异常。
 
@@ -375,7 +429,7 @@ freq_channel_tbl02 <-
 setequal(freq_channel_tbl01,freq_channel_tbl02)
 ```
 
-    ## TRUE
+    ## [1] TRUE
 
 ``` r
 freq_channel_tbl02 %>% 
@@ -397,14 +451,13 @@ freq_channel_tbl02 %>%
 # Recency features
 
 <input type="checkbox" id="checkbox1" class="styled"> how to add bracket
-in
-ggplot
+in ggplot
 
 ``` r
 knitr::include_graphics(here::here('pic','recencyfeature.png'))
 ```
 
-![](/Users/vija/Downloads/180805_folder_01/tmp_jli/trans/projIN/anti_fraud_practice/pic/recencyfeature.png)<!-- -->
+![](D:/weDo/anti_fraud_practice/pic/recencyfeature.png)<!-- -->
 
 \[\text{recency} = e^{-\gamma t}\]
 
@@ -427,7 +480,7 @@ expand.grid(
     geom_line()
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 1.  recency descreases by time interval.
 2.  recency desceases more by gamma increasing.
@@ -560,10 +613,10 @@ net <- graph_from_data_frame(transfers, directed = F)
 net
 ```
 
-    ## IGRAPH 524f5b2 UN-- 82 60 -- 
+    ## IGRAPH 705ab26 UN-- 82 60 -- 
     ## + attr: name (v/c), beneficiary (e/c), amount (e/n), time (e/c),
     ## | benef_country (e/c), payment_channel (e/c)
-    ## + edges from 524f5b2 (vertex names):
+    ## + edges from 705ab26 (vertex names):
     ##  [1] 1 --I47 2 --I40 3 --I89 4 --I24 5 --I40 6 --I63 7 --I40 8 --I28
     ##  [9] 9 --I40 10--I44 11--I23 12--I41 13--I93 14--I28 15--I23 16--I28
     ## [17] 17--I40 18--I28 19--I63 20--I52 21--I25 22--I23 23--I28 24--I28
@@ -580,7 +633,7 @@ plot(net,
      vertex.label.font = 2)
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 ``` r
 edges <- fread(here::here('data','edges.csv')) %>% 
@@ -592,7 +645,7 @@ net <- graph_from_data_frame(edges, directed = FALSE)
 plot(net, layout = layout.circle)
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
 
 ``` r
 # Specify new edge attributes width and curved
@@ -614,7 +667,7 @@ edge_attr(net)
 plot(net, layout = layout.circle)
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-21-2.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-20-2.png)<!-- -->
 
 > Fraudsters tend to cluster together:
 > 
@@ -741,7 +794,7 @@ kite <- graph_from_data_frame(kite,directed = F)
 plot(kite)
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
 ### degree
 
@@ -766,7 +819,7 @@ which.max(degree(kite))
 plot(kite, vertex.size = 6 * degree(kite))
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
 
 ### Closeness
 
@@ -793,7 +846,7 @@ which.max(closeness(kite))
 plot(kite, vertex.size = 500 * closeness(kite))
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 ### betweenness
 
@@ -820,7 +873,7 @@ which.max(betweenness(kite))
 plot(kite, vertex.size = 5 * betweenness(kite))
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 ``` r
 net <- fread(here::here('data','net.csv')) %>% 
@@ -838,7 +891,7 @@ plot(net)
 legend("bottomleft", legend = c("known money mule", "legit account"), fill = c("darkorange", "lightblue"), bty = "n")
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 ``` r
 print(account_info)
@@ -1009,7 +1062,7 @@ creditcard %>%
     geom_point(alpha=0.2)
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
 
 ``` r
 # imbalance is an issue.
@@ -1027,7 +1080,7 @@ creditcard %>%
     ##   Class       n
     ##   <int>   <dbl>
     ## 1     0 0.998  
-    ## 2     1 0.00190
+    ## 2     1 0.00165
 
 Use `ovun.sample` from `ROSE` package to do over/under - sampling or
 combination of the two.
@@ -1040,7 +1093,7 @@ combination of the two.
 sum(creditcard$Class == 0)
 ```
 
-    ## [1] 28427
+    ## [1] 28434
 
 ``` r
 # sum(creditcard$Class == 0)/(1-0.4) is the desired sample size.
@@ -1059,7 +1112,7 @@ table(oversampled_credit$Class)
 
     ## 
     ##     0     1 
-    ## 28427 18951
+    ## 28434 18956
 
 ``` r
 table(creditcard$Class)
@@ -1067,15 +1120,15 @@ table(creditcard$Class)
 
     ## 
     ##     0     1 
-    ## 28427    54
+    ## 28434    47
 
 ``` r
 prop.table(table(oversampled_credit$Class))
 ```
 
     ## 
-    ##         0         1 
-    ## 0.6000042 0.3999958
+    ##   0   1 
+    ## 0.6 0.4
 
 ``` r
 prop.table(table(creditcard$Class))
@@ -1083,7 +1136,7 @@ prop.table(table(creditcard$Class))
 
     ## 
     ##           0           1 
-    ## 0.998103999 0.001896001
+    ## 0.998349777 0.001650223
 
 完成sampling的工作。
 
@@ -1095,7 +1148,7 @@ oversampled_credit %>%
     geom_point(alpha=0.2)
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
 
 ``` r
 # imbalance is solved.
@@ -1109,7 +1162,7 @@ oversampled_credit %>%
 sum(creditcard$Class == 1)
 ```
 
-    ## [1] 54
+    ## [1] 47
 
 ``` r
 # sum(creditcard$Class == 1)/0.4 is the desired sample size.
@@ -1127,15 +1180,15 @@ table(undersampled_credit$Class)
 
     ## 
     ##  0  1 
-    ## 81 54
+    ## 70 47
 
 ``` r
 prop.table(table(undersampled_credit$Class))
 ```
 
     ## 
-    ##   0   1 
-    ## 0.6 0.4
+    ##         0         1 
+    ## 0.5982906 0.4017094
 
 ``` r
 undersampled_credit %>% 
@@ -1144,7 +1197,7 @@ undersampled_credit %>%
     geom_point(alpha=0.2)
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
 
 ``` r
 # imbalance is solved.
@@ -1184,7 +1237,7 @@ table(creditcard$Class)
 
     ## 
     ##     0     1 
-    ## 28427    54
+    ## 28434    47
 
 ``` r
 # both actions are done.
@@ -1199,7 +1252,7 @@ bothsampled_credit %>%
     geom_point(alpha=0.2)
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-41-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-40-1.png)<!-- -->
 
 ``` r
 # imbalance is solved.
@@ -1264,8 +1317,8 @@ prop.table(table(credit_smote$Class))
 ```
 
     ## 
-    ##         0         1 
-    ## 0.6006508 0.3993492
+    ##       0       1 
+    ## 0.60019 0.39981
 
 ``` r
 ggplot(creditcard, aes(x = V1, y = V2, color = factor(Class))) +
@@ -1273,7 +1326,7 @@ ggplot(creditcard, aes(x = V1, y = V2, color = factor(Class))) +
     scale_color_manual(values = c('dodgerblue2', 'red'))
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-43-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-42-1.png)<!-- -->
 
 ``` r
 ggplot(credit_smote, aes(x = V1, y = V2, color = factor(Class))) +
@@ -1281,7 +1334,7 @@ ggplot(credit_smote, aes(x = V1, y = V2, color = factor(Class))) +
   scale_color_manual(values = c('dodgerblue2', 'red'))
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-43-2.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-42-2.png)<!-- -->
 
 1.  你会发现，通过SMOTE算法，以后很多点连成了直线，具体见 @ref(smoteintro)
 
@@ -1333,25 +1386,25 @@ confusionMatrix(
     ## 
     ##           Reference
     ## Prediction     0     1
-    ##          0 14211    10
-    ##          1     5    15
+    ##          0 14215    17
+    ##          1     3     6
     ##                                           
-    ##                Accuracy : 0.9989          
-    ##                  95% CI : (0.9983, 0.9994)
-    ##     No Information Rate : 0.9982          
-    ##     P-Value [Acc > NIR] : 0.02221         
+    ##                Accuracy : 0.9986          
+    ##                  95% CI : (0.9978, 0.9991)
+    ##     No Information Rate : 0.9984          
+    ##     P-Value [Acc > NIR] : 0.30992         
     ##                                           
-    ##                   Kappa : 0.6661          
-    ##  Mcnemar's Test P-Value : 0.30170         
+    ##                   Kappa : 0.3744          
+    ##  Mcnemar's Test P-Value : 0.00365         
     ##                                           
-    ##             Sensitivity : 0.9996          
-    ##             Specificity : 0.6000          
-    ##          Pos Pred Value : 0.9993          
-    ##          Neg Pred Value : 0.7500          
-    ##              Prevalence : 0.9982          
-    ##          Detection Rate : 0.9979          
-    ##    Detection Prevalence : 0.9986          
-    ##       Balanced Accuracy : 0.7998          
+    ##             Sensitivity : 0.9998          
+    ##             Specificity : 0.2609          
+    ##          Pos Pred Value : 0.9988          
+    ##          Neg Pred Value : 0.6667          
+    ##              Prevalence : 0.9984          
+    ##          Detection Rate : 0.9982          
+    ##    Detection Prevalence : 0.9994          
+    ##       Balanced Accuracy : 0.6303          
     ##                                           
     ##        'Positive' Class : 0               
     ## 
@@ -1361,7 +1414,7 @@ library(pROC)
 auc(roc(response = test$Class, predictor = scores01))
 ```
 
-    ## Area under the curve: 0.8398
+    ## Area under the curve: 0.6955
 
 ``` r
 library(smotefamily) 
@@ -1378,7 +1431,7 @@ prop.table(table(train$Class))
 
     ## 
     ##           0           1 
-    ## 0.997963483 0.002036517
+    ## 0.998314607 0.001685393
 
 ``` r
 prop.table(table(train_oversampled$Class))
@@ -1386,7 +1439,7 @@ prop.table(table(train_oversampled$Class))
 
     ## 
     ##          0          1 
-    ## 0.90573614 0.09426386
+    ## 0.92072539 0.07927461
 
 ``` r
 library(rpart)
@@ -1409,25 +1462,25 @@ confusionMatrix(
     ## 
     ##           Reference
     ## Prediction     0     1
-    ##          0 14211    10
-    ##          1     5    15
+    ##          0 14215    17
+    ##          1     3     6
     ##                                           
-    ##                Accuracy : 0.9989          
-    ##                  95% CI : (0.9983, 0.9994)
-    ##     No Information Rate : 0.9982          
-    ##     P-Value [Acc > NIR] : 0.02221         
+    ##                Accuracy : 0.9986          
+    ##                  95% CI : (0.9978, 0.9991)
+    ##     No Information Rate : 0.9984          
+    ##     P-Value [Acc > NIR] : 0.30992         
     ##                                           
-    ##                   Kappa : 0.6661          
-    ##  Mcnemar's Test P-Value : 0.30170         
+    ##                   Kappa : 0.3744          
+    ##  Mcnemar's Test P-Value : 0.00365         
     ##                                           
-    ##             Sensitivity : 0.9996          
-    ##             Specificity : 0.6000          
-    ##          Pos Pred Value : 0.9993          
-    ##          Neg Pred Value : 0.7500          
-    ##              Prevalence : 0.9982          
-    ##          Detection Rate : 0.9979          
-    ##    Detection Prevalence : 0.9986          
-    ##       Balanced Accuracy : 0.7998          
+    ##             Sensitivity : 0.9998          
+    ##             Specificity : 0.2609          
+    ##          Pos Pred Value : 0.9988          
+    ##          Neg Pred Value : 0.6667          
+    ##              Prevalence : 0.9984          
+    ##          Detection Rate : 0.9982          
+    ##    Detection Prevalence : 0.9994          
+    ##       Balanced Accuracy : 0.6303          
     ##                                           
     ##        'Positive' Class : 0               
     ## 
@@ -1437,7 +1490,7 @@ library(pROC)
 auc(roc(response = test$Class, predictor = scores02))
 ```
 
-    ## Area under the curve: 0.8398
+    ## Area under the curve: 0.6955
 
 SMOTE 并不是每次都有效果，因此要通过这种方法进行验证。
 
@@ -1450,7 +1503,7 @@ here::here('pic','cost_matrix.png') %>%
     knitr::include_graphics()
 ```
 
-![](/Users/vija/Downloads/180805_folder_01/tmp_jli/trans/projIN/anti_fraud_practice/pic/cost_matrix.png)<!-- -->
+![](D:/weDo/anti_fraud_practice/pic/cost_matrix.png)<!-- -->
 
 如图，一共有两种成本
 
@@ -1486,7 +1539,7 @@ cost_model(
 )
 ```
 
-    ## [1] 818.15
+    ## [1] 4999.24
 
 ``` r
 cost_model(
@@ -1497,7 +1550,7 @@ cost_model(
 )
 ```
 
-    ## [1] 818.15
+    ## [1] 4999.24
 
 1.  说明SMOTE
 算法无效。
@@ -1568,7 +1621,7 @@ bfd.fib <- benford(fibnum,
 plot(bfd.fib)
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-55-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-54-1.png)<!-- -->
 
 ## Test on `census.2009`
 
@@ -1588,7 +1641,7 @@ bfd.cen <- benford(census.2009$pop.2009, number.of.digits = 1)
 plot(bfd.cen, except = c("second order", "summation", "mantissa", "chi squared","abs diff", "ex summation", "Legend"), multiple = F) 
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-56-1.png)<!-- -->![](datacamp_files/figure-gfm/unnamed-chunk-56-2.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-55-1.png)<!-- -->![](datacamp_files/figure-gfm/unnamed-chunk-55-2.png)<!-- -->
 
 ``` r
 census.2009 %>% 
@@ -1607,7 +1660,7 @@ census.2009 %>%
     geom_line()
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-57-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-56-1.png)<!-- -->
 
 ``` r
 # Multiply the data by 3 and check conformity again
@@ -1616,7 +1669,7 @@ bfd.cen3 <- benford(data, number.of.digits=1)
 plot(bfd.cen3, except = c("second order", "summation", "mantissa", "chi squared","abs diff", "ex summation", "Legend"), multiple = F)
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-58-1.png)<!-- -->![](datacamp_files/figure-gfm/unnamed-chunk-58-2.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-57-1.png)<!-- -->![](datacamp_files/figure-gfm/unnamed-chunk-57-2.png)<!-- -->
 
 1.  因此满足 benford 定律。
 2.  `plot.Benford`存在bug。
@@ -1717,21 +1770,21 @@ bfd.cen <- benford(census.2009$pop.2009,number.of.digits = 2)
 plot(bfd.cen)
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-60-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-59-1.png)<!-- -->
 
 ``` r
 bfd1.exp <- benford(expenses,  number.of.digits = 1) 
 plot(bfd1.exp)
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-61-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-60-1.png)<!-- -->
 
 ``` r
 bfd2.exp <- benford(expenses, number.of.digits = 2) 
 plot(bfd2.exp)
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-61-2.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-60-2.png)<!-- -->
 
 ## how to use
 
@@ -1794,7 +1847,7 @@ thexp <- thexp$thexp
 bp.thexp <- boxplot(thexp, col = "lightblue", main = "Standard boxplot", ylab = "Total household expenditure")
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-65-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-64-1.png)<!-- -->
 
 ``` r
 # Extract the outliers from the data
@@ -1811,7 +1864,7 @@ library(robustbase)
 adj.thexp <- adjbox(thexp, col = "lightblue", main = "Adjusted boxplot", ylab = "Total household expenditure")
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-65-2.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-64-2.png)<!-- -->
 
 > However, when the data are skewed, usually many points exceed the
 > whiskers and are often erroneously declared as outliers. An adjustment
@@ -1833,7 +1886,7 @@ adj.thexp <- adjbox(thexp, col = "lightblue", main = "Adjusted boxplot", ylab = 
 knitr::include_graphics(here::here('pic','mahalanobiseuclidean_ggplot.png'))
 ```
 
-![](/Users/vija/Downloads/180805_folder_01/tmp_jli/trans/projIN/anti_fraud_practice/pic/mahalanobiseuclidean_ggplot.png)<!-- -->
+![](D:/weDo/anti_fraud_practice/pic/mahalanobiseuclidean_ggplot.png)<!-- -->
 
 > Mahalanobis (or generalized) distance for observation is the distance
 > from this observation to the center, taking into account the
@@ -1862,7 +1915,7 @@ hailinsurance <-
 plot(hailinsurance)
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-68-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-67-1.png)<!-- -->
 
 1.  如图，可以发现有异常值。
 
@@ -1895,6 +1948,8 @@ rad <-
     sqrt(qchisq(0.975, ncol(hailinsurance))) %>% 
     sqrt
 library(car)
+plot(hailinsurance)
+# call plot before 
 ellipse(center = clcenter, shape = clcov, radius = rad, col = "blue", lty = 2)
 ```
 
@@ -1903,7 +1958,7 @@ ellipse(center = clcenter, shape = clcov, radius = rad, col = "blue", lty = 2)
 产生报错 `Error in plot.xy(xy.coords(x, y), type = type, ...) : plot.new has
 not been called yet` 已经在
 [https://community.rstudio.com/t/error-in-plot-xy-xy-coords-x-y-type-type-plot-new-has-not-been-called-yet/18750?u=econkid](Community)
-上提问了。
+上提问了。 解决方式是之前要先call `plot`。
 
 > The function `qchisq` calculates a quantile from the chisquare
 > distribution by giving as input parameters: 1) the probability
@@ -1959,7 +2014,7 @@ Animals %>%
     xlab("")
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-73-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-72-1.png)<!-- -->
 
 ``` r
 fig <- 
@@ -1971,7 +2026,7 @@ fig <-
 fig
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-74-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-73-1.png)<!-- -->
 
 ``` r
 X <- Animals
@@ -2003,7 +2058,7 @@ fig <-
 fig
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-75-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-74-1.png)<!-- -->
 
 ### Minimum Covariance Determinant (MCD)
 
@@ -2050,7 +2105,7 @@ fig <-
 fig
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-77-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-76-1.png)<!-- -->
 
 ### Distance-distance plot
 
@@ -2068,7 +2123,7 @@ plot 没有理解
 plot(animals.mcd, which = "dd")
 ```
 
-![](datacamp_files/figure-gfm/unnamed-chunk-78-1.png)<!-- -->
+![](datacamp_files/figure-gfm/unnamed-chunk-77-1.png)<!-- -->
 
 ## other
 
@@ -2080,12 +2135,6 @@ z-score 有robust boxplot 有箱型图
 
 书签
 <https://campus.datacamp.com/courses/fraud-detection-in-r/digit-analysis-and-robust-statistics?ex=9>
-
-## z-score
-
-作为分类变量
-
-adjboxStats PPT 上可以了解下。
 
 # Reference
 

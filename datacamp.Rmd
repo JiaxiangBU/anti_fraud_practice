@@ -24,7 +24,11 @@ bibliography: add.bib
 <input type="checkbox" id="checkbox1" class="styled">整理主要内容
 
 ```{r setup,echo = FALSE}
-knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  message = FALSE, warning = FALSE,
+  comment = "#>"
+)
 library(readr)
 library(tidyverse)
 library(data.table)
