@@ -25,9 +25,6 @@ bibliography: add.bib
 
 ```{r setup,echo = FALSE}
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
-```
-
-```{r setup,echo=FALSE}
 library(readr)
 library(tidyverse)
 library(data.table)
