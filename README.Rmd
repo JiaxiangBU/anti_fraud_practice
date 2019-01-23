@@ -1,4 +1,4 @@
-2019-01-23 13:52:44---
+---
 output: github_document
 ---
 
@@ -11,3 +11,9 @@ knitr::opts_chunk$set(
 )
 ```
 
+反欺诈分析和建模，一共有以下几种
+
+1. 使用循环时间分布
+1. 网络分析
+1. benfold 分析，前三参考 [学习笔记](datacamp.md)
+1. 使用 autoencoders 探查异常值，参考[jiaxiangbu](https://jiaxiangbu.github.io/learn_nn/keras_r/fraud_detection_wautoencoders.html)
