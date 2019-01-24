@@ -1202,116 +1202,11 @@ Such as
     1. 可以做特征工程
     
 这些可以不用记忆，等之后使用了再融会贯通。
-||||||| merged common ancestors
-=======
-```{r}
-cost_model(
-    predicted.classes = predicted_class01
-    ,true.classes = test$Class
-    ,amounts = test$Amount
-    ,fixedcost = 10
-)
-cost_model(
-    predicted.classes = predicted_class02
-    ,true.classes = test$Class
-    ,amounts = test$Amount
-    ,fixedcost = 10
-)
-```
 
-1. 说明SMOTE 算法无效。
-
-# Benford's law for digits
-
-## Benford's law for the first digit
-
-$$P(D_1 = d_1) = \log(d_1+1) - \log(d_1) = \log(1 + \frac{1}{d_1});d_1 = 1,\dots,9$$
-
-```{r}
-benford_data <- 
-    tibble(
-        d_1 = 1:9
-        ,P = log10(d_1+1) - log10(d_1)
-    )
-benford_data
-benford_data %>% 
-    summarise(sum(P))
-```
-
-1. 也可以检验概率和为1 
-
-## Test on the Fibonacci sequence
-
->
-The Fibonacci sequence is characterized by the fact that every number after the first two is the sum of the two preceding ones.
-[@BaesensFraud]
-
-```{r}
-n <- 1000
-fibnum <- numeric(n)
-fibnum[1] <- 1
-fibnum[2] <- 1
-for (i in 3:n) { 
-  fibnum[i] <- fibnum[i-1]+fibnum[i-2]
-} 
-head(fibnum)
-```
-
-
-```{r}
-library(benford.analysis)
-bfd.fib <- benford(fibnum,
-                number.of.digits = 1)
-plot(bfd.fib)
-```
-
-## Test on `census.2009`
-
-`census.2009`
-: contains the populations of 19509 towns and cities of the United States (July 2009) and was used in @Nigrini2012Benford.
-
-```{r}
-# Load package benford.analysis
-library(benford.analysis)
-data(census.2009)
-
-# Check conformity
-bfd.cen <- benford(census.2009$pop.2009, number.of.digits = 1) 
-plot(bfd.cen, except = c("second order", "summation", "mantissa", "chi squared","abs diff", "ex summation", "Legend"), multiple = F) 
-```
-
-
-```{r}
-census.2009 %>% 
-    transmute(pop.2009 = pop.2009 %>% 
-                  as.character %>% 
-                  str_sub(1,1) %>% 
-                  as.integer
-               ) %>% 
-    group_by(pop.2009) %>% 
-    count() %>% 
-    ungroup() %>% 
-    mutate(n = n/sum(n)) %>% 
-    mutate(benford = log10(1+1/pop.2009)) %>% 
-    gather(key,value,n:benford) %>% 
-    ggplot(aes(x=pop.2009,y=value,col=key)) +
-    geom_line()
-```
- 
- 
-```{r}
-# Multiply the data by 3 and check conformity again
-data <- census.2009$pop.2009 * 3
-bfd.cen3 <- benford(data, number.of.digits=1)
-plot(bfd.cen3, except = c("second order", "summation", "mantissa", "chi squared","abs diff", "ex summation", "Legend"), multiple = F)
-```
->>>>>>> fa6684efee460f284f61fd9d1fd6f08b62855b82
-
-<<<<<<< HEAD
 某些数据是不满足 Benfold 规则的，
-||||||| merged common ancestors
+
 # Digit analysis
-=======
+
 1. 因此满足 benford 定律。
 1. `plot.Benford`存在bug。
 
@@ -1351,7 +1246,6 @@ Such as
 这些可以不用记忆，等之后使用了再融会贯通。
 
 某些数据是不满足 Benfold 规则的，
->>>>>>> fa6684efee460f284f61fd9d1fd6f08b62855b82
 
 1. If there is lower and/or upper bound or data is concentrated in narrow interval, e.g. hourly wage rate, height of people.
 1. If numbers are used as identification numbers or labels, e.g. social security number, flight numbers, car license plate numbers, phone numbers.
