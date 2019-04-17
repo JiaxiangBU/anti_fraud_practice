@@ -1,3 +1,10 @@
+### 2019-04-17 20:44:09
+
+>
+Your site is having problems building: The symbolic link /packrat/lib-R/x86_64-apple-darwin15.6.0/3.5.1/KernSmooth targets a file which does not exist within your site's repository. For more information, see https://help.github.com/en/articles/page-build-failed-symlink-does-not-exist-within-your-sites-repository.
+
+删除了
+
 ### 2019-04-17 20:26:37
 
 intro-smote 只能放在 analysis 不然一些图片的相对路径等等，都会存在问题。
