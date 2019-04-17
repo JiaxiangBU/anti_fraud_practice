@@ -1,3 +1,9 @@
+### 2019-04-17 20:26:37
+
+intro-smote 只能放在 analysis 不然一些图片的相对路径等等，都会存在问题。
+最后使用 here::here 解决。
+`bibliography`需要重新统计。
+
 ### 2019-01-25 01:45:21
 
 1. ` >>>>>>> fa6684efee460f284f61fd9d1fd6f08b62855b82` fix conflict
