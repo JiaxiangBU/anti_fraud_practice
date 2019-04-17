@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>SMOTE 学习笔记</title>
+  <meta name="description" content="SMOTE 学习笔记">
+  <meta name="generator" content="bookdown  and GitBook 2.6.7">
+
+  <meta property="og:title" content="SMOTE 学习笔记" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="SMOTE 学习笔记" />
+  
+  
+  
+
+<meta name="author" content="李家翔">
+
+
+<meta name="date" content="2019-04-17">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+
+
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+<link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path=""><a href="#section"><i class="fa fa-check"></i><b>1</b> 理论部分和代码</a><ul>
+<li class="chapter" data-level="1.1" data-path=""><a href="#smoteintro"><i class="fa fa-check"></i><b>1.1</b> intro</a></li>
+<li class="chapter" data-level="1.2" data-path=""><a href="#modeling"><i class="fa fa-check"></i><b>1.2</b> modeling</a></li>
+<li class="chapter" data-level="1.3" data-path=""><a href="#split-train-and-test"><i class="fa fa-check"></i><b>1.3</b> split train and test</a></li>
+<li class="chapter" data-level="1.4" data-path=""><a href="#cost-model"><i class="fa fa-check"></i><b>1.4</b> cost model</a></li>
+<li class="chapter" data-level="1.5" data-path=""><a href="#split-train-and-test-1"><i class="fa fa-check"></i><b>1.5</b> split train and test</a></li>
+<li class="chapter" data-level="1.6" data-path=""><a href="#cost-model-1"><i class="fa fa-check"></i><b>1.6</b> cost model</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path=""><a href="#section-1"><i class="fa fa-check"></i><b>2</b> 相关评论</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">SMOTE 学习笔记</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="header">
+<h1 class="title">SMOTE 学习笔记</h1>
+<p class="author"><em>李家翔</em></p>
+<p class="date"><em>2019-04-17</em></p>
+</div>
+<div id="section" class="section level1">
+<h1><span class="header-section-number">1</span> 理论部分和代码</h1>
+<p>欺诈用户的样本存在严重的不平衡的问题，因此采样方法较常用。</p>
+<p><span class="citation">Chawla et al. (2002)</span> 提出SMOTE方法，用于解决不平衡样本的问题。</p>
+<div id="smoteintro" class="section level2">
+<h2><span class="header-section-number">1.1</span> intro</h2>
+<p><img src="../pic/smote_step1.png" /></p>
+<p>如图，红色点表示欺诈用户在两变量上的表现，分别连线。</p>
+<p><img src="../pic/smote_step2.png" /></p>
+<p>任意选择一点。</p>
+<p><img src="../pic/synthetic_case_3.png" /></p>
+<p>选择任意比例，构建两点间的一个样本。</p>
+<p><img src="../pic/smote_step3.png" /></p>
+<p>因此，SMOTE产生的新样本出现了。</p>
+<blockquote>
+<p><code>dup_size</code> parameter answers the question how many times SMOTE should loop through the existing, real fraud cases.</p>
+</blockquote>
+<p>同时参数<code>dup_size</code>给定SMOTE算法需要给每个<code>y=1</code>产生多少个新的样本。</p>
+</div>
+<div id="modeling" class="section level2">
+<h2><span class="header-section-number">1.2</span> modeling</h2>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(smotefamily)</code></pre>
+<pre><code>## Warning: package &#39;smotefamily&#39; was built under R version 3.5.3</code></pre>
+<blockquote>
+<p>SMOTE can only be applied based on numeric variables since it uses the euclidean distance to determine nearest neighbors.</p>
+</blockquote>
+<pre class="sourceCode r"><code class="sourceCode r">creditcard &lt;-<span class="st"> </span><span class="kw">read_rds</span>(here<span class="op">::</span><span class="kw">here</span>(<span class="st">&quot;data/creditcard-small.rds&quot;</span>))
+<span class="co"># Set the number of fraud and legitimate cases, and the desired percentage of legitimate cases</span>
+n1 &lt;-<span class="st"> </span><span class="kw">sum</span>(creditcard<span class="op">$</span>Class<span class="op">==</span><span class="dv">1</span>)
+n0 &lt;-<span class="st"> </span><span class="kw">sum</span>(creditcard<span class="op">$</span>Class<span class="op">==</span><span class="dv">0</span>)
+r0 &lt;-<span class="st"> </span><span class="fl">0.6</span>
+<span class="co"># r0: the desired percentage</span>
+
+<span class="co"># Calculate the value for the dup_size parameter of SMOTE</span>
+ntimes &lt;-<span class="st"> </span>((<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>r0) <span class="op">/</span><span class="st"> </span>r0) <span class="op">*</span><span class="st"> </span>(n0 <span class="op">/</span><span class="st"> </span>n1) <span class="op">-</span><span class="st"> </span><span class="dv">1</span>
+
+<span class="co"># Create synthetic fraud cases with SMOTE</span>
+<span class="kw">library</span>(data.table)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;data.table&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:dplyr&#39;:
+## 
+##     between, first, last</code></pre>
+<pre><code>## The following object is masked from &#39;package:purrr&#39;:
+## 
+##     transpose</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">smote_output &lt;-<span class="st"> </span><span class="kw">SMOTE</span>(<span class="dt">X =</span> creditcard <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>Time,Class), <span class="dt">target =</span> creditcard<span class="op">$</span>Class, <span class="dt">K =</span> <span class="dv">5</span>, <span class="dt">dup_size =</span> ntimes)
+<span class="co"># remove non-numeric vars</span>
+
+<span class="co"># Make a scatter plot of the original and over-sampled dataset</span>
+credit_smote &lt;-<span class="st"> </span>smote_output<span class="op">$</span>data
+<span class="kw">colnames</span>(credit_smote)[<span class="dv">30</span>] &lt;-<span class="st"> &quot;Class&quot;</span>
+<span class="kw">prop.table</span>(<span class="kw">table</span>(credit_smote<span class="op">$</span>Class))</code></pre>
+<pre><code>## 
+##         0         1 
+## 0.6004735 0.3995265</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(creditcard, <span class="kw">aes</span>(<span class="dt">x =</span> V1, <span class="dt">y =</span> V2, <span class="dt">color =</span> <span class="kw">factor</span>(Class))) <span class="op">+</span>
+<span class="st">    </span><span class="kw">geom_point</span>() <span class="op">+</span>
+<span class="st">    </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> <span class="kw">c</span>(<span class="st">&#39;dodgerblue2&#39;</span>, <span class="st">&#39;red&#39;</span>))</code></pre>
+<p><img src="intro-smote_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(credit_smote, <span class="kw">aes</span>(<span class="dt">x =</span> V1, <span class="dt">y =</span> V2, <span class="dt">color =</span> <span class="kw">factor</span>(Class))) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> <span class="kw">c</span>(<span class="st">&#39;dodgerblue2&#39;</span>, <span class="st">&#39;red&#39;</span>))</code></pre>
+<p><img src="intro-smote_files/figure-html/unnamed-chunk-4-2.png" width="672" /></p>
+<ol style="list-style-type: decimal">
+<li>你会发现，通过SMOTE算法，以后很多点连成了直线，具体见 <a href="#smoteintro">1.1</a></li>
+</ol>
+<details>
+<p><summary>报错<code>Errorin knearest(P_set, P_set, K) : 找不到对象'knD'</code></summary></p>
+<ol style="list-style-type: decimal">
+<li>函数为<code>smotefamily::SMOTE</code>
+1 <a href="https://blog.csdn.net/scc_hy/article/details/84190080">CSDN博客</a>介绍其他的R中SMOTE的包</li>
+<li>解决办法是<code>install.packages("FNN")</code>
+参考
+<a href="https://stackoverflow.com/questions/40206172/error-in-knearestdarr-p-set-k-object-knd-not-found?answertab=oldest">Stack Overflow</a></li>
+</ol>
+</details>
+<ol style="list-style-type: decimal">
+<li><input type="checkbox" id="checkbox1" class="styled"><code>ntimes &lt;- ((1 - r0) / r0) * (n0 / n1) - 1</code>理解公式</li>
+</ol>
+</div>
+<div id="split-train-and-test" class="section level2">
+<h2><span class="header-section-number">1.3</span> split train and test</h2>
+<p>这里用于验证SMOTE方法是否有提高模型效果。</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dim</span>(creditcard)</code></pre>
+<pre><code>## [1] 28481    31</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">123</span>)
+creditcard &lt;-<span class="st"> </span>creditcard <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">Class =</span> <span class="kw">as.factor</span>(Class))
+train_index &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="kw">nrow</span>(creditcard),<span class="kw">round</span>(<span class="fl">0.5</span><span class="op">*</span><span class="kw">nrow</span>(creditcard)))
+train &lt;-<span class="st"> </span>creditcard[train_index,]
+test &lt;-<span class="st"> </span>creditcard[<span class="op">-</span>train_index,]</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(rpart)
+model01 &lt;-<span class="st">  </span><span class="kw">rpart</span>(<span class="kw">factor</span>(Class) <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> train)
+<span class="kw">library</span>(caret)</code></pre>
+<pre><code>## Warning: package &#39;caret&#39; was built under R version 3.5.3</code></pre>
+<pre><code>## Loading required package: lattice</code></pre>
+<pre><code>## 
+## Attaching package: &#39;caret&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:purrr&#39;:
+## 
+##     lift</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">scores01 &lt;-<span class="st"> </span><span class="kw">predict</span>(model01,<span class="dt">newdata=</span>test,<span class="dt">type =</span> <span class="st">&quot;prob&quot;</span>)[,<span class="dv">2</span>]
+predicted_class01 &lt;-<span class="st"> </span><span class="kw">ifelse</span>(scores01<span class="op">&gt;</span><span class="fl">0.5</span>,<span class="dv">1</span>,<span class="dv">0</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">factor</span>()
+<span class="kw">confusionMatrix</span>(
+    <span class="dt">data =</span> predicted_class01
+    ,<span class="dt">reference =</span> test<span class="op">$</span>Class
+)</code></pre>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction     0     1
+##          0 14203     6
+##          1     1    31
+##                                          
+##                Accuracy : 0.9995         
+##                  95% CI : (0.999, 0.9998)
+##     No Information Rate : 0.9974         
+##     P-Value [Acc &gt; NIR] : 1.906e-09      
+##                                          
+##                   Kappa : 0.8983         
+##                                          
+##  Mcnemar&#39;s Test P-Value : 0.1306         
+##                                          
+##             Sensitivity : 0.9999         
+##             Specificity : 0.8378         
+##          Pos Pred Value : 0.9996         
+##          Neg Pred Value : 0.9688         
+##              Prevalence : 0.9974         
+##          Detection Rate : 0.9973         
+##    Detection Prevalence : 0.9978         
+##       Balanced Accuracy : 0.9189         
+##                                          
+##        &#39;Positive&#39; Class : 0              
+## </code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(pROC)</code></pre>
+<pre><code>## Type &#39;citation(&quot;pROC&quot;)&#39; for a citation.</code></pre>
+<pre><code>## 
+## Attaching package: &#39;pROC&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     cov, smooth, var</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">auc</span>(<span class="kw">roc</span>(<span class="dt">response =</span> test<span class="op">$</span>Class, <span class="dt">predictor =</span> scores01))</code></pre>
+<pre><code>## Area under the curve: 0.919</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(smotefamily) 
+<span class="kw">set.seed</span>(<span class="dv">123</span>)
+smote_result &lt;-<span class="st"> </span><span class="kw">SMOTE</span>(<span class="dt">X =</span> train <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>Class),<span class="dt">target =</span> train<span class="op">$</span>Class,<span class="dt">K =</span> <span class="dv">10</span>, <span class="dt">dup_size =</span> <span class="dv">50</span>)
+train_oversampled &lt;-<span class="st"> </span>
+<span class="st">    </span>smote_result<span class="op">$</span>data <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">Class =</span> class)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.table</span>(<span class="kw">table</span>(train<span class="op">$</span>Class))</code></pre>
+<pre><code>## 
+##           0           1 
+## 0.997331461 0.002668539</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.table</span>(<span class="kw">table</span>(train_oversampled<span class="op">$</span>Class))</code></pre>
+<pre><code>## 
+##         0         1 
+## 0.8799257 0.1200743</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(rpart)
+model02&lt;-<span class="st"> </span><span class="kw">rpart</span>(Class <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> train_oversampled)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(rpart)
+model02 &lt;-<span class="st">  </span><span class="kw">rpart</span>(<span class="kw">factor</span>(Class) <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> train)
+<span class="kw">library</span>(caret)
+scores02 &lt;-<span class="st"> </span><span class="kw">predict</span>(model02,<span class="dt">newdata=</span>test,<span class="dt">type =</span> <span class="st">&quot;prob&quot;</span>)[,<span class="dv">2</span>]
+predicted_class02 &lt;-<span class="st"> </span><span class="kw">ifelse</span>(scores02<span class="op">&gt;</span><span class="fl">0.5</span>,<span class="dv">1</span>,<span class="dv">0</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">factor</span>()
+<span class="kw">confusionMatrix</span>(
+    <span class="dt">data =</span> predicted_class02
+    ,<span class="dt">reference =</span> test<span class="op">$</span>Class
+)</code></pre>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction     0     1
+##          0 14203     6
+##          1     1    31
+##                                          
+##                Accuracy : 0.9995         
+##                  95% CI : (0.999, 0.9998)
+##     No Information Rate : 0.9974         
+##     P-Value [Acc &gt; NIR] : 1.906e-09      
+##                                          
+##                   Kappa : 0.8983         
+##                                          
+##  Mcnemar&#39;s Test P-Value : 0.1306         
+##                                          
+##             Sensitivity : 0.9999         
+##             Specificity : 0.8378         
+##          Pos Pred Value : 0.9996         
+##          Neg Pred Value : 0.9688         
+##              Prevalence : 0.9974         
+##          Detection Rate : 0.9973         
+##    Detection Prevalence : 0.9978         
+##       Balanced Accuracy : 0.9189         
+##                                          
+##        &#39;Positive&#39; Class : 0              
+## </code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(pROC)
+<span class="kw">auc</span>(<span class="kw">roc</span>(<span class="dt">response =</span> test<span class="op">$</span>Class, <span class="dt">predictor =</span> scores02))</code></pre>
+<pre><code>## Area under the curve: 0.919</code></pre>
+<p>SMOTE 并不是每次都有效果，因此要通过这种方法进行验证。</p>
+</div>
+<div id="cost-model" class="section level2">
+<h2><span class="header-section-number">1.4</span> cost model</h2>
+<p>在不平衡样本中，ACC是有误导的，因此引入成本矩阵。</p>
+<pre class="sourceCode r"><code class="sourceCode r">here<span class="op">::</span><span class="kw">here</span>(<span class="st">&#39;pic&#39;</span>,<span class="st">&#39;cost_matrix.png&#39;</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span>knitr<span class="op">::</span><span class="kw">include_graphics</span>()</code></pre>
+<p><img src="D:/work/anti_fraud_practice/pic/cost_matrix.png" width="490" /></p>
+<p><input type="checkbox" id="checkbox1" class="styled">SMOTE : Synthetic Minority Oversampling TEchnique (Chawla et al., 2002)</p>
+<ol style="list-style-type: decimal">
+<li>你会发现，通过SMOTE算法，以后很多点连成了直线，具体见 <a href="#smoteintro">1.1</a></li>
+</ol>
+<details>
+<p><summary>报错<code>Errorin knearest(P_set, P_set, K) : 找不到对象'knD'</code></summary></p>
+<ol style="list-style-type: decimal">
+<li>函数为<code>smotefamily::SMOTE</code>
+1 <a href="https://blog.csdn.net/scc_hy/article/details/84190080">CSDN博客</a>介绍其他的R中SMOTE的包</li>
+<li>解决办法是<code>install.packages("FNN")</code>
+参考
+<a href="https://stackoverflow.com/questions/40206172/error-in-knearestdarr-p-set-k-object-knd-not-found?answertab=oldest">Stack Overflow</a></li>
+</ol>
+</details>
+<ol style="list-style-type: decimal">
+<li><input type="checkbox" id="checkbox1" class="styled"><code>ntimes &lt;- ((1 - r0) / r0) * (n0 / n1) - 1</code>理解公式</li>
+</ol>
+</div>
+<div id="split-train-and-test-1" class="section level2">
+<h2><span class="header-section-number">1.5</span> split train and test</h2>
+<p>这里用于验证SMOTE方法是否有提高模型效果。</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dim</span>(creditcard)</code></pre>
+<pre><code>## [1] 28481    31</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">123</span>)
+creditcard &lt;-<span class="st"> </span>creditcard <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">Class =</span> <span class="kw">as.factor</span>(Class))
+train_index &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="kw">nrow</span>(creditcard),<span class="kw">round</span>(<span class="fl">0.5</span><span class="op">*</span><span class="kw">nrow</span>(creditcard)))
+train &lt;-<span class="st"> </span>creditcard[train_index,]
+test &lt;-<span class="st"> </span>creditcard[<span class="op">-</span>train_index,]</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(rpart)
+model01 &lt;-<span class="st">  </span><span class="kw">rpart</span>(<span class="kw">factor</span>(Class) <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> train)
+<span class="kw">library</span>(caret)
+scores01 &lt;-<span class="st"> </span><span class="kw">predict</span>(model01,<span class="dt">newdata=</span>test,<span class="dt">type =</span> <span class="st">&quot;prob&quot;</span>)[,<span class="dv">2</span>]
+predicted_class01 &lt;-<span class="st"> </span><span class="kw">ifelse</span>(scores01<span class="op">&gt;</span><span class="fl">0.5</span>,<span class="dv">1</span>,<span class="dv">0</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">factor</span>()
+<span class="kw">confusionMatrix</span>(
+    <span class="dt">data =</span> predicted_class01
+    ,<span class="dt">reference =</span> test<span class="op">$</span>Class
+)</code></pre>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction     0     1
+##          0 14203     6
+##          1     1    31
+##                                          
+##                Accuracy : 0.9995         
+##                  95% CI : (0.999, 0.9998)
+##     No Information Rate : 0.9974         
+##     P-Value [Acc &gt; NIR] : 1.906e-09      
+##                                          
+##                   Kappa : 0.8983         
+##                                          
+##  Mcnemar&#39;s Test P-Value : 0.1306         
+##                                          
+##             Sensitivity : 0.9999         
+##             Specificity : 0.8378         
+##          Pos Pred Value : 0.9996         
+##          Neg Pred Value : 0.9688         
+##              Prevalence : 0.9974         
+##          Detection Rate : 0.9973         
+##    Detection Prevalence : 0.9978         
+##       Balanced Accuracy : 0.9189         
+##                                          
+##        &#39;Positive&#39; Class : 0              
+## </code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(pROC)
+<span class="kw">auc</span>(<span class="kw">roc</span>(<span class="dt">response =</span> test<span class="op">$</span>Class, <span class="dt">predictor =</span> scores01))</code></pre>
+<pre><code>## Area under the curve: 0.919</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(smotefamily) 
+<span class="kw">set.seed</span>(<span class="dv">123</span>)
+smote_result &lt;-<span class="st"> </span><span class="kw">SMOTE</span>(<span class="dt">X =</span> train <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>Class),<span class="dt">target =</span> train<span class="op">$</span>Class,<span class="dt">K =</span> <span class="dv">10</span>, <span class="dt">dup_size =</span> <span class="dv">50</span>)
+train_oversampled &lt;-<span class="st"> </span>
+<span class="st">    </span>smote_result<span class="op">$</span>data <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">Class =</span> class)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.table</span>(<span class="kw">table</span>(train<span class="op">$</span>Class))</code></pre>
+<pre><code>## 
+##           0           1 
+## 0.997331461 0.002668539</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.table</span>(<span class="kw">table</span>(train_oversampled<span class="op">$</span>Class))</code></pre>
+<pre><code>## 
+##         0         1 
+## 0.8799257 0.1200743</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(rpart)
+model02&lt;-<span class="st"> </span><span class="kw">rpart</span>(Class <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> train_oversampled)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(rpart)
+model02 &lt;-<span class="st">  </span><span class="kw">rpart</span>(<span class="kw">factor</span>(Class) <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> train)
+<span class="kw">library</span>(caret)
+scores02 &lt;-<span class="st"> </span><span class="kw">predict</span>(model02,<span class="dt">newdata=</span>test,<span class="dt">type =</span> <span class="st">&quot;prob&quot;</span>)[,<span class="dv">2</span>]
+predicted_class02 &lt;-<span class="st"> </span><span class="kw">ifelse</span>(scores02<span class="op">&gt;</span><span class="fl">0.5</span>,<span class="dv">1</span>,<span class="dv">0</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">factor</span>()
+<span class="kw">confusionMatrix</span>(
+    <span class="dt">data =</span> predicted_class02
+    ,<span class="dt">reference =</span> test<span class="op">$</span>Class
+)</code></pre>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction     0     1
+##          0 14203     6
+##          1     1    31
+##                                          
+##                Accuracy : 0.9995         
+##                  95% CI : (0.999, 0.9998)
+##     No Information Rate : 0.9974         
+##     P-Value [Acc &gt; NIR] : 1.906e-09      
+##                                          
+##                   Kappa : 0.8983         
+##                                          
+##  Mcnemar&#39;s Test P-Value : 0.1306         
+##                                          
+##             Sensitivity : 0.9999         
+##             Specificity : 0.8378         
+##          Pos Pred Value : 0.9996         
+##          Neg Pred Value : 0.9688         
+##              Prevalence : 0.9974         
+##          Detection Rate : 0.9973         
+##    Detection Prevalence : 0.9978         
+##       Balanced Accuracy : 0.9189         
+##                                          
+##        &#39;Positive&#39; Class : 0              
+## </code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(pROC)
+<span class="kw">auc</span>(<span class="kw">roc</span>(<span class="dt">response =</span> test<span class="op">$</span>Class, <span class="dt">predictor =</span> scores02))</code></pre>
+<pre><code>## Area under the curve: 0.919</code></pre>
+<p>SMOTE 并不是每次都有效果，因此要通过这种方法进行验证。</p>
+</div>
+<div id="cost-model-1" class="section level2">
+<h2><span class="header-section-number">1.6</span> cost model</h2>
+<p>在不平衡样本中，ACC是有误导的，因此引入成本矩阵。</p>
+<pre class="sourceCode r"><code class="sourceCode r">here<span class="op">::</span><span class="kw">here</span>(<span class="st">&#39;pic&#39;</span>,<span class="st">&#39;cost_matrix.png&#39;</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span>knitr<span class="op">::</span><span class="kw">include_graphics</span>()</code></pre>
+<p><img src="D:/work/anti_fraud_practice/pic/cost_matrix.png" width="490" /></p>
+<p>如图，一共有两种成本</p>
+<p><input type="checkbox" id="checkbox1" class="styled">仿照PPT出题</p>
+<ol style="list-style-type: decimal">
+<li>Cost of analyzing the case</li>
+<li>被欺诈损失的本金</li>
+</ol>
+<p>加入SMOTE 的结构后，模型变得更加复杂了，更好了。</p>
+<p>因此成本函数可以定义为</p>
+<p><code>cost_model</code> 定义。</p>
+<p><span class="math display">\[Cost(\text{model})=\sum_{i=1}^{N}y_i(1-\hat y_i)\text{Amount}_i + \hat y_i C_a\]</span></p>
+<ol style="list-style-type: decimal">
+<li><span class="math inline">\(y_i\)</span>为真实值</li>
+<li><span class="math inline">\(\hat y_i\)</span>为预测值</li>
+</ol>
+<p>ACC 是有误导的。</p>
+<pre class="sourceCode r"><code class="sourceCode r">cost_model &lt;-<span class="st"> </span><span class="cf">function</span>(predicted.classes, true.classes, amounts, fixedcost) {
+  <span class="kw">library</span>(hmeasure)
+  predicted.classes &lt;-<span class="st"> </span><span class="kw">relabel</span>(predicted.classes)
+  true.classes &lt;-<span class="st"> </span><span class="kw">relabel</span>(true.classes)
+  cost &lt;-<span class="st"> </span><span class="kw">sum</span>(true.classes <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>predicted.classes) <span class="op">*</span><span class="st"> </span>amounts <span class="op">+</span><span class="st"> </span>predicted.classes <span class="op">*</span><span class="st"> </span>fixedcost)
+  <span class="kw">return</span>(cost)
+}</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cost_model</span>(
+    <span class="dt">predicted.classes =</span> predicted_class01
+    ,<span class="dt">true.classes =</span> test<span class="op">$</span>Class
+    ,<span class="dt">amounts =</span> test<span class="op">$</span>Amount
+    ,<span class="dt">fixedcost =</span> <span class="dv">10</span>
+)</code></pre>
+<pre><code>## Warning: package &#39;hmeasure&#39; was built under R version 3.5.3</code></pre>
+<pre><code>## [1] 1356.12</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cost_model</span>(
+    <span class="dt">predicted.classes =</span> predicted_class02
+    ,<span class="dt">true.classes =</span> test<span class="op">$</span>Class
+    ,<span class="dt">amounts =</span> test<span class="op">$</span>Amount
+    ,<span class="dt">fixedcost =</span> <span class="dv">10</span>
+)</code></pre>
+<pre><code>## [1] 1356.12</code></pre>
+<ol style="list-style-type: decimal">
+<li>说明SMOTE 算法无效。</li>
+</ol>
+</div>
+</div>
+<div id="section-1" class="section level1">
+<h1><span class="header-section-number">2</span> 相关评论</h1>
+<p>理论上，不平衡样本不是大问题。
+样本的平衡程度是影响逻辑回归的截距，但是截距一般是不重要的，因为可以剔除，因为在进行切bin时，我们选择<code>cut_number</code>的方式，均分样本，截距大小不影响切分<span class="citation">(狗熊会 2018)</span>。</p>
+<p>但是实际工作中还是有影响，这里使用SMOTE算法。
+SMOTE算法是由 <span class="citation">Chawla et al. (2002)</span> 剔除，这是一种过采样，over sampling。
+新增数据的方法是随机选择<span class="math inline">\(m\)</span>个少类样本，找到靠近这<span class="math inline">\(m\)</span>个样本的<span class="math inline">\(n\)</span>个样本，随机选择这<span class="math inline">\(n\)</span>个样本的其二，连线得到一个点，这个点就是新增样本<span class="citation">(刘建平 2018; 机器学习之旅 2018)</span>。</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(“DMwR”,<span class="dt">dependencies=</span>T)
+<span class="kw">library</span>(DMwR)
+<span class="co">#加载smote包</span>
+newdata=<span class="kw">SMOTE</span>(formula,data,<span class="dt">perc.over=</span>,<span class="dt">perc.under=</span>)
+<span class="co">#formula:申明自变量因变量</span>
+<span class="co">#perc.over：过采样次数</span>
+<span class="co">#perc.under：欠采样次数</span></code></pre>
+<div id="refs" class="references">
+<div id="ref-Chawla2002SMOTE">
+<p>Chawla, Nitesh V., Kevin W. Bowyer, Lawrence O. Hall, and W. Philip Kegelmeyer. 2002. “SMOTE: Synthetic Minority over-Sampling Technique.” <em>Journal of Artificial Intelligence Research</em> 16 (1): 321–57.</p>
+</div>
+<div id="ref-刘建平SMOTE">
+<p>刘建平. 2018. “特征工程之特征预处理.” 2018. <a href="https://www.cnblogs.com/pinard/p/9093890.html">https://www.cnblogs.com/pinard/p/9093890.html</a>.</p>
+</div>
+<div id="ref-机器学习之旅smote">
+<p>机器学习之旅. 2018. “不平衡数据处理实战(smote).” 2018. <a href="https://mp.weixin.qq.com/s/xS2w3hEQEEZpY6mZVz3KWg">https://mp.weixin.qq.com/s/xS2w3hEQEEZpY6mZVz3KWg</a>.</p>
+</div>
+<div id="ref-狗熊会正负样本分布不均衡">
+<p>狗熊会. 2018. “再论正负样本分布不均衡问题.” 2018. <a href="https://mp.weixin.qq.com/s/y-IEltRsmNdbZGyO2hBrwA">https://mp.weixin.qq.com/s/y-IEltRsmNdbZGyO2hBrwA</a>.</p>
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+},
+"search": false
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(src))
+      src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

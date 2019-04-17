@@ -1,0 +1,22 @@
+---
+title: SMOTE 学习笔记
+author: 李家翔
+date: "`r Sys.Date()`"
+output: 
+    bookdown::gitbook:
+        split_by: none
+        split_bib: TRUE
+        df_print: paged
+bibliography: [../add.bib, ../../blog_181126/content/post/add.bib]
+---
+
+# 理论部分和代码
+
+```{r,child="smote.Rmd"}
+```
+
+# 相关评论
+
+```{r,child="comments.Rmd"}
+```
+
