@@ -20,3 +20,9 @@ bibliography: [../add.bib, ../../blog_181126/content/post/add.bib]
 ```{r,child="comments.Rmd"}
 ```
 
+# 和欠采样和过采样的关系
+
+```{r,child="relation-sampling.Rmd"}
+```
+
+# 参考文献 {-}

@@ -1,3 +1,8 @@
+### 2019-04-17 21:22:20
+
+1. add 和欠采样和过采样的关系
+1. fix https://github.com/JiaxiangBU/anti_fraud_practice/issues/5
+
 ### 2019-04-17 20:44:09
 
 >

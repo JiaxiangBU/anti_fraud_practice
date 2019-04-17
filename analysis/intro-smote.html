@@ -137,6 +137,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="1.6" data-path=""><a href="#cost-model-1"><i class="fa fa-check"></i><b>1.6</b> cost model</a></li>
 </ul></li>
 <li class="chapter" data-level="2" data-path=""><a href="#section-1"><i class="fa fa-check"></i><b>2</b> 相关评论</a></li>
+<li class="chapter" data-level="3" data-path=""><a href="#section-2"><i class="fa fa-check"></i><b>3</b> 和欠采样和过采样的关系</a></li>
+<li class="chapter" data-level="" data-path=""><a href="#section-3"><i class="fa fa-check"></i>参考文献</a></li>
 </ul>
 
       </nav>
@@ -218,11 +220,11 @@ credit_smote &lt;-<span class="st"> </span>smote_output<span class="op">$</span>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(creditcard, <span class="kw">aes</span>(<span class="dt">x =</span> V1, <span class="dt">y =</span> V2, <span class="dt">color =</span> <span class="kw">factor</span>(Class))) <span class="op">+</span>
 <span class="st">    </span><span class="kw">geom_point</span>() <span class="op">+</span>
 <span class="st">    </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> <span class="kw">c</span>(<span class="st">&#39;dodgerblue2&#39;</span>, <span class="st">&#39;red&#39;</span>))</code></pre>
-<p><img src="intro-smote_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p><img src="intro-smote_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(credit_smote, <span class="kw">aes</span>(<span class="dt">x =</span> V1, <span class="dt">y =</span> V2, <span class="dt">color =</span> <span class="kw">factor</span>(Class))) <span class="op">+</span>
 <span class="st">  </span><span class="kw">geom_point</span>() <span class="op">+</span>
 <span class="st">  </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> <span class="kw">c</span>(<span class="st">&#39;dodgerblue2&#39;</span>, <span class="st">&#39;red&#39;</span>))</code></pre>
-<p><img src="intro-smote_files/figure-html/unnamed-chunk-4-2.png" width="672" /></p>
+<p><img src="intro-smote_files/figure-html/unnamed-chunk-5-2.png" width="672" /></p>
 <ol style="list-style-type: decimal">
 <li>你会发现，通过SMOTE算法，以后很多点连成了直线，具体见 <a href="#smoteintro">1.1</a></li>
 </ol>
@@ -551,6 +553,15 @@ newdata=<span class="kw">SMOTE</span>(formula,data,<span class="dt">perc.over=</
 <span class="co">#formula:申明自变量因变量</span>
 <span class="co">#perc.over：过采样次数</span>
 <span class="co">#perc.under：欠采样次数</span></code></pre>
+</div>
+<div id="section-2" class="section level1">
+<h1><span class="header-section-number">3</span> 和欠采样和过采样的关系</h1>
+<p>SMOTE 和
+过采样、欠采样 都是随机抽样</p>
+<p>SMOTE 是随机抽样两个点，再随机一个 <span class="math inline">\(\lambda\)</span> 合成，基础还是随机抽样，因此很好理解。</p>
+</div>
+<div id="section-3" class="section level1 unnumbered">
+<h1>参考文献</h1>
 <div id="refs" class="references">
 <div id="ref-Chawla2002SMOTE">
 <p>Chawla, Nitesh V., Kevin W. Bowyer, Lawrence O. Hall, and W. Philip Kegelmeyer. 2002. “SMOTE: Synthetic Minority over-Sampling Technique.” <em>Journal of Artificial Intelligence Research</em> 16 (1): 321–57.</p>
