@@ -10,6 +10,11 @@ output:
 bibliography: [../add.bib, ../../blog_181126/content/post/add.bib]
 ---
 
+```{r setup, warning = FALSE, message = FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+
 # 理论部分和代码
 
 ```{r,child="smote.Rmd"}

@@ -159,14 +159,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p class="author"><em>李家翔</em></p>
 <p class="date"><em>2019-04-18</em></p>
 </div>
+<pre class="sourceCode r"><code class="sourceCode r">knitr<span class="op">::</span>opts_chunk<span class="op">$</span><span class="kw">set</span>(<span class="dt">warning =</span> <span class="ot">FALSE</span>, <span class="dt">message =</span> <span class="ot">FALSE</span>)</code></pre>
 <div id="section" class="section level1">
 <h1><span class="header-section-number">1</span> 理论部分和代码</h1>
-<p>欺诈用户的样本存在严重的不平衡的问题，因此采样方法较常用。</p>
-<p><span class="citation">Chawla et al. (2002)</span> 提出SMOTE方法，用于解决不平衡样本的问题。</p>
+<p>欺诈用户的样本存在严重的不平衡的问题，因此采样方法较常用。
+<span class="citation">Chawla et al. (2002)</span> 提出SMOTE方法，用于解决不平衡样本的问题。</p>
 <div id="smoteintro" class="section level2">
 <h2><span class="header-section-number">1.1</span> intro</h2>
 <p><img src="../pic/smote_step1.png" /></p>
-<p>如图，红色点表示欺诈用户在两变量上的表现，分别连线。</p>
+<p>如图，红色点表示欺诈用户，图中的位置反映在两特征变量上的表现。</p>
 <p><img src="../pic/smote_step2.png" /></p>
 <p>任意选择一点。</p>
 <p><img src="../pic/synthetic_case_3.png" /></p>
@@ -176,16 +177,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <blockquote>
 <p><code>dup_size</code> parameter answers the question how many times SMOTE should loop through the existing, real fraud cases.</p>
 </blockquote>
-<p>同时参数<code>dup_size</code>给定SMOTE算法需要给每个<code>y=1</code>产生多少个新的样本。</p>
+<ol style="list-style-type: decimal">
+<li>同时参数<code>dup_size</code>给定SMOTE算法需要给每个<code>y=1</code>产生多少个新的样本。这里的<code>y=1</code>是少量样本。</li>
+<li><code>dup_size</code> 不是 <span class="math inline">\(\lambda\)</span>，容易混淆。</li>
+</ol>
 </div>
 <div id="modeling" class="section level2">
 <h2><span class="header-section-number">1.2</span> modeling</h2>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">suppressMessages</span>(<span class="kw">library</span>(tidyverse))</code></pre>
-<pre><code>## Warning: package &#39;tibble&#39; was built under R version 3.5.3</code></pre>
-<pre><code>## Warning: package &#39;dplyr&#39; was built under R version 3.5.3</code></pre>
-<pre><code>## Warning: package &#39;stringr&#39; was built under R version 3.5.3</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(smotefamily)</code></pre>
-<pre><code>## Warning: package &#39;smotefamily&#39; was built under R version 3.5.3</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">suppressMessages</span>(<span class="kw">library</span>(tidyverse))
+<span class="kw">library</span>(smotefamily)</code></pre>
 <blockquote>
 <p>SMOTE can only be applied based on numeric variables since it uses the euclidean distance to determine nearest neighbors.</p>
 </blockquote>
@@ -200,16 +200,8 @@ r0 &lt;-<span class="st"> </span><span class="fl">0.6</span>
 ntimes &lt;-<span class="st"> </span>((<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>r0) <span class="op">/</span><span class="st"> </span>r0) <span class="op">*</span><span class="st"> </span>(n0 <span class="op">/</span><span class="st"> </span>n1) <span class="op">-</span><span class="st"> </span><span class="dv">1</span>
 
 <span class="co"># Create synthetic fraud cases with SMOTE</span>
-<span class="kw">library</span>(data.table)</code></pre>
-<pre><code>## 
-## Attaching package: &#39;data.table&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:dplyr&#39;:
-## 
-##     between, first, last</code></pre>
-<pre><code>## The following object is masked from &#39;package:purrr&#39;:
-## 
-##     transpose</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r">smote_output &lt;-<span class="st"> </span><span class="kw">SMOTE</span>(<span class="dt">X =</span> creditcard <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>Time,Class), <span class="dt">target =</span> creditcard<span class="op">$</span>Class, <span class="dt">K =</span> <span class="dv">5</span>, <span class="dt">dup_size =</span> ntimes)
+<span class="kw">library</span>(data.table)
+smote_output &lt;-<span class="st"> </span><span class="kw">SMOTE</span>(<span class="dt">X =</span> creditcard <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>Time,Class), <span class="dt">target =</span> creditcard<span class="op">$</span>Class, <span class="dt">K =</span> <span class="dv">5</span>, <span class="dt">dup_size =</span> ntimes)
 <span class="co"># remove non-numeric vars</span>
 
 <span class="co"># Make a scatter plot of the original and over-sampled dataset</span>
@@ -256,15 +248,8 @@ train &lt;-<span class="st"> </span>creditcard[train_index,]
 test &lt;-<span class="st"> </span>creditcard[<span class="op">-</span>train_index,]</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(rpart)
 model01 &lt;-<span class="st">  </span><span class="kw">rpart</span>(<span class="kw">factor</span>(Class) <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> train)
-<span class="kw">library</span>(caret)</code></pre>
-<pre><code>## Warning: package &#39;caret&#39; was built under R version 3.5.3</code></pre>
-<pre><code>## Loading required package: lattice</code></pre>
-<pre><code>## 
-## Attaching package: &#39;caret&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:purrr&#39;:
-## 
-##     lift</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r">scores01 &lt;-<span class="st"> </span><span class="kw">predict</span>(model01,<span class="dt">newdata=</span>test,<span class="dt">type =</span> <span class="st">&quot;prob&quot;</span>)[,<span class="dv">2</span>]
+<span class="kw">library</span>(caret)
+scores01 &lt;-<span class="st"> </span><span class="kw">predict</span>(model01,<span class="dt">newdata=</span>test,<span class="dt">type =</span> <span class="st">&quot;prob&quot;</span>)[,<span class="dv">2</span>]
 predicted_class01 &lt;-<span class="st"> </span><span class="kw">ifelse</span>(scores01<span class="op">&gt;</span><span class="fl">0.5</span>,<span class="dv">1</span>,<span class="dv">0</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">factor</span>()
 <span class="kw">confusionMatrix</span>(
     <span class="dt">data =</span> predicted_class01
@@ -297,14 +282,8 @@ predicted_class01 &lt;-<span class="st"> </span><span class="kw">ifelse</span>(s
 ##                                          
 ##        &#39;Positive&#39; Class : 0              
 ## </code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(pROC)</code></pre>
-<pre><code>## Type &#39;citation(&quot;pROC&quot;)&#39; for a citation.</code></pre>
-<pre><code>## 
-## Attaching package: &#39;pROC&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:stats&#39;:
-## 
-##     cov, smooth, var</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">auc</span>(<span class="kw">roc</span>(<span class="dt">response =</span> test<span class="op">$</span>Class, <span class="dt">predictor =</span> scores01))</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(pROC)
+<span class="kw">auc</span>(<span class="kw">roc</span>(<span class="dt">response =</span> test<span class="op">$</span>Class, <span class="dt">predictor =</span> scores01))</code></pre>
 <pre><code>## Area under the curve: 0.919</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(smotefamily) 
 <span class="kw">set.seed</span>(<span class="dv">123</span>)
@@ -418,7 +397,6 @@ predicted_class02 &lt;-<span class="st"> </span><span class="kw">ifelse</span>(s
     ,<span class="dt">amounts =</span> test<span class="op">$</span>Amount
     ,<span class="dt">fixedcost =</span> <span class="dv">10</span>
 )</code></pre>
-<pre><code>## Warning: package &#39;hmeasure&#39; was built under R version 3.5.3</code></pre>
 <pre><code>## [1] 1356.12</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">cost_model</span>(
     <span class="dt">predicted.classes =</span> predicted_class02
