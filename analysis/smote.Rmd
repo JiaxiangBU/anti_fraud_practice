@@ -152,8 +152,9 @@ auc(roc(response = test$Class, predictor = scores02))
 ## cost model
 
 在不平衡样本中，ACC是有误导的，因此引入成本矩阵。
+这是另外一种考虑。一般来说模型需要对比 KS 或者 ACC。但是业务上，损失一个预测错的 y = 1，损失会更大，因此引入成本矩阵是可以从成本角度看模型的好坏。
 
-```{r}
+```{r echo=FALSE}
 here::here('pic','cost_matrix.png') %>% 
     knitr::include_graphics()
 ```
@@ -161,11 +162,7 @@ here::here('pic','cost_matrix.png') %>%
 1. [ ] SMOTE : Synthetic Minority Oversampling TEchnique (Chawla et al., 2002)
 
 
-加入SMOTE 的结构后，模型变得更加复杂了，更好了。
-
 因此成本函数可以定义为
-
-`cost_model` 定义。
 
 $$Cost(\text{model})=\sum_{i=1}^{N}y_i(1-\hat y_i)\text{Amount}_i + \hat y_i C_a$$
 
@@ -174,8 +171,6 @@ $$Cost(\text{model})=\sum_{i=1}^{N}y_i(1-\hat y_i)\text{Amount}_i + \hat y_i C_a
 1. 如图，一共有两种成本
     1. Cost of analyzing the case
     1. 被欺诈损失的本金
-
-ACC 是有误导的。
 
 ```{r}
 cost_model <- function(predicted.classes, true.classes, amounts, fixedcost) {

@@ -220,20 +220,21 @@ credit_smote &lt;-<span class="st"> </span>smote_output<span class="op">$</span>
 <span class="st">  </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> <span class="kw">c</span>(<span class="st">&#39;dodgerblue2&#39;</span>, <span class="st">&#39;red&#39;</span>))</code></pre>
 <p><img src="intro-smote_files/figure-html/unnamed-chunk-5-2.png" width="672" /></p>
 <ol style="list-style-type: decimal">
-<li>你会发现，通过SMOTE算法，以后很多点连成了直线，具体见 <a href="#smoteintro">1.1</a></li>
+<li>你会发现，通过SMOTE算法，以后很多点连成了直线，原因这是算法的机制，具体原因见 <a href="#smoteintro">1.1</a></li>
 </ol>
 <details>
 <p><summary>报错<code>Errorin knearest(P_set, P_set, K) : 找不到对象'knD'</code></summary></p>
 <ol style="list-style-type: decimal">
-<li>函数为<code>smotefamily::SMOTE</code>
-1 <a href="https://blog.csdn.net/scc_hy/article/details/84190080">CSDN博客</a>介绍其他的R中SMOTE的包</li>
+<li>函数为<code>smotefamily::SMOTE</code></li>
+<li><a href="https://blog.csdn.net/scc_hy/article/details/84190080">CSDN博客</a>介绍其他的R中SMOTE的包</li>
 <li>解决办法是<code>install.packages("FNN")</code>
 参考
 <a href="https://stackoverflow.com/questions/40206172/error-in-knearestdarr-p-set-k-object-knd-not-found?answertab=oldest">Stack Overflow</a></li>
 </ol>
 </details>
 <ol style="list-style-type: decimal">
-<li><input type="checkbox" id="checkbox1" class="styled"><code>ntimes &lt;- ((1 - r0) / r0) * (n0 / n1) - 1</code>理解公式</li>
+<li><input type="checkbox" disabled="" />
+<code>ntimes &lt;- ((1 - r0) / r0) * (n0 / n1) - 1</code>理解公式</li>
 </ol>
 </div>
 <div id="split-train-and-test" class="section level2">
@@ -340,50 +341,27 @@ predicted_class02 &lt;-<span class="st"> </span><span class="kw">ifelse</span>(s
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(pROC)
 <span class="kw">auc</span>(<span class="kw">roc</span>(<span class="dt">response =</span> test<span class="op">$</span>Class, <span class="dt">predictor =</span> scores02))</code></pre>
 <pre><code>## Area under the curve: 0.919</code></pre>
-<p>SMOTE 并不是每次都有效果，因此要通过这种方法进行验证。</p>
+<p><strong>SMOTE 并不是每次都有效果，因此要通过这种方法进行验证。</strong></p>
 </div>
 <div id="cost-model" class="section level2">
 <h2><span class="header-section-number">1.4</span> cost model</h2>
-<p>在不平衡样本中，ACC是有误导的，因此引入成本矩阵。</p>
-<pre class="sourceCode r"><code class="sourceCode r">here<span class="op">::</span><span class="kw">here</span>(<span class="st">&#39;pic&#39;</span>,<span class="st">&#39;cost_matrix.png&#39;</span>) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">    </span>knitr<span class="op">::</span><span class="kw">include_graphics</span>()</code></pre>
+<p>在不平衡样本中，ACC是有误导的，因此引入成本矩阵。
+这是另外一种考虑。一般来说模型需要对比 KS 或者 ACC。但是业务上，损失一个预测错的 y = 1，损失会更大，因此引入成本矩阵是可以从成本角度看模型的好坏。</p>
 <p><img src="D:/work/anti_fraud_practice/pic/cost_matrix.png" width="490" /></p>
-<p><input type="checkbox" id="checkbox1" class="styled">SMOTE : Synthetic Minority Oversampling TEchnique (Chawla et al., 2002)</p>
 <ol style="list-style-type: decimal">
-<li>你会发现，通过SMOTE算法，以后很多点连成了直线，具体见 <a href="#smoteintro">1.1</a></li>
+<li><input type="checkbox" disabled="" />
+SMOTE : Synthetic Minority Oversampling TEchnique (Chawla et al., 2002)</li>
 </ol>
-<details>
-<p><summary>报错<code>Errorin knearest(P_set, P_set, K) : 找不到对象'knD'</code></summary></p>
+<p>因此成本函数可以定义为</p>
+<p><span class="math display">\[Cost(\text{model})=\sum_{i=1}^{N}y_i(1-\hat y_i)\text{Amount}_i + \hat y_i C_a\]</span></p>
 <ol style="list-style-type: decimal">
-<li>函数为<code>smotefamily::SMOTE</code>
-1 <a href="https://blog.csdn.net/scc_hy/article/details/84190080">CSDN博客</a>介绍其他的R中SMOTE的包</li>
-<li>解决办法是<code>install.packages("FNN")</code>
-参考
-<a href="https://stackoverflow.com/questions/40206172/error-in-knearestdarr-p-set-k-object-knd-not-found?answertab=oldest">Stack Overflow</a></li>
-</ol>
-</details>
-<ol style="list-style-type: decimal">
-<li><input type="checkbox" id="checkbox1" class="styled"><code>ntimes &lt;- ((1 - r0) / r0) * (n0 / n1) - 1</code>理解公式</li>
-</ol>
-<p>在不平衡样本中，ACC是有误导的，因此引入成本矩阵。</p>
-<pre class="sourceCode r"><code class="sourceCode r">here<span class="op">::</span><span class="kw">here</span>(<span class="st">&#39;pic&#39;</span>,<span class="st">&#39;cost_matrix.png&#39;</span>) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">    </span>knitr<span class="op">::</span><span class="kw">include_graphics</span>()</code></pre>
-<p><img src="D:/work/anti_fraud_practice/pic/cost_matrix.png" width="490" /></p>
-<p>如图，一共有两种成本</p>
-<p><input type="checkbox" id="checkbox1" class="styled">仿照PPT出题</p>
+<li><span class="math inline">\(y_i\)</span>为真实值，且 <span class="math inline">\(\hat y_i\)</span>为预测值</li>
+<li>如图，一共有两种成本
 <ol style="list-style-type: decimal">
 <li>Cost of analyzing the case</li>
 <li>被欺诈损失的本金</li>
+</ol></li>
 </ol>
-<p>加入SMOTE 的结构后，模型变得更加复杂了，更好了。</p>
-<p>因此成本函数可以定义为</p>
-<p><code>cost_model</code> 定义。</p>
-<p><span class="math display">\[Cost(\text{model})=\sum_{i=1}^{N}y_i(1-\hat y_i)\text{Amount}_i + \hat y_i C_a\]</span></p>
-<ol style="list-style-type: decimal">
-<li><span class="math inline">\(y_i\)</span>为真实值</li>
-<li><span class="math inline">\(\hat y_i\)</span>为预测值</li>
-</ol>
-<p>ACC 是有误导的。</p>
 <pre class="sourceCode r"><code class="sourceCode r">cost_model &lt;-<span class="st"> </span><span class="cf">function</span>(predicted.classes, true.classes, amounts, fixedcost) {
   <span class="kw">library</span>(hmeasure)
   predicted.classes &lt;-<span class="st"> </span><span class="kw">relabel</span>(predicted.classes)
@@ -407,6 +385,8 @@ predicted_class02 &lt;-<span class="st"> </span><span class="kw">ifelse</span>(s
 <pre><code>## [1] 1356.12</code></pre>
 <ol style="list-style-type: decimal">
 <li>说明SMOTE 算法无效。</li>
+<li><input type="checkbox" disabled="" />
+找一个更好的数据集，验证 SMOTE 的方法更好。</li>
 </ol>
 </div>
 </div>
