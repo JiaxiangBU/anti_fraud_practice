@@ -32,6 +32,7 @@ bibliography: ../add.bib
 ## modeling
 
 ```{r}
+suppressMessages(library(tidyverse))
 library(smotefamily)
 ```
 
@@ -172,72 +173,6 @@ here::here('pic','cost_matrix.png') %>%
 </details>
 
 1. <input type="checkbox" id="checkbox1" class="styled">`ntimes <- ((1 - r0) / r0) * (n0 / n1) - 1`理解公式
-
-## split train and test
-
-这里用于验证SMOTE方法是否有提高模型效果。
-
-```{r}
-dim(creditcard)
-set.seed(123)
-creditcard <- creditcard %>% mutate(Class = as.factor(Class))
-train_index <- sample(nrow(creditcard),round(0.5*nrow(creditcard)))
-train <- creditcard[train_index,]
-test <- creditcard[-train_index,]
-```
-
-```{r}
-library(rpart)
-model01 <-  rpart(factor(Class) ~ ., data = train)
-library(caret)
-scores01 <- predict(model01,newdata=test,type = "prob")[,2]
-predicted_class01 <- ifelse(scores01>0.5,1,0) %>% factor()
-confusionMatrix(
-    data = predicted_class01
-    ,reference = test$Class
-)
-
-library(pROC)
-auc(roc(response = test$Class, predictor = scores01))
-```
-
-```{r}
-library(smotefamily) 
-set.seed(123)
-smote_result <- SMOTE(X = train %>% select(-Class),target = train$Class,K = 10, dup_size = 50)
-train_oversampled <- 
-    smote_result$data %>% 
-    mutate(Class = class)
-```
-
-```{r}
-prop.table(table(train$Class))
-prop.table(table(train_oversampled$Class))
-```
-
-```{r}
-library(rpart)
-model02<- rpart(Class ~ ., data = train_oversampled)
-```
-
-```{r}
-library(rpart)
-model02 <-  rpart(factor(Class) ~ ., data = train)
-library(caret)
-scores02 <- predict(model02,newdata=test,type = "prob")[,2]
-predicted_class02 <- ifelse(scores02>0.5,1,0) %>% factor()
-confusionMatrix(
-    data = predicted_class02
-    ,reference = test$Class
-)
-
-library(pROC)
-auc(roc(response = test$Class, predictor = scores02))
-```
-
-SMOTE 并不是每次都有效果，因此要通过这种方法进行验证。
-
-## cost model
 
 在不平衡样本中，ACC是有误导的，因此引入成本矩阵。
 

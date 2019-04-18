@@ -25,7 +25,7 @@
 <meta name="author" content="李家翔">
 
 
-<meta name="date" content="2019-04-17">
+<meta name="date" content="2019-04-18">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -133,8 +133,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="1.2" data-path=""><a href="#modeling"><i class="fa fa-check"></i><b>1.2</b> modeling</a></li>
 <li class="chapter" data-level="1.3" data-path=""><a href="#split-train-and-test"><i class="fa fa-check"></i><b>1.3</b> split train and test</a></li>
 <li class="chapter" data-level="1.4" data-path=""><a href="#cost-model"><i class="fa fa-check"></i><b>1.4</b> cost model</a></li>
-<li class="chapter" data-level="1.5" data-path=""><a href="#split-train-and-test-1"><i class="fa fa-check"></i><b>1.5</b> split train and test</a></li>
-<li class="chapter" data-level="1.6" data-path=""><a href="#cost-model-1"><i class="fa fa-check"></i><b>1.6</b> cost model</a></li>
 </ul></li>
 <li class="chapter" data-level="2" data-path=""><a href="#section-1"><i class="fa fa-check"></i><b>2</b> 相关评论</a></li>
 <li class="chapter" data-level="3" data-path=""><a href="#section-2"><i class="fa fa-check"></i><b>3</b> 和欠采样和过采样的关系</a></li>
@@ -159,7 +157,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="header">
 <h1 class="title">SMOTE 学习笔记</h1>
 <p class="author"><em>李家翔</em></p>
-<p class="date"><em>2019-04-17</em></p>
+<p class="date"><em>2019-04-18</em></p>
 </div>
 <div id="section" class="section level1">
 <h1><span class="header-section-number">1</span> 理论部分和代码</h1>
@@ -182,6 +180,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="modeling" class="section level2">
 <h2><span class="header-section-number">1.2</span> modeling</h2>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">suppressMessages</span>(<span class="kw">library</span>(tidyverse))</code></pre>
+<pre><code>## Warning: package &#39;tibble&#39; was built under R version 3.5.3</code></pre>
+<pre><code>## Warning: package &#39;dplyr&#39; was built under R version 3.5.3</code></pre>
+<pre><code>## Warning: package &#39;stringr&#39; was built under R version 3.5.3</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(smotefamily)</code></pre>
 <pre><code>## Warning: package &#39;smotefamily&#39; was built under R version 3.5.3</code></pre>
 <blockquote>
@@ -384,115 +386,6 @@ predicted_class02 &lt;-<span class="st"> </span><span class="kw">ifelse</span>(s
 <ol style="list-style-type: decimal">
 <li><input type="checkbox" id="checkbox1" class="styled"><code>ntimes &lt;- ((1 - r0) / r0) * (n0 / n1) - 1</code>理解公式</li>
 </ol>
-</div>
-<div id="split-train-and-test-1" class="section level2">
-<h2><span class="header-section-number">1.5</span> split train and test</h2>
-<p>这里用于验证SMOTE方法是否有提高模型效果。</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dim</span>(creditcard)</code></pre>
-<pre><code>## [1] 28481    31</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">123</span>)
-creditcard &lt;-<span class="st"> </span>creditcard <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">Class =</span> <span class="kw">as.factor</span>(Class))
-train_index &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="kw">nrow</span>(creditcard),<span class="kw">round</span>(<span class="fl">0.5</span><span class="op">*</span><span class="kw">nrow</span>(creditcard)))
-train &lt;-<span class="st"> </span>creditcard[train_index,]
-test &lt;-<span class="st"> </span>creditcard[<span class="op">-</span>train_index,]</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(rpart)
-model01 &lt;-<span class="st">  </span><span class="kw">rpart</span>(<span class="kw">factor</span>(Class) <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> train)
-<span class="kw">library</span>(caret)
-scores01 &lt;-<span class="st"> </span><span class="kw">predict</span>(model01,<span class="dt">newdata=</span>test,<span class="dt">type =</span> <span class="st">&quot;prob&quot;</span>)[,<span class="dv">2</span>]
-predicted_class01 &lt;-<span class="st"> </span><span class="kw">ifelse</span>(scores01<span class="op">&gt;</span><span class="fl">0.5</span>,<span class="dv">1</span>,<span class="dv">0</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">factor</span>()
-<span class="kw">confusionMatrix</span>(
-    <span class="dt">data =</span> predicted_class01
-    ,<span class="dt">reference =</span> test<span class="op">$</span>Class
-)</code></pre>
-<pre><code>## Confusion Matrix and Statistics
-## 
-##           Reference
-## Prediction     0     1
-##          0 14203     6
-##          1     1    31
-##                                          
-##                Accuracy : 0.9995         
-##                  95% CI : (0.999, 0.9998)
-##     No Information Rate : 0.9974         
-##     P-Value [Acc &gt; NIR] : 1.906e-09      
-##                                          
-##                   Kappa : 0.8983         
-##                                          
-##  Mcnemar&#39;s Test P-Value : 0.1306         
-##                                          
-##             Sensitivity : 0.9999         
-##             Specificity : 0.8378         
-##          Pos Pred Value : 0.9996         
-##          Neg Pred Value : 0.9688         
-##              Prevalence : 0.9974         
-##          Detection Rate : 0.9973         
-##    Detection Prevalence : 0.9978         
-##       Balanced Accuracy : 0.9189         
-##                                          
-##        &#39;Positive&#39; Class : 0              
-## </code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(pROC)
-<span class="kw">auc</span>(<span class="kw">roc</span>(<span class="dt">response =</span> test<span class="op">$</span>Class, <span class="dt">predictor =</span> scores01))</code></pre>
-<pre><code>## Area under the curve: 0.919</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(smotefamily) 
-<span class="kw">set.seed</span>(<span class="dv">123</span>)
-smote_result &lt;-<span class="st"> </span><span class="kw">SMOTE</span>(<span class="dt">X =</span> train <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>Class),<span class="dt">target =</span> train<span class="op">$</span>Class,<span class="dt">K =</span> <span class="dv">10</span>, <span class="dt">dup_size =</span> <span class="dv">50</span>)
-train_oversampled &lt;-<span class="st"> </span>
-<span class="st">    </span>smote_result<span class="op">$</span>data <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">    </span><span class="kw">mutate</span>(<span class="dt">Class =</span> class)</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.table</span>(<span class="kw">table</span>(train<span class="op">$</span>Class))</code></pre>
-<pre><code>## 
-##           0           1 
-## 0.997331461 0.002668539</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">prop.table</span>(<span class="kw">table</span>(train_oversampled<span class="op">$</span>Class))</code></pre>
-<pre><code>## 
-##         0         1 
-## 0.8799257 0.1200743</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(rpart)
-model02&lt;-<span class="st"> </span><span class="kw">rpart</span>(Class <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> train_oversampled)</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(rpart)
-model02 &lt;-<span class="st">  </span><span class="kw">rpart</span>(<span class="kw">factor</span>(Class) <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> train)
-<span class="kw">library</span>(caret)
-scores02 &lt;-<span class="st"> </span><span class="kw">predict</span>(model02,<span class="dt">newdata=</span>test,<span class="dt">type =</span> <span class="st">&quot;prob&quot;</span>)[,<span class="dv">2</span>]
-predicted_class02 &lt;-<span class="st"> </span><span class="kw">ifelse</span>(scores02<span class="op">&gt;</span><span class="fl">0.5</span>,<span class="dv">1</span>,<span class="dv">0</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">factor</span>()
-<span class="kw">confusionMatrix</span>(
-    <span class="dt">data =</span> predicted_class02
-    ,<span class="dt">reference =</span> test<span class="op">$</span>Class
-)</code></pre>
-<pre><code>## Confusion Matrix and Statistics
-## 
-##           Reference
-## Prediction     0     1
-##          0 14203     6
-##          1     1    31
-##                                          
-##                Accuracy : 0.9995         
-##                  95% CI : (0.999, 0.9998)
-##     No Information Rate : 0.9974         
-##     P-Value [Acc &gt; NIR] : 1.906e-09      
-##                                          
-##                   Kappa : 0.8983         
-##                                          
-##  Mcnemar&#39;s Test P-Value : 0.1306         
-##                                          
-##             Sensitivity : 0.9999         
-##             Specificity : 0.8378         
-##          Pos Pred Value : 0.9996         
-##          Neg Pred Value : 0.9688         
-##              Prevalence : 0.9974         
-##          Detection Rate : 0.9973         
-##    Detection Prevalence : 0.9978         
-##       Balanced Accuracy : 0.9189         
-##                                          
-##        &#39;Positive&#39; Class : 0              
-## </code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(pROC)
-<span class="kw">auc</span>(<span class="kw">roc</span>(<span class="dt">response =</span> test<span class="op">$</span>Class, <span class="dt">predictor =</span> scores02))</code></pre>
-<pre><code>## Area under the curve: 0.919</code></pre>
-<p>SMOTE 并不是每次都有效果，因此要通过这种方法进行验证。</p>
-</div>
-<div id="cost-model-1" class="section level2">
-<h2><span class="header-section-number">1.6</span> cost model</h2>
 <p>在不平衡样本中，ACC是有误导的，因此引入成本矩阵。</p>
 <pre class="sourceCode r"><code class="sourceCode r">here<span class="op">::</span><span class="kw">here</span>(<span class="st">&#39;pic&#39;</span>,<span class="st">&#39;cost_matrix.png&#39;</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">    </span>knitr<span class="op">::</span><span class="kw">include_graphics</span>()</code></pre>
