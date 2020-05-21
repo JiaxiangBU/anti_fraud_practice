@@ -17,3 +17,4 @@ knitr::opts_chunk$set(
 1. 网络分析
 1. benfold 分析，前三参考 [学习笔记](datacamp.md)
 1. 使用 autoencoders 探查异常值，参考[jiaxiangbu](https://jiaxiangbu.github.io/learn_nn/keras_r/fraud_detection_wautoencoders.html)
+1. [模型笔记](https://jiaxiangbu.github.io/fraud-detection-in-python/learning_notes.html)
